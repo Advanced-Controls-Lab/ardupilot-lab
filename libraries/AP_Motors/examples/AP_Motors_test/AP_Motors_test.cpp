@@ -22,7 +22,7 @@ void stability_test();
 void update_motors();
 
 #define HELI_TEST       0   // set to 1 to test helicopters
-#define NUM_OUTPUTS     4   // set to 6 for hexacopter, 8 for octacopter and heli
+#define NUM_OUTPUTS     8   // set to 6 for hexacopter, 8 for octacopter and heli
 
 SRV_Channels srvs;
 
@@ -136,11 +136,11 @@ void stability_test()
                     avg_out = ((hal.rcout->read(0) + hal.rcout->read(1) + hal.rcout->read(2) + hal.rcout->read(3))/4);
                     // display input and output
 #if NUM_OUTPUTS <= 4
-                    hal.console->printf("%d,%d,%d,%3.1f,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n",                // quad
+                    hal.console->printf("%d,%d,%d,%3.1f,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n")                // quad
 #elif NUM_OUTPUTS <= 6
-                    hal.console->printf("%d,%d,%d,%3.1f,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n",          // hexa
+                    hal.console->printf("%d,%d,%d,%3.1f,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n")        // hexa
 #else
-                    hal.console->printf("%d,%d,%d,%3.1f,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n",    // octa
+                    hal.console->printf("%d,%d,%d,%3.1f,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n")   // octa
 #endif
                             (int)roll_in,
                             (int)pitch_in,

@@ -6,6 +6,9 @@
 #include <RC_Channel/RC_Channel.h>
 #include "AP_MotorsMatrix.h"
 
+#define MIN_TILT_SERVO_ANGLE 0;  
+#define MAX_TILT_SERVO_ANGLE  90; 
+
 class AP_MotorsMatrix_6DoF_Scripting : public AP_MotorsMatrix {
 public:
 
@@ -58,7 +61,7 @@ protected:
     // Current offset angles, radians
     float _roll_offset;
     float _pitch_offset;
-
+    virtual void _output_test_seq(uint8_t motor_seq, int16_t pwm) override;
 private:
     static AP_MotorsMatrix_6DoF_Scripting *_singleton;
 
