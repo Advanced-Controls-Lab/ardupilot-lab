@@ -14,73 +14,74 @@
  */
 
 /*
- *       AP_Motors6DOF.cpp - ArduSub motors library
+ *       AP_MotorsOveractuated.cpp - ArduSub motors library
  */
 
 #include <AP_BattMonitor/AP_BattMonitor.h>
 #include <AP_HAL/AP_HAL.h>
-#include "AP_Motors6DOF.h"
+#include <AP_Math/AP_Math.h>
+#include "AP_MotorsOveractuated.h"
 
 extern const AP_HAL::HAL& hal;
 
 // parameters for the motor class
-const AP_Param::GroupInfo AP_Motors6DOF::var_info[] = {
+const AP_Param::GroupInfo AP_MotorsOveractuated::var_info[] = {
     AP_NESTEDGROUPINFO(AP_MotorsMulticopter, 0),
     // @Param: 1_DIRECTION
     // @DisplayName: Motor normal or reverse
     // @Description: Used to change motor rotation directions without changing wires
     // @Values: 1:normal,-1:reverse
     // @User: Standard
-    AP_GROUPINFO("1_DIRECTION", 1, AP_Motors6DOF, _motor_reverse[0], 1),
+    AP_GROUPINFO("1_DIRECTION", 1, AP_MotorsOveractuated, _motor_reverse[0], 1),
 
     // @Param: 2_DIRECTION
     // @DisplayName: Motor normal or reverse
     // @Description: Used to change motor rotation directions without changing wires
     // @Values: 1:normal,-1:reverse
     // @User: Standard
-    AP_GROUPINFO("2_DIRECTION", 2, AP_Motors6DOF, _motor_reverse[1], 1),
+    AP_GROUPINFO("2_DIRECTION", 2, AP_MotorsOveractuated, _motor_reverse[1], 1),
 
     // @Param: 3_DIRECTION
     // @DisplayName: Motor normal or reverse
     // @Description: Used to change motor rotation directions without changing wires
     // @Values: 1:normal,-1:reverse
     // @User: Standard
-    AP_GROUPINFO("3_DIRECTION", 3, AP_Motors6DOF, _motor_reverse[2], 1),
+    AP_GROUPINFO("3_DIRECTION", 3, AP_MotorsOveractuated, _motor_reverse[2], 1),
 
     // @Param: 4_DIRECTION
     // @DisplayName: Motor normal or reverse
     // @Description: Used to change motor rotation directions without changing wires
     // @Values: 1:normal,-1:reverse
     // @User: Standard
-    AP_GROUPINFO("4_DIRECTION", 4, AP_Motors6DOF, _motor_reverse[3], 1),
+    AP_GROUPINFO("4_DIRECTION", 4, AP_MotorsOveractuated, _motor_reverse[3], 1),
 
     // @Param: 5_DIRECTION
     // @DisplayName: Motor normal or reverse
     // @Description: Used to change motor rotation directions without changing wires
     // @Values: 1:normal,-1:reverse
     // @User: Standard
-    AP_GROUPINFO("5_DIRECTION", 5, AP_Motors6DOF, _motor_reverse[4], 1),
+    AP_GROUPINFO("5_DIRECTION", 5, AP_MotorsOveractuated, _motor_reverse[4], 1),
 
     // @Param: 6_DIRECTION
     // @DisplayName: Motor normal or reverse
     // @Description: Used to change motor rotation directions without changing wires
     // @Values: 1:normal,-1:reverse
     // @User: Standard
-    AP_GROUPINFO("6_DIRECTION", 6, AP_Motors6DOF, _motor_reverse[5], 1),
+    AP_GROUPINFO("6_DIRECTION", 6, AP_MotorsOveractuated, _motor_reverse[5], 1),
 
     // @Param: 7_DIRECTION
     // @DisplayName: Motor normal or reverse
     // @Description: Used to change motor rotation directions without changing wires
     // @Values: 1:normal,-1:reverse
     // @User: Standard
-    AP_GROUPINFO("7_DIRECTION", 7, AP_Motors6DOF, _motor_reverse[6], 1),
+    AP_GROUPINFO("7_DIRECTION", 7, AP_MotorsOveractuated, _motor_reverse[6], 1),
 
     // @Param: 8_DIRECTION
     // @DisplayName: Motor normal or reverse
     // @Description: Used to change motor rotation directions without changing wires
     // @Values: 1:normal,-1:reverse
     // @User: Standard
-    AP_GROUPINFO("8_DIRECTION", 8, AP_Motors6DOF, _motor_reverse[7], 1),
+    AP_GROUPINFO("8_DIRECTION", 8, AP_MotorsOveractuated, _motor_reverse[7], 1),
 
     // @Param: FV_CPLNG_K
     // @DisplayName: Forward/vertical to pitch decoupling factor
@@ -88,41 +89,40 @@ const AP_Param::GroupInfo AP_Motors6DOF::var_info[] = {
     // @Range: 0.0 1.5
     // @Increment: 0.1
     // @User: Standard
-    AP_GROUPINFO("FV_CPLNG_K", 9, AP_Motors6DOF, _forwardVerticalCouplingFactor, 1.0),
+    AP_GROUPINFO("FV_CPLNG_K", 9, AP_MotorsOveractuated, _forwardVerticalCouplingFactor, 1.0),
 
     // @Param: 9_DIRECTION
     // @DisplayName: Motor normal or reverse
     // @Description: Used to change motor rotation directions without changing wires
     // @Values: 1:normal,-1:reverse
     // @User: Standard
-    AP_GROUPINFO("9_DIRECTION", 10, AP_Motors6DOF, _motor_reverse[8], 1),
+    AP_GROUPINFO("9_DIRECTION", 10, AP_MotorsOveractuated, _motor_reverse[8], 1),
 
     // @Param: 10_DIRECTION
     // @DisplayName: Motor normal or reverse
     // @Description: Used to change motor rotation directions without changing wires
     // @Values: 1:normal,-1:reverse
     // @User: Standard
-    AP_GROUPINFO("10_DIRECTION", 11, AP_Motors6DOF, _motor_reverse[9], 1),
+    AP_GROUPINFO("10_DIRECTION", 11, AP_MotorsOveractuated, _motor_reverse[9], 1),
 
     // @Param: 11_DIRECTION
     // @DisplayName: Motor normal or reverse
     // @Description: Used to change motor rotation directions without changing wires
     // @Values: 1:normal,-1:reverse
     // @User: Standard
-    AP_GROUPINFO("11_DIRECTION", 12, AP_Motors6DOF, _motor_reverse[10], 1),
+    AP_GROUPINFO("11_DIRECTION", 12, AP_MotorsOveractuated, _motor_reverse[10], 1),
 
     // @Param: 12_DIRECTION
     // @DisplayName: Motor normal or reverse
     // @Description: Used to change motor rotation directions without changing wires
     // @Values: 1:normal,-1:reverse
     // @User: Standard
-    AP_GROUPINFO("12_DIRECTION", 13, AP_Motors6DOF, _motor_reverse[11], 1),
+    AP_GROUPINFO("12_DIRECTION", 13, AP_MotorsOveractuated, _motor_reverse[11], 1),
 
     AP_GROUPEND
 };
 
-
-void AP_Motors6DOF::setup_motors(motor_frame_class frame_class, motor_frame_type frame_type)
+void AP_MotorsOveractuated::setup_motors(motor_frame_class frame_class, motor_frame_type frame_type)
 {
     // remove existing motors
     for (int8_t i=0; i<AP_MOTORS_MAX_NUM_MOTORS; i++) {
@@ -181,11 +181,10 @@ void AP_Motors6DOF::setup_motors(motor_frame_class frame_class, motor_frame_type
         //break;
         _frame_class_string = "OVERACTUATED"
         add_motor_raw_6dof(AP_MOTORS_MOT_1,     0,              0,              0.71f,            1.0f,             0f,                0               1);
-        add_motor_raw_6dof(AP_MOTORS_MOT_2,     0,              0,              -0.71f,           1.0f,             0f,                0               2);
-        add_motor_raw_6dof(AP_MOTORS_MOT_3,     0,              0,              0.71f,            1.0f,             0f,                0               3);
-        add_motor_raw_6dof(AP_MOTORS_MOT_4,     0,              0,              -0.71f,           1.0f,             0f,                0               4);   
-
-        add_motor_raw
+        add_motor_raw_6dof(AP_MOTORS_MOT_1,     0,              0,              -0.71f,           1.0f,             0f,                0               2);
+        add_motor_raw_6dof(AP_MOTORS_MOT_1,     0,              0,              0.71f,            1.0f,             0f,                0               3);
+        add_motor_raw_6dof(AP_MOTORS_MOT_1,     0,              0,              -0.71f,           1.0f,             0f,                0               4);   
+    
     case SUB_FRAME_SIMPLEROV_3:
         _frame_class_string = "SIMPLEROV_3";
         add_motor_raw_6dof(AP_MOTORS_MOT_1,     0,              0,              -1.0f,          0,                  1.0f,               0,              1);
@@ -196,16 +195,15 @@ void AP_Motors6DOF::setup_motors(motor_frame_class frame_class, motor_frame_type
     case SUB_FRAME_SIMPLEROV_5:
     default:
         _frame_class_string = "DEFAULT";
-        add_motor_raw_6dof(AP_MOTORS_MOT_1,     0,              0,              -1.0f,          0,                  1.0f,               0,              1);
-        add_motor_raw_6dof(AP_MOTORS_MOT_2,     0,              0,              1.0f,           0,                  1.0f,               0,              2);
-        add_motor_raw_6dof(AP_MOTORS_MOT_3,     1.0f,           0,              0,              -1.0f,              0,                  0,              3);
-        add_motor_raw_6dof(AP_MOTORS_MOT_4,     -1.0f,          0,              0,              -1.0f,              0,                  0,              4);
-        add_motor_raw_6dof(AP_MOTORS_MOT_5,     0,              0,              0,              0,                  0,                  1.0f,           5);
+        add_motor_raw_6dof(AP_MOTORS_MOT_1,     0,              0,              0.71f,             1.0f,               0f,                 0               1);
+        add_motor_raw_6dof(AP_MOTORS_MOT_1,     0,              0,              -0.71f,            1.0f,               0f,                 0               2);
+        add_motor_raw_6dof(AP_MOTORS_MOT_1,     0,              0,              0.71f,             1.0f,               0f,                 0               3);
+        add_motor_raw_6dof(AP_MOTORS_MOT_1,     0,              0,              -0.71f,            1.0f,               0f,                 0               4);   
         break;
     }
 }
 
-void AP_Motors6DOF::add_motor_raw_6dof(int8_t motor_num, float roll_fac, float pitch_fac, float yaw_fac, float throttle_fac, float forward_fac, float lat_fac, uint8_t testing_order)
+void AP_MotorsOveractuated::add_motor_raw_6dof(int8_t motor_num, float roll_fac, float pitch_fac, float yaw_fac, float throttle_fac, float forward_fac, float lat_fac, uint8_t testing_order)
 {
     //Parent takes care of enabling output and setting up masks
     add_motor_raw(motor_num, roll_fac, pitch_fac, yaw_fac, testing_order);
@@ -217,7 +215,7 @@ void AP_Motors6DOF::add_motor_raw_6dof(int8_t motor_num, float roll_fac, float p
 }
 
 // output_min - sends minimum values out to the motors
-void AP_Motors6DOF::output_min()
+void AP_MotorsOveractuated::output_min()
 {
     int8_t i;
 
@@ -237,12 +235,12 @@ void AP_Motors6DOF::output_min()
     }
 }
 
-int16_t AP_Motors6DOF::calc_thrust_to_pwm(float thrust_in) const
+int16_t AP_MotorsOveractuated::calc_thrust_to_pwm(float thrust_in) const
 {
     return constrain_int16(1500 + thrust_in * 400, get_pwm_output_min(), get_pwm_output_max());
 }
 
-void AP_Motors6DOF::output_to_motors()
+void AP_MotorsOveractuated::output_to_motors()
 {
     int8_t i;
     int16_t motor_out[AP_MOTORS_MAX_NUM_MOTORS];    // final pwm values sent to the motor
@@ -285,7 +283,7 @@ void AP_Motors6DOF::output_to_motors()
     }
 }
 
-float AP_Motors6DOF::get_current_limit_max_throttle()
+float AP_MotorsOveractuated::get_current_limit_max_throttle()
 {
     return 1.0f;
 }
@@ -294,7 +292,7 @@ float AP_Motors6DOF::get_current_limit_max_throttle()
 // includes new scaling stability patch
 // TODO pull code that is common to output_armed_not_stabilizing into helper functions
 // ToDo calculate headroom for rpy to be added for stabilization during full throttle/forward/lateral commands
-void AP_Motors6DOF::output_armed_stabilizing()
+void AP_MotorsOveractuated::output_armed_stabilizing()
 {
     if ((sub_frame_t)_active_frame_class == SUB_FRAME_VECTORED) {
         output_armed_stabilizing_vectored();
@@ -318,7 +316,8 @@ void AP_Motors6DOF::output_armed_stabilizing()
 
         float rpy_out[AP_MOTORS_MAX_NUM_MOTORS]; // buffer so we don't have to multiply coefficients multiple times.
         float linear_out[AP_MOTORS_MAX_NUM_MOTORS]; // 3 linear DOF mix for each motor
-
+        float servo_out[8]; 
+        
         // initialize limits flags
         limit.roll = false;
         limit.pitch = false;
@@ -342,7 +341,13 @@ void AP_Motors6DOF::output_armed_stabilizing()
                 rpy_out[i] = roll_thrust * _roll_factor[i] +
                              pitch_thrust * _pitch_factor[i] +
                              yaw_thrust * _yaw_factor[i];
-
+                if (roll_thrust > 0){ 
+                    if(i == 1){ 
+                        servo_out[(2*i)] = asin(roll_thrust/norm(roll_thrust, pitch_thrust, yaw_thrust));     
+                    }
+                    
+                    
+                }
             }
         }
 
@@ -353,6 +358,8 @@ void AP_Motors6DOF::output_armed_stabilizing()
                 linear_out[i] = throttle_thrust * _throttle_factor[i] +
                                 forward_thrust * _forward_factor[i] +
                                 lateral_thrust * _lateral_factor[i];
+                servo_out[(2 * i)] =  asin((forward_thrust)/norm(throttle_trust, forward_thrust, lateral_thrust))
+                servo_out[(2*i)+1] =  asin((lateral_thrust)/norm(throttle_trust, forward_thrust, lateral_trust))
             }
         }
 
@@ -405,7 +412,7 @@ void AP_Motors6DOF::output_armed_stabilizing()
 // includes new scaling stability patch
 // TODO pull code that is common to output_armed_not_stabilizing into helper functions
 // ToDo calculate headroom for rpy to be added for stabilization during full throttle/forward/lateral commands
-void AP_Motors6DOF::output_armed_stabilizing_vectored()
+void AP_MotorsOveractuated::output_armed_stabilizing_vectored()
 {
     uint8_t i;                          // general purpose counter
     float   roll_thrust;                // roll thrust input value, +/- 1.0
@@ -477,6 +484,7 @@ void AP_Motors6DOF::output_armed_stabilizing_vectored()
             linear_out[i] = throttle_thrust * _throttle_factor[i] +
                             forward_thrust_limited * _forward_factor[i] +
                             lateral_thrust * _lateral_factor[i];
+            servo_out[2*i] = math.
         }
     }
 
@@ -490,7 +498,7 @@ void AP_Motors6DOF::output_armed_stabilizing_vectored()
 
 // Band Aid fix for motor normalization issues.
 // TODO: find a global solution for managing saturation that works for all vehicles
-void AP_Motors6DOF::output_armed_stabilizing_vectored_6dof()
+void AP_MotorsOveractuated::output_armed_stabilizing_vectored_6dof()
 {
     uint8_t i;                          // general purpose counter
     float   roll_thrust;                // roll thrust input value, +/- 1.0
@@ -565,21 +573,21 @@ void AP_Motors6DOF::output_armed_stabilizing_vectored_6dof()
     }
 }
 
-Vector3f AP_Motors6DOF::get_motor_angular_factors(int motor_number) {
+Vector3f AP_MotorsOveractuated::get_motor_angular_factors(int motor_number) {
      if (motor_number < 0 || motor_number >= AP_MOTORS_MAX_NUM_MOTORS) {
         return Vector3f(0,0,0);
     }
     return Vector3f(_roll_factor[motor_number], _pitch_factor[motor_number], _yaw_factor[motor_number]);
 }
 
-bool AP_Motors6DOF::motor_is_enabled(int motor_number) {
+bool AP_MotorsOveractuated::motor_is_enabled(int motor_number) {
     if (motor_number < 0 || motor_number >= AP_MOTORS_MAX_NUM_MOTORS) {
         return false;
     }
     return motor_enabled[motor_number];
 }
 
-bool AP_Motors6DOF::set_reversed(int motor_number, bool reversed) {
+bool AP_MotorsOveractuated::set_reversed(int motor_number, bool reversed) {
     if (motor_number < 0 || motor_number >= AP_MOTORS_MAX_NUM_MOTORS) {
         return false;
     }

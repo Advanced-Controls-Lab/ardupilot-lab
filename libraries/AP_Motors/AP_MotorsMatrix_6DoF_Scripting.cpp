@@ -320,6 +320,67 @@ bool AP_MotorsMatrix_6DoF_Scripting::init(uint8_t expected_num_motors) {
     return true;
 }
 
+bool AP_MotorsMatrix_6DoF_Scripting:: init(){ 
+    _mav_type = MAV_TYPE_GENERIC;  
+    add_motor(AP_MOTORS_MOT_1,     0,              0,              0.71f,            1.0f,             0f,                0,               1, False,1); 
+    add_motor(AP_MOTORS_MOT_2,     0,              0,              -0.71f,           1.0f,             0f,                0,               2, False,1); 
+    add_motor(AP_MOTORS_MOT_3,     0,              0,              0.71f,            1.0f,             0f,                0,               3, False,1); 
+    add_motor(AP_MOTORS_MOT_4,     0,              0,              -0.71f,           1.0f,             0f,                0,               4, False,1); 
+
+    // tilt servos setup 
+    int16_t max_servo_angle = MAX_TILT_SERVO_ANGLE; 
+    add_motor(AP_MOTORS_MOT_5, 0,0,0,0,0,0,False, 5); 
+    SRV_Channels::set_angle(SRV_Channels::get_motor_function(AP_MOTORS_MOT_5), max_servo_angle*100);
+    add_motor(AP_MOTORS_MOT_6, 0,0,0,0,0,0,False, 6); 
+    SRV_Channels::set_angle(SRV_Channels::get_motor_function(AP_MOTORS_MOT_6), max_servo_angle*100);
+    add_motor(AP_MOTORS_MOT_7, 0,0,0,0,0,0,False, 7); 
+    SRV_Channels::set_angle(SRV_Channels::get_motor_function(AP_MOTORS_MOT_7), max_servo_angle*100);
+    add_motor(AP_MOTORS_MOT_8, 0,0,0,0,0,0,False, 8); 
+    SRV_Channels::set_angle(SRV_Channels::get_motor_function(AP_MOTORS_MOT_8), max_servo_angle*100);
+    add_motor(AP_MOTORS_MOT_9, 0,0,0,0,0,0,False, 9); 
+    SRV_Channels::set_angle(SRV_Channels::get_motor_function(AP_MOTORS_MOT_9), max_servo_angle*100);
+    add_motor(AP_MOTORS_MOT_10, 0,0,0,0,0,0,False, 10); 
+    SRV_Channels::set_angle(SRV_Channels::get_motor_function(AP_MOTORS_MOT_10), max_servo_angle*100);
+    add_motor(AP_MOTORS_MOT_11, 0,0,0,0,0,0,False, 11); 
+    SRV_Channels::set_angle(SRV_Channels::get_motor_function(AP_MOTORS_MOT_11), max_servo_angle*100);
+    add_motor(AP_MOTORS_MOT_12, 0,0,0,0,0,0,False, 12); 
+    SRV_Channels::set_angle(SRV_Channels::get_motor_function(AP_MOTORS_MOT_12), max_servo_angle*100);
+    
+    return true; 
+
+}
+
+//output_test_seq function for our overactuated class 
+void AP_MotorMatrix_6DoF_Scripting::output_test_seq(uint8_t motor_seq, int16_t pwm){ 
+    
+    switch(motor_seq){ 
+        case 1: 
+        rc_write(AP_MOTORS_MOT1, pwm); 
+        case 2: 
+        rc_write(AP_MOTORS_MOT2, pwm); 
+        case 3: 
+        rc_write(AP_MOTORS_MOT3, pwm); 
+        case 4: 
+        rc_write(AP_MOTORS_MOT4, pwm); 
+        case 5: 
+        rc_write(AP_MOTORS_MOT5, pwm); 
+        case 6: 
+        rc_write(AP_MOTORS_MOT6, pwm); 
+        case 7: 
+        rc_write(AP_MOTORS_MOT7, pwm); 
+        case 8: 
+        rc_write(AP_MOTORS_MOT8, pwm); 
+        case 9: 
+        rc_write(AP_MOTORS_MOT9, pwm); 
+        case 10: 
+        rc_write(AP_MOTORS_MOT10, pwm); 
+        case 11: 
+        rc_write(AP_MOTORS_MOT11, pwm); 
+        case 12: 
+        rc_write(AP_MOTORS_MOT12, pwm); 
+    }
+}
+
 // singleton instance
 AP_MotorsMatrix_6DoF_Scripting *AP_MotorsMatrix_6DoF_Scripting::_singleton;
 
