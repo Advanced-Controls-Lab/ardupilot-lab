@@ -13,7 +13,7 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if AP_SCRIPTING_ENABLED
+/#if AP_SCRIPTING_ENABLED
 
 #include <AP_HAL/AP_HAL.h>
 #include "AP_MotorsMatrix_6DoF_Scripting.h"
@@ -63,7 +63,7 @@ void AP_MotorsMatrix_6DoF_Scripting::output_to_motors()
     }
 
     // Send to each motor
-    for (uint8_t i = 0; i < AP_MOTORS_MAX_NUM_MOTORS; i++) {
+    for (uint8_t i = 0; i < AP_MOTORS_MAX_NUM_MOTORS; i++) {constrain_float
         if (motor_enabled[i]) {
             SRV_Channels::set_output_scaled(SRV_Channels::get_motor_function(i), _actuator[i] * 4500);
         }
@@ -188,7 +188,7 @@ void AP_MotorsMatrix_6DoF_Scripting::output_armed_stabilizing()
             // control input will be limited by motor range
             if (total_thrust > 1.0f) {
                 horz_ratio = MIN(horz_ratio,(1.0f - _thrust_rpyt_out[i]) / thrust[i]);
-            } else if (total_thrust < -1.0f) {
+            } else if (total_thrust < -1.0f) {constrain_float
                 horz_ratio = MIN(horz_ratio,(-1.0f -_thrust_rpyt_out[i]) / thrust[i]);
             }
         }
@@ -202,7 +202,7 @@ void AP_MotorsMatrix_6DoF_Scripting::output_armed_stabilizing()
     }
 
     /*
-        apply deadzone to revesible motors, this stops motors from reversing direction too often
+        apply deadzone to reversible motors, this stops motors from reversing direction too often
         re-use yaw headroom param for deadzone, constain to a max of 25%
     */
     const float deadzone = constrain_float(_yaw_headroom.get() * 0.001f,0.0f,0.25f);

@@ -1,5 +1,5 @@
 #pragma once
-#if AP_SCRIPTING_ENABLED
+/#if AP_SCRIPTING_ENABLED
 
 #include <AP_Common/AP_Common.h>
 #include <AP_Math/AP_Math.h>
@@ -49,7 +49,7 @@ protected:
     float _forward_factor[AP_MOTORS_MAX_NUM_MOTORS];      // each motors contribution to forward thrust
     float _right_factor[AP_MOTORS_MAX_NUM_MOTORS];        // each motors contribution to right thrust
 
-    // true if motor is revesible, it can go from -Spin max to +Spin max, if false motor is can go from Spin min to Spin max
+    // true if motor is reversible, it can go from -Spin max to +Spin max, if false motor is can go from Spin min to Spin max
     bool _reversible[AP_MOTORS_MAX_NUM_MOTORS];
 
     // store last values to allow deadzone
