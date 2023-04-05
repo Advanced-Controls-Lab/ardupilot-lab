@@ -14,7 +14,6 @@ static uint8_t motor_test_seq;              // motor sequence number of motor be
 static uint8_t motor_test_count;            // number of motors to test
 static uint8_t motor_test_throttle_type;    // motor throttle type (0=throttle percentage, 1=PWM, 2=pilot throttle channel pass-through)
 static float motor_test_throttle_value;  // throttle to be sent to motor, value depends upon it's type 
-static int16_t servo_angle = 90; 
 
 // motor_test_output - checks for timeout and sends updates to motors objects
 
@@ -86,7 +85,7 @@ void Copter::motor_test_output()
         // sanity check throttle values
         if (pwm >= RC_Channel::RC_MIN_LIMIT_PWM && pwm <= RC_Channel::RC_MAX_LIMIT_PWM) {
             // turn on motor to specified pwm value
-            motors->motor_test_seq(motor_test_seq, pwm);
+            motors->output_test_seq(motor_test_seq, pwm);
         } else {
             motor_test_stop();
         }
