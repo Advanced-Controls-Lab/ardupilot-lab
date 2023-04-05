@@ -11,9 +11,9 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+*/
 
-/#if AP_SCRIPTING_ENABLED
+#if AP_SCRIPTING_ENABLED
 
 #include <AP_HAL/AP_HAL.h>
 #include "AP_MotorsMatrix_6DoF_Scripting.h"
@@ -63,7 +63,7 @@ void AP_MotorsMatrix_6DoF_Scripting::output_to_motors()
     }
 
     // Send to each motor
-    for (uint8_t i = 0; i < AP_MOTORS_MAX_NUM_MOTORS; i++) {constrain_float
+    for (uint8_t i = 0; i < AP_MOTORS_MAX_NUM_MOTORS; i++) {
         if (motor_enabled[i]) {
             SRV_Channels::set_output_scaled(SRV_Channels::get_motor_function(i), _actuator[i] * 4500);
         }
@@ -188,7 +188,7 @@ void AP_MotorsMatrix_6DoF_Scripting::output_armed_stabilizing()
             // control input will be limited by motor range
             if (total_thrust > 1.0f) {
                 horz_ratio = MIN(horz_ratio,(1.0f - _thrust_rpyt_out[i]) / thrust[i]);
-            } else if (total_thrust < -1.0f) {constrain_float
+            } else if (total_thrust < -1.0f) {
                 horz_ratio = MIN(horz_ratio,(-1.0f -_thrust_rpyt_out[i]) / thrust[i]);
             }
         }
@@ -279,71 +279,31 @@ void AP_MotorsMatrix_6DoF_Scripting::add_motor(int8_t motor_num, float roll_fact
     }
 }
 
-bool AP_MotorsMatrix_6DoF_Scripting::init(uint8_t expected_num_motors) {
-    uint8_t num_motors = 0;
-    for (uint8_t i = 0; i < AP_MOTORS_MAX_NUM_MOTORS; i++) {
-        if (motor_enabled[i]) {
-            num_motors++;
-        }
-    }
 
-    set_initialised_ok(expected_num_motors == num_motors);
-
-    if (!initialised_ok()) {
-        _mav_type = MAV_TYPE_GENERIC;
-        return false;
-    }
-
-    switch (num_motors) {
-        case 3:
-            _mav_type = MAV_TYPE_TRICOPTER;
-            break;
-        case 4:
-            _mav_type = MAV_TYPE_QUADROTOR;
-            break;
-        case 6:
-            _mav_type = MAV_TYPE_HEXAROTOR;
-            break;
-        case 8:
-            _mav_type = MAV_TYPE_OCTOROTOR;
-            break;
-        case 10:
-            _mav_type = MAV_TYPE_DECAROTOR;
-            break;
-        case 12:
-            _mav_type = MAV_TYPE_DODECAROTOR;
-            break;
-        default:
-            _mav_type = MAV_TYPE_GENERIC;
-    }
-
-    return true;
-}
-
-bool AP_MotorsMatrix_6DoF_Scripting:: init(){ 
+bool AP_MotorsMatrix_6DoF_Scripting:: init(uint8_t expected_num_motors){ 
     _mav_type = MAV_TYPE_GENERIC;  
-    add_motor(AP_MOTORS_MOT_1,     0,              0,              0.71f,            1.0f,             0f,                0,               1, False,1); 
-    add_motor(AP_MOTORS_MOT_2,     0,              0,              -0.71f,           1.0f,             0f,                0,               2, False,1); 
-    add_motor(AP_MOTORS_MOT_3,     0,              0,              0.71f,            1.0f,             0f,                0,               3, False,1); 
-    add_motor(AP_MOTORS_MOT_4,     0,              0,              -0.71f,           1.0f,             0f,                0,               4, False,1); 
+    add_motor(AP_MOTORS_MOT_1,     0,              0,              0.71f,            1.0f,             0,                0,               false,1); 
+    add_motor(AP_MOTORS_MOT_2,     0,              0,              -0.71f,           1.0f,             0,                0,               false,2); 
+    add_motor(AP_MOTORS_MOT_3,     0,              0,              0.71f,            1.0f,             0,                0,                false,3); 
+    add_motor(AP_MOTORS_MOT_4,     0,              0,              -0.71f,           1.0f,             0,                0,                false,4); 
 
     // tilt servos setup 
     int16_t max_servo_angle = MAX_TILT_SERVO_ANGLE; 
-    add_motor(AP_MOTORS_MOT_5, 0,0,0,0,0,0,False, 5); 
+    add_motor(AP_MOTORS_MOT_5, 0,0,0,0,0,0,false, 5); 
     SRV_Channels::set_angle(SRV_Channels::get_motor_function(AP_MOTORS_MOT_5), max_servo_angle*100);
-    add_motor(AP_MOTORS_MOT_6, 0,0,0,0,0,0,False, 6); 
+    add_motor(AP_MOTORS_MOT_6, 0,0,0,0,0,0,false, 6); 
     SRV_Channels::set_angle(SRV_Channels::get_motor_function(AP_MOTORS_MOT_6), max_servo_angle*100);
-    add_motor(AP_MOTORS_MOT_7, 0,0,0,0,0,0,False, 7); 
+    add_motor(AP_MOTORS_MOT_7, 0,0,0,0,0,0,false, 7); 
     SRV_Channels::set_angle(SRV_Channels::get_motor_function(AP_MOTORS_MOT_7), max_servo_angle*100);
-    add_motor(AP_MOTORS_MOT_8, 0,0,0,0,0,0,False, 8); 
+    add_motor(AP_MOTORS_MOT_8, 0,0,0,0,0,0,false, 8); 
     SRV_Channels::set_angle(SRV_Channels::get_motor_function(AP_MOTORS_MOT_8), max_servo_angle*100);
-    add_motor(AP_MOTORS_MOT_9, 0,0,0,0,0,0,False, 9); 
+    add_motor(AP_MOTORS_MOT_9, 0,0,0,0,0,0,false, 9); 
     SRV_Channels::set_angle(SRV_Channels::get_motor_function(AP_MOTORS_MOT_9), max_servo_angle*100);
-    add_motor(AP_MOTORS_MOT_10, 0,0,0,0,0,0,False, 10); 
+    add_motor(AP_MOTORS_MOT_10, 0,0,0,0,0,0,false, 10); 
     SRV_Channels::set_angle(SRV_Channels::get_motor_function(AP_MOTORS_MOT_10), max_servo_angle*100);
-    add_motor(AP_MOTORS_MOT_11, 0,0,0,0,0,0,False, 11); 
+    add_motor(AP_MOTORS_MOT_11, 0,0,0,0,0,0,false, 11); 
     SRV_Channels::set_angle(SRV_Channels::get_motor_function(AP_MOTORS_MOT_11), max_servo_angle*100);
-    add_motor(AP_MOTORS_MOT_12, 0,0,0,0,0,0,False, 12); 
+    add_motor(AP_MOTORS_MOT_12, 0,0,0,0,0,0,false, 12); 
     SRV_Channels::set_angle(SRV_Channels::get_motor_function(AP_MOTORS_MOT_12), max_servo_angle*100);
     
     return true; 
@@ -351,33 +311,45 @@ bool AP_MotorsMatrix_6DoF_Scripting:: init(){
 }
 
 //output_test_seq function for our overactuated class 
-void AP_MotorMatrix_6DoF_Scripting::output_test_seq(uint8_t motor_seq, int16_t pwm){ 
+void AP_MotorsMatrix_6DoF_Scripting::_output_test_seq(uint8_t motor_seq, int16_t pwm){ 
     
     switch(motor_seq){ 
         case 1: 
-        rc_write(AP_MOTORS_MOT1, pwm); 
+        rc_write(AP_MOTORS_MOT_1, pwm); 
+        break; 
         case 2: 
-        rc_write(AP_MOTORS_MOT2, pwm); 
+        rc_write(AP_MOTORS_MOT_2, pwm); 
+        break; 
         case 3: 
-        rc_write(AP_MOTORS_MOT3, pwm); 
+        rc_write(AP_MOTORS_MOT_3, pwm); 
+        break; 
         case 4: 
-        rc_write(AP_MOTORS_MOT4, pwm); 
+        rc_write(AP_MOTORS_MOT_4, pwm); 
+        break;
         case 5: 
-        rc_write(AP_MOTORS_MOT5, pwm); 
+        rc_write(AP_MOTORS_MOT_5, pwm); 
+        break; 
         case 6: 
-        rc_write(AP_MOTORS_MOT6, pwm); 
+        rc_write(AP_MOTORS_MOT_6, pwm); 
+        break; 
         case 7: 
-        rc_write(AP_MOTORS_MOT7, pwm); 
+        rc_write(AP_MOTORS_MOT_7, pwm); 
+        break; 
         case 8: 
-        rc_write(AP_MOTORS_MOT8, pwm); 
+        rc_write(AP_MOTORS_MOT_8, pwm); 
+        break; 
         case 9: 
-        rc_write(AP_MOTORS_MOT9, pwm); 
+        rc_write(AP_MOTORS_MOT_9, pwm); 
+        break; 
         case 10: 
-        rc_write(AP_MOTORS_MOT10, pwm); 
+        rc_write(AP_MOTORS_MOT_10, pwm); 
+        break; 
         case 11: 
-        rc_write(AP_MOTORS_MOT11, pwm); 
+        rc_write(AP_MOTORS_MOT_11, pwm); 
+        break; 
         case 12: 
-        rc_write(AP_MOTORS_MOT12, pwm); 
+        rc_write(AP_MOTORS_MOT_12, pwm); 
+        break; 
     }
 }
 

@@ -1,5 +1,5 @@
 #pragma once
-/#if AP_SCRIPTING_ENABLED
+#if AP_SCRIPTING_ENABLED
 
 #include <AP_Common/AP_Common.h>
 #include <AP_Math/AP_Math.h>
