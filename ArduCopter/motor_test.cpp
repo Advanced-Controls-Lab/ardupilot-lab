@@ -85,10 +85,7 @@ void Copter::motor_test_output()
         // sanity check throttle values
         if (pwm >= RC_Channel::RC_MIN_LIMIT_PWM && pwm <= RC_Channel::RC_MAX_LIMIT_PWM) {
             // turn on motor to specified pwm value
-#if AP_SCRIPTING_ENABLED
-    motors->AP_MotorsMatrix_6DoF_Scripting::_output_test_seq(motor_test_seq, pwm); 
-#endif 
-break;
+
             motors->output_test_seq(motor_test_seq, pwm);
         } else {
             motor_test_stop();

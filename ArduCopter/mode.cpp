@@ -174,6 +174,11 @@ Mode *Copter::mode_from_mode_num(const Mode::Number mode)
             ret = &mode_turtle;
             break;
 #endif
+#if MODE_OVERACTUATED == ENABLED
+        case Mode::Number::OVERACTUATED: 
+            ret=&mode_overactuated; 
+            break;
+#endif
 
         default:
             break;

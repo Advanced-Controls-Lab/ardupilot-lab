@@ -996,7 +996,7 @@ private:
 #if MODE_TURTLE_ENABLED == ENABLED
     ModeTurtle mode_turtle;
 #endif
-#if MODE_OVERACTUATED == ENABLED 
+#if MODE_OVERACTUATED_ENABLED == ENABLED 
     ModeOveractuated mode_overactuated; 
 #endif
 

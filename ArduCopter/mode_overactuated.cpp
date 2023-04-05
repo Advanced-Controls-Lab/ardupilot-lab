@@ -62,3 +62,7 @@ void ModeOveractuated::run()
                                        true,
                                        g.throttle_filt);
 }
+bool init(bool ignore_checks){ 
+    
+    return true;
+}

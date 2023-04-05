@@ -1856,7 +1856,7 @@ private:
 
 };
 #endif
-
+#if MODE_OVERACTUATED_ENABLED == ENABLED 
 class ModeOveractuated : public Mode {
 
 public:
@@ -1882,6 +1882,7 @@ protected:
 private:
 
 };
+#endif
 
 #if FRAME_CONFIG == HELI_FRAME
 class ModeStabilize_Heli : public ModeStabilize {
