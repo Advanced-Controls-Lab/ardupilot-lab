@@ -39,7 +39,7 @@ public:
         AUTOROTATE =   26,  // Autonomous autorotation
         AUTO_RTL =     27,  // Auto RTL, this is not a true mode, AUTO will report as this mode if entered to perform a DO_LAND_START Landing sequence
         TURTLE =       28,  // Flip over after crash
-        TEST =         29
+        OVERACTUATED = 29
     };
 
     // constructor
@@ -1856,6 +1856,7 @@ private:
 
 };
 #endif
+
 class ModeOveractuated : public Mode {
 
 public:
@@ -1875,8 +1876,8 @@ public:
 
 protected:
 
-    const char *name() const override { return "STABILIZE"; }
-    const char *name4() const override { return "STAB"; }
+    const char *name() const override { return "OVERACTUATED"; }
+    const char *name4() const override { return "OVERACT"; }
 
 private:
 

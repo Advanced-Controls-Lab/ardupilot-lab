@@ -216,7 +216,7 @@ public:
     friend class ModeZigZag;
     friend class ModeAutorotate;
     friend class ModeTurtle;
-
+    friend class ModeOveractuated; 
     Copter(void);
 
 private:
@@ -995,6 +995,9 @@ private:
 #endif
 #if MODE_TURTLE_ENABLED == ENABLED
     ModeTurtle mode_turtle;
+#endif
+#if MODE_OVERACTUATED == ENABLED 
+    ModeOveractuated mode_overactuated; 
 #endif
 
     // mode.cpp
