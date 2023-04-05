@@ -287,6 +287,10 @@ bool AP_MotorsMatrix_6DoF_Scripting:: init(uint8_t expected_num_motors){
     add_motor(AP_MOTORS_MOT_3,     0,              0,              0.71f,            1.0f,             0,                0,                false,3); 
     add_motor(AP_MOTORS_MOT_4,     0,              0,              -0.71f,           1.0f,             0,                0,                false,4); 
 
+    motor_enabled[AP_MOTORS_MOT_1] = true;
+    motor_enabled[AP_MOTORS_MOT_2] = true;
+    motor_enabled[AP_MOTORS_MOT_3] = true;
+    motor_enabled[AP_MOTORS_MOT_4] = true;
     // tilt servos setup 
     int16_t max_servo_angle = MAX_TILT_SERVO_ANGLE; 
     add_motor(AP_MOTORS_MOT_5, 0,0,0,0,0,0,false, 5); 
