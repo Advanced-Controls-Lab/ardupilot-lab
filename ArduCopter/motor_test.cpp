@@ -86,7 +86,7 @@ void Copter::motor_test_output()
         if (pwm >= RC_Channel::RC_MIN_LIMIT_PWM && pwm <= RC_Channel::RC_MAX_LIMIT_PWM) {
             // turn on motor to specified pwm value
 
-            motors->AP_MotorsMatrix_6DoF_Scripting::_output_test_seq(motor_test_seq, pwm);
+            motors->output_test_seq(motor_test_seq, pwm);
         } else {
             motor_test_stop();
         }
