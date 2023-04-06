@@ -280,13 +280,12 @@ void AP_MotorsMatrix_6DoF_Scripting::add_motor(int8_t motor_num, float roll_fact
 }
 
 
-bool AP_MotorsMatrix_6DoF_Scripting:: init(uint8_t expected_num_motors){ 
-    _mav_type = MAV_TYPE_GENERIC;  
+bool AP_MotorsMatrix_6DoF_Scripting:: init(uint8_t expected_num_motors){  
     add_motor(AP_MOTORS_MOT_1,     0,              0,              0.71f,            1.0f,             0,                0,               false,1); 
     add_motor(AP_MOTORS_MOT_2,     0,              0,              -0.71f,           1.0f,             0,                0,               false,2); 
     add_motor(AP_MOTORS_MOT_3,     0,              0,              0.71f,            1.0f,             0,                0,                false,3); 
     add_motor(AP_MOTORS_MOT_4,     0,              0,              -0.71f,           1.0f,             0,                0,                false,4); 
-
+    set_update_rate(400); 
     motor_enabled[AP_MOTORS_MOT_1] = true;
     motor_enabled[AP_MOTORS_MOT_2] = true;
     motor_enabled[AP_MOTORS_MOT_3] = true;
@@ -309,7 +308,15 @@ bool AP_MotorsMatrix_6DoF_Scripting:: init(uint8_t expected_num_motors){
     SRV_Channels::set_angle(SRV_Channels::get_motor_function(AP_MOTORS_MOT_11), max_servo_angle*100);
     add_motor(AP_MOTORS_MOT_12, 0,0,0,0,0,0,false, 12); 
     SRV_Channels::set_angle(SRV_Channels::get_motor_function(AP_MOTORS_MOT_12), max_servo_angle*100);
-    
+    motor_enabled[AP_MOTORS_MOT_5] = true;
+    motor_enabled[AP_MOTORS_MOT_6] = true;
+    motor_enabled[AP_MOTORS_MOT_7] = true;
+    motor_enabled[AP_MOTORS_MOT_8] = true;
+    motor_enabled[AP_MOTORS_MOT_9] = true;
+    motor_enabled[AP_MOTORS_MOT_10] = true;
+    motor_enabled[AP_MOTORS_MOT_11] = true;
+    motor_enabled[AP_MOTORS_MOT_12] = true;
+    set_initialised_ok(True); 
     return true; 
 
 }
