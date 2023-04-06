@@ -316,7 +316,7 @@ bool AP_MotorsMatrix_6DoF_Scripting:: init(uint8_t expected_num_motors){
     motor_enabled[AP_MOTORS_MOT_10] = true;
     motor_enabled[AP_MOTORS_MOT_11] = true;
     motor_enabled[AP_MOTORS_MOT_12] = true;
-    set_initialised_ok(True); 
+    set_initialised_ok(true); 
     return true; 
 
 }
