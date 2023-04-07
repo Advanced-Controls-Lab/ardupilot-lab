@@ -22,7 +22,7 @@ void stability_test();
 void update_motors();
 
 #define HELI_TEST       0   // set to 1 to test helicopters
-#define NUM_OUTPUTS     8   // set to 6 for hexacopter, 8 for octacopter and heli
+#define NUM_OUTPUTS     12   // set to 6 for hexacopter, 8 for octacopter and heli
 
 SRV_Channels srvs;
 
@@ -43,7 +43,7 @@ void setup()
 
     // motor initialisation
     motors.set_update_rate(490);
-    motors.init(AP_Motors::MOTOR_FRAME_QUAD, AP_Motors::MOTOR_FRAME_TYPE_X);
+    motors.init(12);
 #if HELI_TEST == 0
     motors.update_throttle_range();
     motors.set_throttle_avg_max(0.5f);
@@ -116,7 +116,7 @@ void stability_test()
 #elif NUM_OUTPUTS <= 6
     hal.console->printf("Roll,Pitch,Yaw,Thr,Mot1,Mot2,Mot3,Mot4,Mot5,Mot6,AvgOut,LimRP,LimY,LimThD,LimThU\n");             // hexa
 #else
-    hal.console->printf("Roll,Pitch,Yaw,Thr,Mot1,Mot2,Mot3,Mot4,Mot5,Mot6,Mot7,Mot8,AvgOut,LimRP,LimY,LimThD,LimThU\n");   // octa
+    hal.console->printf("Roll,Pitch,Yaw,Thr,Mot1,Mot2,Mot3,Mot4,Mot5,Mot6,Mot7,Mot8,Mot9,Mot10,Mot11,Mot12, AvgOut,LimRP,LimY,LimThD,LimThU\n");   // octa
 #endif
 
     // run stability test
@@ -141,7 +141,7 @@ void stability_test()
 #elif NUM_OUTPUTS <= 6
                     hal.console->printf("%d,%d,%d,%3.1f,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n")        // hexa
 #else
-                    hal.console->printf("%d,%d,%d,%3.1f,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n")   // octa
+                    hal.console->printf("%d,%d,%d,%3.1f,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n")   // octa
 #endif
                             (int)roll_in,
                             (int)pitch_in,
