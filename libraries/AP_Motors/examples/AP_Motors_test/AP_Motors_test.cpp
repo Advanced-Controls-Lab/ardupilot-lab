@@ -116,7 +116,7 @@ void stability_test()
 #elif NUM_OUTPUTS <= 6
     hal.console->printf("Roll,Pitch,Yaw,Thr,Mot1,Mot2,Mot3,Mot4,Mot5,Mot6,AvgOut,LimRP,LimY,LimThD,LimThU\n");             // hexa
 #else
-    hal.console->printf("Roll,Pitch,Yaw,Thr,Mot1,Mot2,Mot3,Mot4,Mot5,Mot6,Mot7,Mot8,Mot9,Mot10,Mot11,Mot12, AvgOut,LimRP,LimY,LimThD,LimThU\n");   // octa
+    hal.console->printf("Roll,Pitch,Yaw,Thr,Mot1,Mot2,Mot3,Mot4,Mot5,Mot6,Mot7,Mot8,Mot9,Mot10,Mot11,Mot12, AvgOut,LimRP,LimY,LimThD,LimThU\n"); 
 #endif
 
     // run stability test
