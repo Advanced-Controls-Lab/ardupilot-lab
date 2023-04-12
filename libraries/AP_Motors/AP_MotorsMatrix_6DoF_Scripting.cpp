@@ -13,7 +13,6 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#if AP_SCRIPTING_ENABLED
 
 #include <AP_HAL/AP_HAL.h>
 #include "AP_MotorsMatrix_6DoF_Scripting.h"
@@ -407,4 +406,3 @@ void AP_MotorsMatrix_6DoF_Scripting::_output_test_seq(uint8_t motor_seq, int16_t
 // singleton instance
 AP_MotorsMatrix_6DoF_Scripting *AP_MotorsMatrix_6DoF_Scripting::_singleton;
 
-#endif // AP_SCRIPTING_ENABLED
