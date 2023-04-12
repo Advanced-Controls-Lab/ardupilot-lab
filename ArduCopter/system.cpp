@@ -378,7 +378,7 @@ void Copter::allocate_motors(void)
         case AP_Motors::MOTOR_FRAME_OCTAQUAD:
         case AP_Motors::MOTOR_FRAME_DODECAHEXA:
         case AP_Motors::MOTOR_FRAME_DECA:
-        case AP_Motors::MOTOR_FRAME_SCRIPTING_MATRIX:
+        case AP_Motors::MOTOR_FRAME_6DOF_SCRIPTING:
         default:
             motors = new AP_MotorsMatrix_6DoF_Scripting(copter.scheduler.get_loop_rate_hz());
             motors_var_info = AP_MotorsMatrix_6DoF_Scripting::var_info;
@@ -405,10 +405,11 @@ void Copter::allocate_motors(void)
             motors = new AP_MotorsTailsitter(copter.scheduler.get_loop_rate_hz());
             motors_var_info = AP_MotorsTailsitter::var_info;
             break;
-        case AP_Motors::MOTOR_FRAME_6DOF_SCRIPTING:
+        /*case AP_Motors::MOTOR_FRAME_6DOF_SCRIPTING:
             motors = new AP_MotorsMatrix_6DoF_Scripting(copter.scheduler.get_loop_rate_hz());
             motors_var_info = AP_MotorsMatrix_6DoF_Scripting::var_info;
             break;
+	*/
         case AP_Motors::MOTOR_FRAME_DYNAMIC_SCRIPTING_MATRIX:
 #if AP_SCRIPTING_ENABLED
             motors = new AP_MotorsMatrix_Scripting_Dynamic(copter.scheduler.get_loop_rate_hz());
