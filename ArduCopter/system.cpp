@@ -380,9 +380,14 @@ void Copter::allocate_motors(void)
         case AP_Motors::MOTOR_FRAME_DECA:
         case AP_Motors::MOTOR_FRAME_SCRIPTING_MATRIX:
         default:
+            motors = new AP_MotorsMatrix_6DoF_Scripting(copter.scheduler.get_loop_rate_hz());
+            motors_var_info = AP_MotorsMatrix_6DoF_Scripting::var_info;
+            break;
+            /*
             motors = new AP_MotorsMatrix(copter.scheduler.get_loop_rate_hz());
             motors_var_info = AP_MotorsMatrix::var_info;
             break;
+            */
         case AP_Motors::MOTOR_FRAME_TRI:
             motors = new AP_MotorsTri(copter.scheduler.get_loop_rate_hz());
             motors_var_info = AP_MotorsTri::var_info;
