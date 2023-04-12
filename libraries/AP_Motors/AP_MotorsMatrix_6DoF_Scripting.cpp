@@ -277,6 +277,7 @@ void AP_MotorsMatrix_6DoF_Scripting::add_motor(int8_t motor_num, float roll_fact
         SRV_Channels::set_output_min_max(function, get_pwm_output_min(), get_pwm_output_max());
     }
 }
+/*
 bool AP_MotorsMatrix_6DoF_Scripting::init(uint8_t expected_num_motors){ 
     uint8_t num_motors = 0;
     for (uint8_t i = 0; i < AP_MOTORS_MAX_NUM_MOTORS; i++) {
@@ -317,7 +318,8 @@ bool AP_MotorsMatrix_6DoF_Scripting::init(uint8_t expected_num_motors){
 
     return true;
 }
-/*
+*/
+
 bool AP_MotorsMatrix_6DoF_Scripting:: init(uint8_t expected_num_motors){  
     add_motor(AP_MOTORS_MOT_1,     0,              0,              0.71f,            1.0f,             0,                0,               false,1); 
     add_motor(AP_MOTORS_MOT_2,     0,              0,              -0.71f,           1.0f,             0,                0,               false,2); 
@@ -359,7 +361,7 @@ bool AP_MotorsMatrix_6DoF_Scripting:: init(uint8_t expected_num_motors){
     return true; 
 
 }
-*/
+
 //output_test_seq function for our overactuated class 
 void AP_MotorsMatrix_6DoF_Scripting::_output_test_seq(uint8_t motor_seq, int16_t pwm){ 
     
