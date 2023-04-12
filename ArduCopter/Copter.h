@@ -157,11 +157,8 @@
 
 #if AP_SCRIPTING_ENABLED
  #include <AP_Scripting/AP_Scripting.h>
- #define MOTOR_CLASS AP_MotorsMatrix_6DoF_Scripting
 #endif
-#if MODE_OVERACTUATED_ENABLED == ENABLED
- #define MOTOR_CLASS AP_MotorsMatrix_6DoF_Scripting
-#endif
+
 // Local modules
 #ifdef USER_PARAMS_ENABLED
 #include "UserParameters.h"
