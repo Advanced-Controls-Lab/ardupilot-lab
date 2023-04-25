@@ -54,7 +54,7 @@ const AP_Param::GroupInfo AC_PID::var_info[] = {
     // @DisplayName: PID Derivative term filter frequency in Hz
     // @Description: Derivative filter frequency in Hz
     // @Units: Hz
-    AP_GROUPINFO("FLTD", 11, AC_PID, _filt_D_hz, AC_PID_DFILT_HZ_DEFAULT),
+    AP_GROUPINFO("TEST", 11, AC_PID, _filt_D_hz, AC_PID_DFILT_HZ_DEFAULT),
 
     // @Param: SMAX
     // @DisplayName: Slew rate limit
@@ -63,6 +63,7 @@ const AP_Param::GroupInfo AC_PID::var_info[] = {
     // @Increment: 0.5
     // @User: Advanced
     AP_GROUPINFO("SMAX", 12, AC_PID, _slew_rate_max, 0),
+    AP_GROUPINFO("TEST", 13,AC_PID, _slew_rate_max, 0 ),
 
     AP_GROUPEND
 };
