@@ -5,10 +5,15 @@
 #include "AP_MotorsMatrix.h"
 
 #define MIN_TILT_SERVO_ANGLE 0  
-#define MAX_TILT_SERVO_ANGLE  90
-#define AP_MOTORS_5PITCH  CH_5 
-#define AP_MOTORS_6PITCH 
-
+#define MAX_TILT_SERVO_ANGLE  1.5708
+#define AP_MOTORS_1PITCH  CH_5
+#define AP_MOTORS_1ROLL   CH_6 
+#define AP_MOTORS_2PITCH  CH_7
+#define AP_MOTORS_2ROLL   CH_8 
+#define AP_MOTORS_3PITCH  CH_9 
+#define AP_MOTORS_3ROLL   CH_10 
+#define AP_MOTORS_4PITCH  CH_11 
+#define AP_MOTORS_4ROLL   CH_12 
 class AP_MotorsMatrix_6DoF_Scripting : public AP_MotorsMatrix {
 public:
 
@@ -49,7 +54,7 @@ protected:
     void setup_motors(motor_frame_class frame_class, motor_frame_type frame_type) override {};
 
     const char* _get_frame_string() const override { return "6DoF scripting"; }
-
+    virtual void _output_test_seq(uint8_t motor_seq, int16_t pwm) override; 
     float _forward_factor[AP_MOTORS_MAX_NUM_MOTORS];      // each motors contribution to forward thrust
     float _right_factor[AP_MOTORS_MAX_NUM_MOTORS];        // each motors contribution to right thrust
 
@@ -61,7 +66,8 @@ protected:
 
     // Current offset angles, radians
     float _roll_offset;
-    float _pitch_offset;
+    float _pitch_offset; 
+  
 private:
     static AP_MotorsMatrix_6DoF_Scripting *_singleton;
 

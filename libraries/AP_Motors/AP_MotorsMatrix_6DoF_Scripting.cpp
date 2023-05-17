@@ -181,6 +181,23 @@ void AP_MotorsMatrix_6DoF_Scripting::output_armed_stabilizing()
             thrust[i] += thrust_vec.y * _right_factor[i];
             thrust[i] += thrust_vec.z * _throttle_factor[i];
             float total_thrust = _thrust_rpyt_out[i] + thrust[i];
+            if (_forward_factor[i] != 0){ 
+                float _pivot_pitch_angle = safe_asin(thrust_vec.x);
+                if (fabsf(_pivot_pitch_angle) > radians(MAX_TILT_SERVO_ANGLE)) {
+                    _pivot_pitch_angle = constrain_float(_pivot_pitch_angle, -radians(MAX_TILT_SERVO_ANGLE), radians(MAX_TILT_SERVO_ANGLE));
+                    thrust[i] = 100 * _pivot_pitch_angle; 
+		     
+    }       
+		rc_write(AP_MOTORS_1PITCH, 100); 
+            }
+            if (_right_factor[i] !=0){ 
+                float _pivot_roll_angle = safe_asin(thrust_vec.y);
+                if (fabsf(_pivot_roll_angle) > radians(MAX_TILT_SERVO_ANGLE)) {
+                    _pivot_roll_angle = constrain_float(_pivot_roll_angle, -radians(MAX_TILT_SERVO_ANGLE), radians(MAX_TILT_SERVO_ANGLE));
+    }              
+		thrust[i] = 100 * _pivot_roll_angle; 
+		rc_write(AP_MOTORS_1ROLL, 100); 
+            }
             // control input will be limited by motor range
             if (total_thrust > 1.0f) {
                 horz_ratio = MIN(horz_ratio,(1.0f - _thrust_rpyt_out[i]) / thrust[i]);
@@ -189,7 +206,11 @@ void AP_MotorsMatrix_6DoF_Scripting::output_armed_stabilizing()
             }
         }
     }
-
+   float _pivot_pitch_angle = safe_asin(thrust_vec.x); 
+   float _pivot_roll_angle = safe_asin(thrust_vec.y); 
+   rc_write(AP_MOTORS_1PITCH, 100 * _pivot_pitch_angle); 
+   rc_write(AP_MOTORS_1ROLL, 100 * _pivot_roll_angle); 
+   
     // scale back evenly so it will all fit
     for (i = 0; i < AP_MOTORS_MAX_NUM_MOTORS; i++) {
         if (motor_enabled[i]) {
@@ -318,7 +339,7 @@ bool AP_MotorsMatrix_6DoF_Scripting::init(uint8_t expected_num_motors){
 
 void AP_MotorsMatrix_6DoF_Scripting:: init(motor_frame_class frame_class, motor_frame_type frame_type){  
     _frame_class_string = "OVERACTUATED"; 
-    _frame_type_string = "X"; 
+    _frame_type_string = "Q"; 
     motor_enabled[AP_MOTORS_MOT_1] = true;
     motor_enabled[AP_MOTORS_MOT_2] = true;
     motor_enabled[AP_MOTORS_MOT_3] = true;
@@ -329,44 +350,84 @@ void AP_MotorsMatrix_6DoF_Scripting:: init(motor_frame_class frame_class, motor_
     add_motor(AP_MOTORS_MOT_4,     0,              0,              -0.71f,           1.0f,             0,                0,                false,4); 
     set_update_rate(400); 
     
-    _mav_type = MAV_TYPE_DECAROTOR; 
+    _mav_type = MAV_TYPE_DODECAROTOR; 
     
 
     
    
     // tilt servos setup 
-    add_motor(AP_MOTORS_MOT_5, 0,0,0,0,0,0,false, 5); 
-    SRV_Channels::set_angle(SRV_Channels::get_motor_function(AP_MOTORS_MOT_5), MAX_TILT_SERVO_ANGLE*100);
-    add_motor(AP_MOTORS_MOT_6, 0,0,0,0,0,0,false, 6); 
-    SRV_Channels::set_angle(SRV_Channels::get_motor_function(AP_MOTORS_MOT_6), MAX_TILT_SERVO_ANGLE*100);
-    add_motor(AP_MOTORS_MOT_7, 0,0,0,0,0,0,false, 7); 
-    SRV_Channels::set_angle(SRV_Channels::get_motor_function(AP_MOTORS_MOT_7), MAX_TILT_SERVO_ANGLE*100);
-    add_motor(AP_MOTORS_MOT_8, 0,0,0,0,0,0,false, 8); 
-    SRV_Channels::set_angle(SRV_Channels::get_motor_function(AP_MOTORS_MOT_8), MAX_TILT_SERVO_ANGLE*100);
-    add_motor(AP_MOTORS_MOT_9, 0,0,0,0,0,0,false, 9); 
-    SRV_Channels::set_angle(SRV_Channels::get_motor_function(AP_MOTORS_MOT_9), MAX_TILT_SERVO_ANGLE*100);
-    add_motor(AP_MOTORS_MOT_10, 0,0,0,0,0,0,false, 10); 
-    SRV_Channels::set_angle(SRV_Channels::get_motor_function(AP_MOTORS_MOT_10), MAX_TILT_SERVO_ANGLE*100);
+    add_motor(AP_MOTORS_1PITCH, 0,0,0,0,1.0f,0,false, 5); 
+    SRV_Channels::set_angle(SRV_Channels::get_motor_function(AP_MOTORS_1PITCH), MAX_TILT_SERVO_ANGLE*100);
+    add_motor(AP_MOTORS_1ROLL, 0,0,0,0,0,1.0f,false, 6); 
+    SRV_Channels::set_angle(SRV_Channels::get_motor_function(AP_MOTORS_1ROLL), MAX_TILT_SERVO_ANGLE*100);
+    add_motor(AP_MOTORS_2PITCH, 0,0,0,0,1.0f,0,false, 7); 
+    SRV_Channels::set_angle(SRV_Channels::get_motor_function(AP_MOTORS_2PITCH), MAX_TILT_SERVO_ANGLE*100);
+    add_motor(AP_MOTORS_2ROLL, 0,0,0,0,0,1.0f,false, 8); 
+    SRV_Channels::set_angle(SRV_Channels::get_motor_function(AP_MOTORS_2ROLL), MAX_TILT_SERVO_ANGLE*100);
+    add_motor(AP_MOTORS_3PITCH, 0,0,0,0,1.0f,0,false, 9); 
+    SRV_Channels::set_angle(SRV_Channels::get_motor_function(AP_MOTORS_3PITCH), MAX_TILT_SERVO_ANGLE*100);
+    add_motor(AP_MOTORS_3ROLL, 0,0,0,0,0,1.0f,false, 10); 
+    SRV_Channels::set_angle(SRV_Channels::get_motor_function(AP_MOTORS_3ROLL), MAX_TILT_SERVO_ANGLE*100);
     
-    add_motor(AP_MOTORS_MOT_11, 0,0,0,0,0,0,false, 11); 
-    SRV_Channels::set_angle(SRV_Channels::get_motor_function(AP_MOTORS_MOT_11), MAX_TILT_SERVO_ANGLE*100);
-    add_motor(AP_MOTORS_MOT_12, 0,0,0,0,0,0,false, 12); 
-    SRV_Channels::set_angle(SRV_Channels::get_motor_function(AP_MOTORS_MOT_12), MAX_TILT_SERVO_ANGLE*100);
+    add_motor(AP_MOTORS_4PITCH, 0,0,0,0,1.0f,0,false, 11); 
+    SRV_Channels::set_angle(SRV_Channels::get_motor_function(AP_MOTORS_4PITCH), MAX_TILT_SERVO_ANGLE*100);
+    add_motor(AP_MOTORS_4ROLL, 0,0,0,0,0,1.0f,false, 12); 
+    SRV_Channels::set_angle(SRV_Channels::get_motor_function(AP_MOTORS_4ROLL), MAX_TILT_SERVO_ANGLE*100);
     
-    motor_enabled[AP_MOTORS_MOT_5] = true;
-    motor_enabled[AP_MOTORS_MOT_6] = true;
-    motor_enabled[AP_MOTORS_MOT_7] = true;
-    motor_enabled[AP_MOTORS_MOT_8] = true;
-    motor_enabled[AP_MOTORS_MOT_9] = true;
-    motor_enabled[AP_MOTORS_MOT_10] = true;
-    motor_enabled[AP_MOTORS_MOT_11] = true;
-    motor_enabled[AP_MOTORS_MOT_12] = true;
+    motor_enabled[AP_MOTORS_1PITCH] = true;
+    motor_enabled[AP_MOTORS_1ROLL] = true;
+    motor_enabled[AP_MOTORS_2PITCH] = true;
+    motor_enabled[AP_MOTORS_2ROLL] = true;
+    motor_enabled[AP_MOTORS_3PITCH] = true;
+    motor_enabled[AP_MOTORS_3ROLL] = true;
+    motor_enabled[AP_MOTORS_4PITCH] = true;
+    motor_enabled[AP_MOTORS_4ROLL] = true;
     
     set_initialised_ok(true); 
 
 }
 
-
+void AP_MotorsMatrix_6DoF_Scripting::_output_test_seq(uint8_t motor_seq, int16_t pwm){ 
+    
+    switch(motor_seq){ 
+        case 1: 
+        rc_write(AP_MOTORS_MOT_1, pwm); 
+        break; 
+        case 2: 
+        rc_write(AP_MOTORS_MOT_2, pwm); 
+        break; 
+        case 3: 
+        rc_write(AP_MOTORS_MOT_3, pwm); 
+        break; 
+        case 4: 
+        rc_write(AP_MOTORS_MOT_4, pwm); 
+        break;
+        case 5: 
+        rc_write(AP_MOTORS_1PITCH, pwm); 
+        break; 
+        case 6: 
+        rc_write(AP_MOTORS_1ROLL, pwm); 
+        break; 
+        case 7: 
+        rc_write(AP_MOTORS_2PITCH, pwm); 
+        break; 
+        case 8: 
+        rc_write(AP_MOTORS_2ROLL, pwm); 
+        break; 
+        case 9: 
+        rc_write(AP_MOTORS_3PITCH, pwm); 
+        break; 
+        case 10: 
+        rc_write(AP_MOTORS_3ROLL, pwm); 
+        break; 
+        case 11: 
+        rc_write(AP_MOTORS_4PITCH, pwm); 
+        break; 
+        case 12: 
+        rc_write(AP_MOTORS_4ROLL, pwm); 
+        break; 
+    }
+}
 // singleton instance
 AP_MotorsMatrix_6DoF_Scripting *AP_MotorsMatrix_6DoF_Scripting::_singleton; 
 
