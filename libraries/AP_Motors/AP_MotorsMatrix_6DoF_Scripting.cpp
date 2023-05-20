@@ -205,21 +205,6 @@ void AP_MotorsMatrix_6DoF_Scripting::output_armed_stabilizing()
             thrust[i] += thrust_vec.y * _right_factor[i];
             thrust[i] += thrust_vec.z * _throttle_factor[i];
             float total_thrust = _thrust_rpyt_out[i] + thrust[i];
-            if (_forward_factor[i] != 0){ 
-                float _pivot_pitch_angle = safe_asin(thrust_vec.x);
-                if (fabsf(_pivot_pitch_angle) > radians(MAX_TILT_SERVO_ANGLE)) {
-                    _pivot_pitch_angle = constrain_float(_pivot_pitch_angle, -radians(MAX_TILT_SERVO_ANGLE), radians(MAX_TILT_SERVO_ANGLE));
-                    thrust[i] = 100 * _pivot_pitch_angle; 
-		     
-    }        
-            }
-            if (_right_factor[i] !=0){ 
-                float _pivot_roll_angle = safe_asin(thrust_vec.y);
-                if (fabsf(_pivot_roll_angle) > radians(MAX_TILT_SERVO_ANGLE)) {
-                    _pivot_roll_angle = constrain_float(_pivot_roll_angle, -radians(MAX_TILT_SERVO_ANGLE), radians(MAX_TILT_SERVO_ANGLE));
-    }              
-		thrust[i] = 100 * _pivot_roll_angle; 
-            }
             // control input will be limited by motor range
             if (total_thrust > 1.0f) {
                 horz_ratio = MIN(horz_ratio,(1.0f - _thrust_rpyt_out[i]) / thrust[i]);
@@ -230,7 +215,13 @@ void AP_MotorsMatrix_6DoF_Scripting::output_armed_stabilizing()
     }
     _pivot_pitch_angle = safe_asin(thrust_vec.x); 
     _pivot_roll_angle = safe_asin(thrust_vec.y);  
-   
+   if (fabsf(_pivot_pitch_angle) > radians(MAX_TILT_SERVO_ANGLE)) {
+                    _pivot_pitch_angle = constrain_float(_pivot_pitch_angle, -radians(MAX_TILT_SERVO_ANGLE), radians(MAX_TILT_SERVO_ANGLE)); 
+		     
+    }    
+    if (fabsf(_pivot_roll_angle) > radians(MAX_TILT_SERVO_ANGLE)) {
+                    _pivot_roll_angle = constrain_float(_pivot_roll_angle, -radians(MAX_TILT_SERVO_ANGLE), radians(MAX_TILT_SERVO_ANGLE));
+    }                  
     // scale back evenly so it will all fit
     for (i = 0; i < AP_MOTORS_MAX_NUM_MOTORS; i++) {
         if (motor_enabled[i]) {
