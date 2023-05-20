@@ -63,7 +63,9 @@ protected:
 
     // store last values to allow deadzone
     float _last_thrust_out[AP_MOTORS_MAX_NUM_MOTORS];
-
+    //simplified servo angle 
+    float _pivot_pitch_angle; 
+    float _pivot_roll_angle; 
     // Current offset angles, radians
     float _roll_offset;
     float _pitch_offset; 
