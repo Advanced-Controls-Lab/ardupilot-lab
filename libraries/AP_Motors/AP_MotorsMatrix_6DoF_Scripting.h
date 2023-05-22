@@ -1,13 +1,19 @@
 #pragma once
-
 #include <AP_Common/AP_Common.h>
 #include <AP_Math/AP_Math.h>
 #include <RC_Channel/RC_Channel.h>
 #include "AP_MotorsMatrix.h"
 
-#define MIN_TILT_SERVO_ANGLE 0;  
-#define MAX_TILT_SERVO_ANGLE  90; 
-#define AP_MOTORS_5PITCH   CH_5; 
+#define MIN_TILT_SERVO_ANGLE 0  
+#define MAX_TILT_SERVO_ANGLE  90
+#define AP_MOTORS_1PITCH  CH_5
+#define AP_MOTORS_1ROLL   CH_6 
+#define AP_MOTORS_2PITCH  CH_7
+#define AP_MOTORS_2ROLL   CH_8 
+#define AP_MOTORS_3PITCH  CH_9 
+#define AP_MOTORS_3ROLL   CH_10 
+#define AP_MOTORS_4PITCH  CH_11 
+#define AP_MOTORS_4ROLL   CH_12 
 class AP_MotorsMatrix_6DoF_Scripting : public AP_MotorsMatrix {
 public:
 
@@ -37,7 +43,8 @@ public:
     void add_motor(int8_t motor_num, float roll_factor, float pitch_factor, float yaw_factor, float throttle_factor, float forward_factor, float right_factor, bool reversible, uint8_t testing_order);
 
     // if the expected number of motors have been setup then set as initalized
-    bool init(uint8_t expected_num_motors) override;
+    void init(motor_frame_class frame_class, motor_frame_type frame_type) override;
+    bool init(uint8_t expected_num_motors) override; 
 
 protected:
     // output - sends commands to the motors
@@ -47,7 +54,7 @@ protected:
     void setup_motors(motor_frame_class frame_class, motor_frame_type frame_type) override {};
 
     const char* _get_frame_string() const override { return "6DoF scripting"; }
-
+    virtual void _output_test_seq(uint8_t motor_seq, int16_t pwm) override; 
     float _forward_factor[AP_MOTORS_MAX_NUM_MOTORS];      // each motors contribution to forward thrust
     float _right_factor[AP_MOTORS_MAX_NUM_MOTORS];        // each motors contribution to right thrust
 
@@ -56,13 +63,14 @@ protected:
 
     // store last values to allow deadzone
     float _last_thrust_out[AP_MOTORS_MAX_NUM_MOTORS];
-
+    //simplified servo angle 
+    float _pivot_pitch_angle; 
+    float _pivot_roll_angle; 
     // Current offset angles, radians
     float _roll_offset;
-    float _pitch_offset;
-    virtual void _output_test_seq(uint8_t motor_seq, int16_t pwm) override;
+    float _pitch_offset; 
+  
 private:
     static AP_MotorsMatrix_6DoF_Scripting *_singleton;
 
 };
-
