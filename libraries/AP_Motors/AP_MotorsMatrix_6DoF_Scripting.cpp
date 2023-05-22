@@ -206,15 +206,6 @@ void AP_MotorsMatrix_6DoF_Scripting::output_armed_stabilizing()
             thrust[i] += thrust_vec.z * _throttle_factor[i];
             float total_thrust = _thrust_rpyt_out[i] + thrust[i];
             // control input will be limited by motor range
-            float pivot_pitch_angle = 0.0; 
-            float pivot_roll_angle = 0.0; 
-            if _forward_factor[i] != 0{
-                pivot_pitch_angle = safe_asin((thrust_vec.y)/thrust[i]);
-            }
-            if _right_factor[i] != 0{
-                pivot_roll_angle = safe_asin((thrust_vec.x)/thrust[i]);
-            }
-            
             if (total_thrust > 1.0f) {
                 horz_ratio = MIN(horz_ratio,(1.0f - _thrust_rpyt_out[i]) / thrust[i]);
             } else if (total_thrust < -1.0f) {
