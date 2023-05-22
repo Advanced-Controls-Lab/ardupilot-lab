@@ -74,7 +74,7 @@ void AP_MotorsMatrix_6DoF_Scripting::output_to_motors()
                     SRV_Channels::set_output_scaled(SRV_Channels::get_motor_function(i), _actuator[i] * 4500);
                 }
             }            
-            rc_write_angle(AP_MOTORS_1PITCH, degrees(_pivot_pitch_angle)*100);
+            rc_write(AP_MOTORS_1PITCH, 1700);
             rc_write_angle(AP_MOTORS_1ROLL, degrees(_pivot_roll_angle)*100);
             rc_write_angle(AP_MOTORS_2PITCH, degrees(_pivot_pitch_angle)*100);
             rc_write_angle(AP_MOTORS_2ROLL, degrees(_pivot_roll_angle)*100);
