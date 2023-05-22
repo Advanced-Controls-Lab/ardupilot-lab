@@ -28,7 +28,7 @@ void AP_MotorsTri::init(motor_frame_class frame_class, motor_frame_type frame_ty
 {
     add_motor_num(AP_MOTORS_MOT_1);
     add_motor_num(AP_MOTORS_MOT_2);
-    add_motor_num(AP_MOTORS_MOT_4);
+    add_motor_num(AP_MOTORS_MOT_4);     
 
     // set update rate for the 3 motors (but not the servo on channel 7)
     set_update_rate(_speed_hz);

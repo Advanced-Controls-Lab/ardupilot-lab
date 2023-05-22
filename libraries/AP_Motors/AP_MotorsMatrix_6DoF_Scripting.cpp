@@ -138,8 +138,8 @@ void AP_MotorsMatrix_6DoF_Scripting::output_armed_stabilizing()
         rotations: roll, pitch and yaw
     */
     float rpy_ratio = 1.0f;  // scale factor, output will be scaled by this ratio so it can all fit evenly
-    float thrust[AP_MOTORS_MAX_NUM_MOTORS];
-    for (i = 0; i < AP_MOTORS_MAX_NUM_MOTORS; i++) {
+    float thrust[4];
+    for (i = 0; i < 4; i++) {
         if (motor_enabled[i]) {
             thrust[i] =  roll_thrust * _roll_factor[i];
             thrust[i] += pitch_thrust * _pitch_factor[i];
@@ -184,6 +184,15 @@ void AP_MotorsMatrix_6DoF_Scripting::output_armed_stabilizing()
             thrust[i] += thrust_vec.z * _throttle_factor[i];
             float total_thrust = _thrust_rpyt_out[i] + thrust[i];
             // control input will be limited by motor range
+            float pivot_pitch_angle = 0.0; 
+            float pivot_roll_angle = 0.0; 
+            if _forward_factor[i] != 0{
+                pivot_pitch_angle = safe_asin((thrust_vec.y)/thrust[i]);
+            }
+            if _right_factor[i] != 0{
+                pivot_roll_angle = safe_asin((thrust_vec.x)/thrust[i]);
+            }
+            
             if (total_thrust > 1.0f) {
                 horz_ratio = MIN(horz_ratio,(1.0f - _thrust_rpyt_out[i]) / thrust[i]);
             } else if (total_thrust < -1.0f) {
@@ -334,31 +343,31 @@ bool AP_MotorsMatrix_6DoF_Scripting:: init(uint8_t expected_num_motors){
     
    
     // tilt servos setup 
-    add_motor(AP_MOTORS_5PITCH, 0,0,0,0,0,0,false, 5); 
+    add_motor(AP_MOTORS_5PITCH, 0,0,0,0,1,0,false, 5); 
     SRV_Channels::set_angle(SRV_Channels::get_motor_function(AP_MOTORS_5PITCH), 90*100);
-    add_motor(AP_MOTORS_MOT_6, 0,0,0,0,0,0,false, 6); 
+    add_motor(AP_MOTORS_MOT_6, 0,0,0,0,0,1,false, 6); 
     SRV_Channels::set_angle(SRV_Channels::get_motor_function(AP_MOTORS_MOT_6), 90*100);
-    add_motor(AP_MOTORS_MOT_7, 0,0,0,0,0,0,false, 7); 
+    add_motor(AP_MOTORS_MOT_7, 0,0,0,0,1,0,false, 7); 
     SRV_Channels::set_angle(SRV_Channels::get_motor_function(AP_MOTORS_MOT_7), 90*100);
-    add_motor(AP_MOTORS_MOT_8, 0,0,0,0,0,0,false, 8); 
+    add_motor(AP_MOTORS_MOT_8, 0,0,0,0,0,1,false, 8); 
     SRV_Channels::set_angle(SRV_Channels::get_motor_function(AP_MOTORS_MOT_8), 90*100);
-    add_motor(AP_MOTORS_MOT_9, 0,0,0,0,0,0,false, 9); 
+    add_motor(AP_MOTORS_MOT_9, 0,0,0,0,1,0,false, 9); 
     SRV_Channels::set_angle(SRV_Channels::get_motor_function(AP_MOTORS_MOT_9), 90*100);
-    add_motor(AP_MOTORS_MOT_10, 0,0,0,0,0,0,false, 10); 
+    add_motor(AP_MOTORS_MOT_10, 0,0,0,0,0,1,false, 10); 
     SRV_Channels::set_angle(SRV_Channels::get_motor_function(AP_MOTORS_MOT_10), 90*100);
-    add_motor(AP_MOTORS_MOT_11, 0,0,0,0,0,0,false, 11); 
+    add_motor(AP_MOTORS_MOT_11, 0,0,0,0,1,0,false, 11); 
     SRV_Channels::set_angle(SRV_Channels::get_motor_function(AP_MOTORS_MOT_11), 90*100);
-    add_motor(AP_MOTORS_MOT_12, 0,0,0,0,0,0,false, 12); 
+    add_motor(AP_MOTORS_MOT_12, 0,0,0,0,0,1,false, 12); 
     SRV_Channels::set_angle(SRV_Channels::get_motor_function(AP_MOTORS_MOT_12), 90*100);
     
-    motor_enabled[AP_MOTORS_MOT_5] = true;
-    motor_enabled[AP_MOTORS_MOT_6] = true;
-    motor_enabled[AP_MOTORS_MOT_7] = true;
-    motor_enabled[AP_MOTORS_MOT_8] = true;
-    motor_enabled[AP_MOTORS_MOT_9] = true;
-    motor_enabled[AP_MOTORS_MOT_10] = true;
-    motor_enabled[AP_MOTORS_MOT_11] = true;
-    motor_enabled[AP_MOTORS_MOT_12] = true;
+    motor_enabled[AP_MOTORS_1PITCH] = true;
+    motor_enabled[AP_MOTORS_1ROLL] = true;
+    motor_enabled[AP_MOTORS_2PITCH] = true;
+    motor_enabled[AP_MOTORS_2ROLL] = true;
+    motor_enabled[AP_MOTORS_3PITCH] = true;
+    motor_enabled[AP_MOTORS_3ROLL] = true;
+    motor_enabled[AP_MOTORS_4PITCH] = true;
+    motor_enabled[AP_MOTORS_4ROLL] = true;
     
     _mav_type = MAV_TYPE_DODECAROTOR;
     set_initialised_ok(true); 
