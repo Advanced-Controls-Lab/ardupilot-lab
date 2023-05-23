@@ -218,8 +218,7 @@ void AP_MotorsMatrix_6DoF_Scripting::output_armed_stabilizing()
    float _pivot_pitch_angle = safe_asin(thrust_vec.x); 
    float _pivot_roll_angle = safe_asin(thrust_vec.y); 
    rc_write(AP_MOTORS_1PITCH, 100 * _pivot_pitch_angle); 
-   rc_write(AP_MOTORS_1ROLL, 100 * _pivot_roll_angle); 
-g   
+   rc_write(AP_MOTORS_1ROLL, 100 * _pivot_roll_angle);    
     // scale back evenly so it will all fit
     for (i = 0; i < AP_MOTORS_MAX_NUM_MOTORS; i++) {
         if (motor_enabled[i]) {
