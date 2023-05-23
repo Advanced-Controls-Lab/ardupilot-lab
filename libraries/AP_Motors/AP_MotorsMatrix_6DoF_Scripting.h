@@ -5,7 +5,7 @@
 #include "AP_MotorsMatrix.h"
 
 #define MIN_TILT_SERVO_ANGLE 0  
-#define MAX_TILT_SERVO_ANGLE  90
+#define MAX_TILT_SERVO_ANGLE  1.5708
 #define AP_MOTORS_1PITCH  CH_5
 #define AP_MOTORS_1ROLL   CH_6 
 #define AP_MOTORS_2PITCH  CH_7
@@ -63,9 +63,7 @@ protected:
 
     // store last values to allow deadzone
     float _last_thrust_out[AP_MOTORS_MAX_NUM_MOTORS];
-    //simplified servo angle 
-    float _pivot_pitch_angle; 
-    float _pivot_roll_angle; 
+
     // Current offset angles, radians
     float _roll_offset;
     float _pitch_offset; 
