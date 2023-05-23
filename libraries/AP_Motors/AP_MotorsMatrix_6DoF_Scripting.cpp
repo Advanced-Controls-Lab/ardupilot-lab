@@ -55,6 +55,9 @@ void AP_MotorsMatrix_6DoF_Scripting::output_to_motors()
                     }
                 }
             }
+            rc_write_angle(AP_MOTORS_1PITCH, 200);
+            rc_write_angle(AP_MOTORS_1ROLL, 200);
+            
             break;
     }
 
