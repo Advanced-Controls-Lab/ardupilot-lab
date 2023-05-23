@@ -7,13 +7,13 @@
 #define MIN_TILT_SERVO_ANGLE 0  
 #define MAX_TILT_SERVO_ANGLE  90
 #define AP_MOTORS_1PITCH  CH_5
-#define AP_MOTORS_1ROLL   CH_6 
+#define AP_MOTORS_1ROLL   CH_9 
 #define AP_MOTORS_2PITCH  CH_7
-#define AP_MOTORS_2ROLL   CH_8 
-#define AP_MOTORS_3PITCH  CH_9 
-#define AP_MOTORS_3ROLL   CH_10 
-#define AP_MOTORS_4PITCH  CH_11 
-#define AP_MOTORS_4ROLL   CH_12 
+#define AP_MOTORS_2ROLL   CH_10 
+#define AP_MOTORS_3PITCH  CH_6 
+#define AP_MOTORS_3ROLL   CH_11 
+#define AP_MOTORS_4PITCH  CH_8 
+#define AP_MOTORS_4ROLL   CH_4 
 class AP_MotorsMatrix_6DoF_Scripting : public AP_MotorsMatrix {
 public:
 
