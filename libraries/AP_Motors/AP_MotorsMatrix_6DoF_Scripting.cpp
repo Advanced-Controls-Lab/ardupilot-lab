@@ -57,6 +57,12 @@ void AP_MotorsMatrix_6DoF_Scripting::output_to_motors()
             }
             rc_write_angle(AP_MOTORS_1PITCH, 200);
             rc_write_angle(AP_MOTORS_1ROLL, 200);
+            rc_write_angle(AP_MOTORS_2PITCH, 200);
+            rc_write_angle(AP_MOTORS_2ROLL, 200);
+            rc_write_angle(AP_MOTORS_3PITCH, 200);
+            rc_write_angle(AP_MOTORS_3ROLL, 200);
+            rc_write_angle(AP_MOTORS_4PITCH, 200);
+            rc_write_angle(AP_MOTORS_4ROLL, 200);
             
             break;
     }
@@ -213,7 +219,7 @@ void AP_MotorsMatrix_6DoF_Scripting::output_armed_stabilizing()
    float _pivot_roll_angle = safe_asin(thrust_vec.y); 
    rc_write(AP_MOTORS_1PITCH, 100 * _pivot_pitch_angle); 
    rc_write(AP_MOTORS_1ROLL, 100 * _pivot_roll_angle); 
-   
+g   
     // scale back evenly so it will all fit
     for (i = 0; i < AP_MOTORS_MAX_NUM_MOTORS; i++) {
         if (motor_enabled[i]) {

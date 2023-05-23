@@ -5,7 +5,7 @@
 #include "AP_MotorsMatrix.h"
 
 #define MIN_TILT_SERVO_ANGLE 0  
-#define MAX_TILT_SERVO_ANGLE  1.5708
+#define MAX_TILT_SERVO_ANGLE  90
 #define AP_MOTORS_1PITCH  CH_5
 #define AP_MOTORS_1ROLL   CH_6 
 #define AP_MOTORS_2PITCH  CH_7
