@@ -55,14 +55,14 @@ void AP_MotorsMatrix_6DoF_Scripting::output_to_motors()
                     }
                 }
             }
-            rc_write_angle(AP_MOTORS_1PITCH, degrees(_servo_pitch_angle)*100);
-            rc_write_angle(AP_MOTORS_1ROLL, degrees(_servo_roll_angle)*200);
-            rc_write_angle(AP_MOTORS_2PITCH, degrees(_servo_pitch_angle)*100);
-            rc_write_angle(AP_MOTORS_2ROLL, degrees(_servo_roll_angle)*200);
-            rc_write_angle(AP_MOTORS_3PITCH, degrees(_servo_pitch_angle)*100);
-            rc_write_angle(AP_MOTORS_3ROLL, degrees(_servo_roll_angle)*200);
-            rc_write_angle(AP_MOTORS_4PITCH, degrees(_servo_pitch_angle)*100);
-            rc_write_angle(AP_MOTORS_4ROLL, degrees(_servo_roll_angle)*200);
+            rc_write_angle(AP_MOTORS_1PITCH, (degrees(_servo_pitch_angle)+15)*100);
+            rc_write_angle(AP_MOTORS_1ROLL, (degrees(_servo_roll_angle)+15)*100);
+            rc_write_angle(AP_MOTORS_2PITCH, (degrees(_servo_pitch_angle)+15)*100);
+            rc_write_angle(AP_MOTORS_2ROLL, (degrees(_servo_roll_angle)+15)*100);
+            rc_write_angle(AP_MOTORS_3PITCH, (degrees(_servo_pitch_angle)+15)*100);
+            rc_write_angle(AP_MOTORS_3ROLL, (degrees(_servo_roll_angle)+15)*100);
+            rc_write_angle(AP_MOTORS_4PITCH, (degrees(_servo_pitch_angle)+15)*100);
+            rc_write_angle(AP_MOTORS_4ROLL, (degrees(_servo_roll_angle)+15)*100);
             
             break;
     }
