@@ -148,7 +148,6 @@ void Copter::init_ardupilot()
     // read Baro pressure at ground
     //-----------------------------
     barometer.set_log_baro_bit(MASK_LOG_IMU);
-    barometer.calibrate();
 
     // initialise rangefinder
     init_rangefinder();
@@ -447,7 +446,7 @@ void Copter::allocate_motors(void)
 
 #if FRAME_CONFIG != HELI_FRAME
     attitude_control = new AC_AttitudeControl_Multi_6DoF(*ahrs_view, aparm, *motors, scheduler.get_loop_period_s());
-    ac_var_info = AC_AttitudeControl_Multi_6DoF::var_info;
+    giac_var_info = AC_AttitudeControl_Multi_6DoF::var_info;
     /*if ((AP_Motors::motor_frame_class)g2.frame_class.get() == AP_Motors::MOTOR_FRAME_6DOF_SCRIPTING) {
 #if AP_SCRIPTING_ENABLED
         attitude_control = new AC_AttitudeControl_Multi_6DoF(*ahrs_view, aparm, *motors, scheduler.get_loop_period_s());
