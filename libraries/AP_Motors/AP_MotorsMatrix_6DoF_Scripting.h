@@ -13,7 +13,7 @@
 #define AP_MOTORS_3PITCH  CH_6 
 #define AP_MOTORS_3ROLL   CH_11 
 #define AP_MOTORS_4PITCH  CH_8 
-#define AP_MOTORS_4ROLL   CH_4 
+#define AP_MOTORS_4ROLL   CH_12 
 class AP_MotorsMatrix_6DoF_Scripting : public AP_MotorsMatrix {
 public:
 
