@@ -65,6 +65,8 @@ protected:
     float _last_thrust_out[AP_MOTORS_MAX_NUM_MOTORS];
 
     // Current offset angles, radians
+    float _servo_pitch_angle; 
+    float _servo_roll_angle; 
     float _roll_offset;
     float _pitch_offset; 
   
