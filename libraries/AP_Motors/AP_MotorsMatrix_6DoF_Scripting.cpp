@@ -343,22 +343,22 @@ void AP_MotorsMatrix_6DoF_Scripting:: init(motor_frame_class frame_class, motor_
     
    
     // tilt servos setup 
-    add_motor(AP_MOTORS_1PITCH, 0,0,0,0,1.0f,0,false, 5); 
+    add_motor(AP_MOTORS_1PITCH, 0,0,0,0,0,0,false, 5); 
     SRV_Channels::set_angle(SRV_Channels::get_motor_function(AP_MOTORS_1PITCH), MAX_TILT_SERVO_ANGLE*100);
-    add_motor(AP_MOTORS_1ROLL, 0,0,0,0,0,1.0f,false, 6); 
+    add_motor(AP_MOTORS_1ROLL, 0,0,0,0,0,0,false, 6); 
     SRV_Channels::set_angle(SRV_Channels::get_motor_function(AP_MOTORS_1ROLL), MAX_TILT_SERVO_ANGLE*100);
-    add_motor(AP_MOTORS_2PITCH, 0,0,0,0,1.0f,0,false, 7); 
+    add_motor(AP_MOTORS_2PITCH, 0,0,0,0,0,0,false, 7); 
     SRV_Channels::set_angle(SRV_Channels::get_motor_function(AP_MOTORS_2PITCH), MAX_TILT_SERVO_ANGLE*100);
-    add_motor(AP_MOTORS_2ROLL, 0,0,0,0,0,1.0f,false, 8); 
+    add_motor(AP_MOTORS_2ROLL, 0,0,0,0,0,0,false, 8); 
     SRV_Channels::set_angle(SRV_Channels::get_motor_function(AP_MOTORS_2ROLL), MAX_TILT_SERVO_ANGLE*100);
-    add_motor(AP_MOTORS_3PITCH, 0,0,0,0,1.0f,0,false, 9); 
+    add_motor(AP_MOTORS_3PITCH, 0,0,0,0,0,0,false, 9); 
     SRV_Channels::set_angle(SRV_Channels::get_motor_function(AP_MOTORS_3PITCH), MAX_TILT_SERVO_ANGLE*100);
-    add_motor(AP_MOTORS_3ROLL, 0,0,0,0,0,1.0f,false, 10); 
+    add_motor(AP_MOTORS_3ROLL, 0,0,0,0,0,0,false, 10); 
     SRV_Channels::set_angle(SRV_Channels::get_motor_function(AP_MOTORS_3ROLL), MAX_TILT_SERVO_ANGLE*100);
     
-    add_motor(AP_MOTORS_4PITCH, 0,0,0,0,1.0f,0,false, 11); 
+    add_motor(AP_MOTORS_4PITCH, 0,0,0,0,0,0,false, 11); 
     SRV_Channels::set_angle(SRV_Channels::get_motor_function(AP_MOTORS_4PITCH), MAX_TILT_SERVO_ANGLE*100);
-    add_motor(AP_MOTORS_4ROLL, 0,0,0,0,0,1.0f,false, 12); 
+    add_motor(AP_MOTORS_4ROLL, 0,0,0,0,0,0,false, 12); 
     SRV_Channels::set_angle(SRV_Channels::get_motor_function(AP_MOTORS_4ROLL), MAX_TILT_SERVO_ANGLE*100);
     
     motor_enabled[AP_MOTORS_1PITCH] = true;
