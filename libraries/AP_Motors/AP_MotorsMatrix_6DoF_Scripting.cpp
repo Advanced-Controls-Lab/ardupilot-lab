@@ -23,15 +23,21 @@ void AP_MotorsMatrix_6DoF_Scripting::output_to_motors()
     switch (_spool_state) {
         case SpoolState::SHUT_DOWN:
         case SpoolState::GROUND_IDLE:
-        {
             // no output, cant spin up for ground idle because we don't know which way motors should be spining
             for (uint8_t i = 0; i < AP_MOTORS_MAX_NUM_MOTORS; i++) {
                 if (motor_enabled[i]) {
                     _actuator[i] = 0.0f;
                 }
             }
+            rc_write(AP_MOTORS_1PITCH, 1500 + AP_1PITCH_TRIM);
+            rc_write(AP_MOTORS_1ROLL, 1500 + AP_1ROLL_TRIM);
+            rc_write(AP_MOTORS_2PITCH, 1500 + AP_2PITCH_TRIM);
+            rc_write(AP_MOTORS_2ROLL, 1500 + AP_2ROLL_TRIM);
+            rc_write(AP_MOTORS_3PITCH, 1500 + AP_3PITCH_TRIM);
+            rc_write(AP_MOTORS_3ROLL, 1500 + AP_3ROLL_TRIM);
+            rc_write(AP_MOTORS_4PITCH, 1500 + AP_4PITCH_TRIM);
+            rc_write(AP_MOTORS_4ROLL, 1500 + AP_4ROLL_TRIM);
             break;
-        }
         case SpoolState::SPOOLING_UP:
         case SpoolState::THROTTLE_UNLIMITED:
         case SpoolState::SPOOLING_DOWN:
@@ -55,14 +61,14 @@ void AP_MotorsMatrix_6DoF_Scripting::output_to_motors()
                     }
                 }
             }
-            rc_write_angle(AP_MOTORS_1PITCH, (degrees(_servo_pitch_angle)+15)*100);
-            rc_write_angle(AP_MOTORS_1ROLL, (degrees(_servo_roll_angle)+15)*100);
-            rc_write_angle(AP_MOTORS_2PITCH, (degrees(_servo_pitch_angle)+15)*100);
-            rc_write_angle(AP_MOTORS_2ROLL, (degrees(_servo_roll_angle)+15)*100);
-            rc_write_angle(AP_MOTORS_3PITCH, (degrees(_servo_pitch_angle)+15)*100);
-            rc_write_angle(AP_MOTORS_3ROLL, (degrees(_servo_roll_angle)+15)*100);
-            rc_write_angle(AP_MOTORS_4PITCH, (degrees(_servo_pitch_angle)+15)*100);
-            rc_write_angle(AP_MOTORS_4ROLL, (degrees(_servo_roll_angle)+15)*100);
+            rc_write(AP_MOTORS_1PITCH, 1000+(degrees(_servo_pitch_angle)/180)*1000 + AP_1PITCH_TRIM);
+            rc_write(AP_MOTORS_1ROLL, 1000+(degrees(_servo_roll_angle)/180)*1000 + AP_1ROLL_TRIM);
+            rc_write(AP_MOTORS_2PITCH, 2000-(degrees(_servo_pitch_angle)/180)*1000+ AP_2PITCH_TRIM);
+            rc_write(AP_MOTORS_2ROLL, 2000-(degrees(_servo_roll_angle)/180)*1000 + AP_2ROLL_TRIM);
+            rc_write(AP_MOTORS_3PITCH, 2000-(degrees(_servo_pitch_angle)/180)*1000 + AP_3PITCH_TRIM);
+            rc_write(AP_MOTORS_3ROLL,1000+ (degrees(_servo_roll_angle)/180)*1000 + AP_3ROLL_TRIM);
+            rc_write(AP_MOTORS_4PITCH,1000+ (degrees(_servo_pitch_angle)/180)*1000 + AP_4PITCH_TRIM);
+            rc_write(AP_MOTORS_4ROLL, 2000-(degrees(_servo_roll_angle)/180)*1000 + AP_4ROLL_TRIM);
             
             break;
     }
@@ -198,8 +204,8 @@ void AP_MotorsMatrix_6DoF_Scripting::output_armed_stabilizing()
             }
         }
     }
-   _servo_pitch_angle = safe_asin(thrust_vec.x); 
-   _servo_roll_angle = safe_asin(thrust_vec.y);
+   _servo_pitch_angle = M_PI_2 + safe_asin(thrust_vec.x); 
+   _servo_roll_angle = M_PI_2 + safe_asin(thrust_vec.y);
 
     // scale back evenly so it will all fit
     for (i = 0; i < AP_MOTORS_MAX_NUM_MOTORS; i++) {

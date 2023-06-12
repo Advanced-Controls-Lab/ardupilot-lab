@@ -5,7 +5,7 @@
 #include "AP_MotorsMatrix.h"
 
 #define MIN_TILT_SERVO_ANGLE 0  
-#define MAX_TILT_SERVO_ANGLE  90
+#define MAX_TILT_SERVO_ANGLE  180
 #define AP_MOTORS_1PITCH  CH_5
 #define AP_MOTORS_1ROLL   CH_9 
 #define AP_MOTORS_2PITCH  CH_7
@@ -14,6 +14,16 @@
 #define AP_MOTORS_3ROLL   CH_11 
 #define AP_MOTORS_4PITCH  CH_8 
 #define AP_MOTORS_4ROLL   CH_12 
+#define AP_1PITCH_TRIM       100 
+#define AP_1ROLL_TRIM        0 
+#define AP_2PITCH_TRIM       10 
+#define AP_2ROLL_TRIM        -20 
+#define AP_3PITCH_TRIM        -20
+#define AP_3ROLL_TRIM        0 
+#define AP_4PITCH_TRIM       -100 
+#define AP_4ROLL_TRIM        20 
+
+
 class AP_MotorsMatrix_6DoF_Scripting : public AP_MotorsMatrix {
 public:
 
