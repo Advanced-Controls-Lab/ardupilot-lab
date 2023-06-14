@@ -29,14 +29,14 @@ void AP_MotorsMatrix_6DoF_Scripting::output_to_motors()
                     _actuator[i] = 0.0f;
                 }
             }
-            rc_write(AP_MOTORS_1PITCH, 1500 + AP_1PITCH_TRIM);
-            rc_write(AP_MOTORS_1ROLL, 1500 + AP_1ROLL_TRIM);
-            rc_write(AP_MOTORS_2PITCH, 1500 + AP_2PITCH_TRIM);
-            rc_write(AP_MOTORS_2ROLL, 1500 + AP_2ROLL_TRIM);
-            rc_write(AP_MOTORS_3PITCH, 1500 + AP_3PITCH_TRIM);
-            rc_write(AP_MOTORS_3ROLL, 1500 + AP_3ROLL_TRIM);
-            rc_write(AP_MOTORS_4PITCH, 1500 + AP_4PITCH_TRIM);
-            rc_write(AP_MOTORS_4ROLL, 1500 + AP_4ROLL_TRIM);
+            rc_write(AP_MOTORS_1PITCH, 1500+AP_1PITCH_TRIM );
+            rc_write(AP_MOTORS_1ROLL, 1500+AP_1ROLL_TRIM );
+            rc_write(AP_MOTORS_2PITCH, 1500+AP_2PITCH_TRIM );
+            rc_write(AP_MOTORS_2ROLL, 1500+AP_2ROLL_TRIM );
+            rc_write(AP_MOTORS_3PITCH, 1500+AP_3PITCH_TRIM );
+            rc_write(AP_MOTORS_3ROLL, 1500 +AP_3ROLL_TRIM);
+            rc_write(AP_MOTORS_4PITCH, 1500+AP_4PITCH_TRIM);
+            rc_write(AP_MOTORS_4ROLL, 1500+AP_4ROLL_TRIM);
             break;
         case SpoolState::SPOOLING_UP:
         case SpoolState::THROTTLE_UNLIMITED:
@@ -61,14 +61,14 @@ void AP_MotorsMatrix_6DoF_Scripting::output_to_motors()
                     }
                 }
             }
-            rc_write(AP_MOTORS_1PITCH, 1000+(degrees(_servo_pitch_angle)/180)*1000 + AP_1PITCH_TRIM);
-            rc_write(AP_MOTORS_1ROLL, 1000+(degrees(_servo_roll_angle)/180)*1000 + AP_1ROLL_TRIM);
-            rc_write(AP_MOTORS_2PITCH, 2000-(degrees(_servo_pitch_angle)/180)*1000+ AP_2PITCH_TRIM);
-            rc_write(AP_MOTORS_2ROLL, 2000-(degrees(_servo_roll_angle)/180)*1000 + AP_2ROLL_TRIM);
-            rc_write(AP_MOTORS_3PITCH, 2000-(degrees(_servo_pitch_angle)/180)*1000 + AP_3PITCH_TRIM);
-            rc_write(AP_MOTORS_3ROLL,1000+ (degrees(_servo_roll_angle)/180)*1000 + AP_3ROLL_TRIM);
-            rc_write(AP_MOTORS_4PITCH,1000+ (degrees(_servo_pitch_angle)/180)*1000 + AP_4PITCH_TRIM);
-            rc_write(AP_MOTORS_4ROLL, 2000-(degrees(_servo_roll_angle)/180)*1000 + AP_4ROLL_TRIM);
+            rc_write(AP_MOTORS_1PITCH, 1000+AP_1PITCH_TRIM+((degrees(_servo_pitch_angle)/180)*1000) );
+            rc_write(AP_MOTORS_1ROLL, 1000+AP_1ROLL_TRIM+((degrees(_servo_roll_angle)/180)*1000 ));
+            rc_write(AP_MOTORS_2PITCH, 2000-AP_2PITCH_TRIM+((degrees(_servo_pitch_angle)/180)*1000 ));
+            rc_write(AP_MOTORS_2ROLL, 2000-AP_2ROLL_TRIM+((degrees(_servo_roll_angle)/180)*1000) );
+            rc_write(AP_MOTORS_3PITCH, 2000-AP_3PITCH_TRIM+((degrees(_servo_pitch_angle)/180)*1000));
+            rc_write(AP_MOTORS_3ROLL,1000+ AP_3ROLL_TRIM+((degrees(_servo_roll_angle)/180)*1000) );
+            rc_write(AP_MOTORS_4PITCH,1000+ AP_4PITCH_TRIM+((degrees(_servo_pitch_angle)/180)*1000 ));
+            rc_write(AP_MOTORS_4ROLL, 2000- AP_4ROLL_TRIM+((degrees(_servo_roll_angle)/180)*1000 ));
             
             break;
     }
