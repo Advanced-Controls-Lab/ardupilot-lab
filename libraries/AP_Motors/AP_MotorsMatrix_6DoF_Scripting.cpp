@@ -26,9 +26,10 @@ void AP_MotorsMatrix_6DoF_Scripting::output_to_motors()
             // no output, cant spin up for ground idle because we don't know which way motors should be spining
             for (uint8_t i = 0; i < AP_MOTORS_MAX_NUM_MOTORS; i++) {
                 if (motor_enabled[i]) {
-                    _actuator[i] = 0.0f;
+                    set_actuator_with_slew(_actuator[i], actuator_spin_up_to_ground_idle());
                 }
             }
+
             rc_write(AP_MOTORS_1PITCH, 1500+AP_1PITCH_TRIM );
             rc_write(AP_MOTORS_1ROLL, 1500+AP_1ROLL_TRIM );
             rc_write(AP_MOTORS_2PITCH, 1500+AP_2PITCH_TRIM );
@@ -47,10 +48,10 @@ void AP_MotorsMatrix_6DoF_Scripting::output_to_motors()
                     if (_reversible[i]) {
                         // revesible motor can provide both positive and negative thrust, +- spin max, spin min does not apply
                         if (is_positive(_thrust_rpyt_out[i])) { 
-                            _actuator[i] = apply_thrust_curve_and_volt_scaling(_thrust_rpyt_out[i]) * _spin_max;
+                            _actuator[i] = apply_thrust_curve_and_volt_scaling(_thrust_rpyt_out[i]) *_spin_max;
 
                         } else if (is_negative(_thrust_rpyt_out[i])) {
-                            _actuator[i] = -apply_thrust_curve_and_volt_scaling(-_thrust_rpyt_out[i]) * _spin_max;
+                            _actuator[i] = apply_thrust_curve_and_volt_scaling(-_thrust_rpyt_out[i]) * _spin_max;
 
                         } else {
                             _actuator[i] = 0.0f;
@@ -61,15 +62,15 @@ void AP_MotorsMatrix_6DoF_Scripting::output_to_motors()
                     }
                 }
             }
+            
             rc_write(AP_MOTORS_1PITCH, 1000+AP_1PITCH_TRIM+((degrees(_servo_pitch_angle)/180)*1000) );
             rc_write(AP_MOTORS_1ROLL, 1000+AP_1ROLL_TRIM+((degrees(_servo_roll_angle)/180)*1000 ));
-            rc_write(AP_MOTORS_2PITCH, 2000-AP_2PITCH_TRIM+((degrees(_servo_pitch_angle)/180)*1000 ));
-            rc_write(AP_MOTORS_2ROLL, 2000-AP_2ROLL_TRIM+((degrees(_servo_roll_angle)/180)*1000) );
-            rc_write(AP_MOTORS_3PITCH, 2000-AP_3PITCH_TRIM+((degrees(_servo_pitch_angle)/180)*1000));
+            rc_write(AP_MOTORS_2PITCH, 2000+AP_2PITCH_TRIM-((degrees(_servo_pitch_angle)/180)*1000 ));
+            rc_write(AP_MOTORS_2ROLL, 2000+AP_2ROLL_TRIM-((degrees(_servo_roll_angle)/180)*1000) );
+            rc_write(AP_MOTORS_3PITCH, 2000+AP_3PITCH_TRIM-((degrees(_servo_pitch_angle)/180)*1000));
             rc_write(AP_MOTORS_3ROLL,1000+ AP_3ROLL_TRIM+((degrees(_servo_roll_angle)/180)*1000) );
             rc_write(AP_MOTORS_4PITCH,1000+ AP_4PITCH_TRIM+((degrees(_servo_pitch_angle)/180)*1000 ));
-            rc_write(AP_MOTORS_4ROLL, 2000- AP_4ROLL_TRIM+((degrees(_servo_roll_angle)/180)*1000 ));
-            
+            rc_write(AP_MOTORS_4ROLL, 2000+ AP_4ROLL_TRIM-((degrees(_servo_roll_angle)/180)*1000 ));
             break;
     }
 
@@ -81,7 +82,6 @@ void AP_MotorsMatrix_6DoF_Scripting::output_to_motors()
     }
 }
 
-// output_armed - sends commands to the motors
 void AP_MotorsMatrix_6DoF_Scripting::output_armed_stabilizing()
 {
     uint8_t i;                          // general purpose counter
@@ -204,8 +204,6 @@ void AP_MotorsMatrix_6DoF_Scripting::output_armed_stabilizing()
             }
         }
     }
-   _servo_pitch_angle = M_PI_2 + safe_asin(thrust_vec.x); 
-   _servo_roll_angle = M_PI_2 + safe_asin(thrust_vec.y);
 
     // scale back evenly so it will all fit
     for (i = 0; i < AP_MOTORS_MAX_NUM_MOTORS; i++) {
@@ -213,9 +211,10 @@ void AP_MotorsMatrix_6DoF_Scripting::output_armed_stabilizing()
             _thrust_rpyt_out[i] = constrain_float(_thrust_rpyt_out[i] + thrust[i] * horz_ratio,-1.0f,1.0f);
         }
     }
-
+    _servo_pitch_angle = M_PI_2 + safe_asin(thrust_vec.x); 
+    _servo_roll_angle = M_PI_2 + safe_asin(thrust_vec.y);
     /*
-        apply deadzone to reversible motors, this stops motors from reversing direction too often
+        apply deadzone to revesible motors, this stops motors from reversing direction too often
         re-use yaw headroom param for deadzone, constain to a max of 25%
     */
     const float deadzone = constrain_float(_yaw_headroom.get() * 0.001f,0.0f,0.25f);
@@ -238,6 +237,7 @@ void AP_MotorsMatrix_6DoF_Scripting::output_armed_stabilizing()
     }
 
 }
+
 
 // sets the roll and pitch offset, this rotates the thrust vector in body frame
 // these are typically set such that the throttle thrust vector is earth frame up
@@ -335,18 +335,18 @@ bool AP_MotorsMatrix_6DoF_Scripting::init(uint8_t expected_num_motors){
 
 void AP_MotorsMatrix_6DoF_Scripting:: init(motor_frame_class frame_class, motor_frame_type frame_type){  
     _frame_class_string = "OVERACTUATED"; 
-    _frame_type_string = "Q"; 
+    _frame_type_string = "X"; 
     motor_enabled[AP_MOTORS_MOT_1] = true;
     motor_enabled[AP_MOTORS_MOT_2] = true;
     motor_enabled[AP_MOTORS_MOT_3] = true;
-    motor_enabled[AP_MOTORS_MOT_4] = true;
-    add_motor(AP_MOTORS_MOT_1,     0,              0,              0.71f,            1.0f,             0,                0,               false,1); 
-    add_motor(AP_MOTORS_MOT_2,     0,              0,              -0.71f,           1.0f,             0,                0,               false,2); 
-    add_motor(AP_MOTORS_MOT_3,     0,              0,              0.71f,            1.0f,             0,                0,                false,3); 
-    add_motor(AP_MOTORS_MOT_4,     0,              0,              -0.71f,           1.0f,             0,                0,                false,4); 
+    motor_enabled[AP_MOTORS_MOT_4] = true; 
+    add_motor(AP_MOTORS_MOT_1,     -0.71f,              0.71f,              1.0f,            1.0f,             0,                0,               false,1); 
+    add_motor(AP_MOTORS_MOT_2,     0.71f,              -0.71f,              1.0f,           1.0f,             0,                0,               false,3); 
+    add_motor(AP_MOTORS_MOT_3,     0.71f,              0.71f,               -1.0f,            1.0f,             0,                0,                false,4); 
+    add_motor(AP_MOTORS_MOT_4,     -0.71f,              -0.71f,              -1.0f,           1.0f,             0,                0,                false,2); 
     set_update_rate(400); 
     
-    _mav_type = MAV_TYPE_DODECAROTOR; 
+    _mav_type = MAV_TYPE_QUADROTOR; 
     
 
     
