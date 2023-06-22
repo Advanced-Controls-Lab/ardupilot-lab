@@ -25,11 +25,11 @@
 #define AP_4ROLL_TRIM        20 
 
 
-class AP_MotorsMatrix_6DoF_Scripting : public AP_MotorsMatrix {
+class AP_MotorsOveractuated : public AP_MotorsMatrix {
 public:
 
     /// Constructor
-    AP_MotorsMatrix_6DoF_Scripting(uint16_t loop_rate, uint16_t speed_hz = AP_MOTORS_SPEED_DEFAULT) :
+    AP_MotorsOveractuated(uint16_t loop_rate, uint16_t speed_hz = AP_MOTORS_SPEED_DEFAULT) :
         AP_MotorsMatrix(loop_rate, speed_hz)
     {
         if (_singleton != nullptr) {
@@ -39,7 +39,7 @@ public:
     };
 
     // get singleton instance
-    static AP_MotorsMatrix_6DoF_Scripting *get_singleton() {
+    static AP_MotorsOveractuated *get_singleton() {
         return _singleton;
     }
 
@@ -82,6 +82,6 @@ protected:
     float _pitch_offset; 
   
 private:
-    static AP_MotorsMatrix_6DoF_Scripting *_singleton;
+    static AP_MotorsOveractuated *_singleton;
 
 };

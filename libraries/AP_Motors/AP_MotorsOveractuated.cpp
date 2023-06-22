@@ -1,24 +1,11 @@
-/*
-   This program is free software: you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation, either version 3 of the License, or
-   (at your option) any later version.
-
-   This program is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
 #include <AP_HAL/AP_HAL.h>
-#include "AP_MotorsMatrix_6DoF_Scripting.h"
+#include "AP_MotorsOveractuated.h"
+#include "AP_MotorsOveractuated.h"
 #include <AP_Vehicle/AP_Vehicle.h>
 #include <SRV_Channel/SRV_Channel.h>
 extern const AP_HAL::HAL& hal;
 
-void AP_MotorsMatrix_6DoF_Scripting::output_to_motors()
+void AP_MotorsOveractuated::output_to_motors()
 {
     switch (_spool_state) {
         case SpoolState::SHUT_DOWN:
@@ -82,7 +69,7 @@ void AP_MotorsMatrix_6DoF_Scripting::output_to_motors()
     }
 }
 
-void AP_MotorsMatrix_6DoF_Scripting::output_armed_stabilizing()
+void AP_MotorsOveractuated::output_armed_stabilizing()
 {
     uint8_t i;                          // general purpose counter
     float   roll_thrust;                // roll thrust input value, +/- 1.0
@@ -242,14 +229,14 @@ void AP_MotorsMatrix_6DoF_Scripting::output_armed_stabilizing()
 
 // sets the roll and pitch offset, this rotates the thrust vector in body frame
 // these are typically set such that the throttle thrust vector is earth frame up
-void AP_MotorsMatrix_6DoF_Scripting::set_roll_pitch(float roll_deg, float pitch_deg)
+void AP_MotorsOveractuated::set_roll_pitch(float roll_deg, float pitch_deg)
 {
     _roll_offset = radians(roll_deg);
     _pitch_offset = radians(pitch_deg);
 }
 
 // add_motor, take roll, pitch, yaw, throttle(up), forward, right factors along with a bool if the motor is reversible and the testing order, called from scripting
-void AP_MotorsMatrix_6DoF_Scripting::add_motor(int8_t motor_num, float roll_factor, float pitch_factor, float yaw_factor, float throttle_factor, float forward_factor, float right_factor, bool reversible, uint8_t testing_order)
+void AP_MotorsOveractuated::add_motor(int8_t motor_num, float roll_factor, float pitch_factor, float yaw_factor, float throttle_factor, float forward_factor, float right_factor, bool reversible, uint8_t testing_order)
 {
     if (initialised_ok()) {
         // don't allow matrix to be changed after init
@@ -293,7 +280,7 @@ void AP_MotorsMatrix_6DoF_Scripting::add_motor(int8_t motor_num, float roll_fact
     }
 }
 
-bool AP_MotorsMatrix_6DoF_Scripting::init(uint8_t expected_num_motors){ 
+bool AP_MotorsOveractuated::init(uint8_t expected_num_motors){ 
     uint8_t num_motors = 0;
     for (uint8_t i = 0; i < AP_MOTORS_MAX_NUM_MOTORS; i++) {
         if (motor_enabled[i]) {
@@ -334,7 +321,7 @@ bool AP_MotorsMatrix_6DoF_Scripting::init(uint8_t expected_num_motors){
     return true;
 }
 
-void AP_MotorsMatrix_6DoF_Scripting:: init(motor_frame_class frame_class, motor_frame_type frame_type){  
+void AP_MotorsOveractuated:: init(motor_frame_class frame_class, motor_frame_type frame_type){  
     _frame_class_string = "OVERACTUATED"; 
     _frame_type_string = "X"; 
     //adds the motors to the frame and enables ther calibration 
@@ -378,7 +365,7 @@ void AP_MotorsMatrix_6DoF_Scripting:: init(motor_frame_class frame_class, motor_
 
 }
 
-void AP_MotorsMatrix_6DoF_Scripting::_output_test_seq(uint8_t motor_seq, int16_t pwm){ 
+void AP_MotorsOveractuated::_output_test_seq(uint8_t motor_seq, int16_t pwm){ 
     
     switch(motor_seq){ 
         case 1: 
@@ -420,4 +407,4 @@ void AP_MotorsMatrix_6DoF_Scripting::_output_test_seq(uint8_t motor_seq, int16_t
     }
 }
 // singleton instance
-AP_MotorsMatrix_6DoF_Scripting *AP_MotorsMatrix_6DoF_Scripting::_singleton; 
+AP_MotorsOveractuated *AP_MotorsOveractuated::_singleton; 
