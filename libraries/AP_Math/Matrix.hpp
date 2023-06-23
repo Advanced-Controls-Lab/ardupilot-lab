@@ -352,9 +352,9 @@ public:
         const Matrix<Type, M, N> &self = *this;
         for (size_t i = 0; i < M; i++) {
             for (size_t j = 0; j < N; j++) {
-                snprintf(buf + strlen(buf), n - strlen(buf), "\t%8.8g", double(self(i, j))); // directly append to the string buffer
+                this->snprintf(buf + strlen(buf), n - strlen(buf), "\t%8.8g", double(self(i, j))); // directly append to the string buffer
             }
-            snprintf(buf + strlen(buf), n - strlen(buf), "\n");
+            this->snprintf(buf + strlen(buf), n - strlen(buf), "\n");
         }
     }
 
@@ -364,7 +364,7 @@ public:
         static const size_t n = 15*N*M + M + 1;
         char * buf = new char[n];
         write_string(buf, n);
-        printf("%s\n", buf);
+        this->printf("%s\n", buf);
         delete[] buf;
     }
 

@@ -19,7 +19,6 @@
 #include "spline5.h"
 #include "location.h"
 #include "control.h"
-
 #if HAL_WITH_EKF_DOUBLE
 typedef Vector2<double> Vector2F;
 typedef Vector3<double> Vector3F;

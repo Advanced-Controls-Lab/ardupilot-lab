@@ -402,8 +402,8 @@ void Copter::allocate_motors(void)
             break;
        
         case AP_Motors::MOTOR_FRAME_6DOF_SCRIPTING:
-            motors = new AP_MotorsMatrixOveractuated(copter.scheduler.get_loop_rate_hz());
-            motors_var_info = AP_MotorsMatrix_6DoF_Scripting::var_info;
+            motors = new AP_MotorsOveractuated(copter.scheduler.get_loop_rate_hz());
+            motors_var_info = AP_MotorsOveractuated::var_info;
             break;
         
         case AP_Motors::MOTOR_FRAME_DYNAMIC_SCRIPTING_MATRIX:

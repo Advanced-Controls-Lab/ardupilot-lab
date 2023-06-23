@@ -1,14 +1,12 @@
+#pragma once 
 #include <assert.h>
-#include "math.h"
 #include "Matrix.hpp"
 #include "SquareMatrix.hpp"
 #include "Slice.hpp"
 #include "Vector.hpp"
+#include "Scalar.hpp"
 #include "PseudoInverse.hpp"
-
-#define OK 0
-#define ERROR -1
-#define MAX_RAND 32767
+#include "SparseVector.hpp"
 
 
 /* Math macro's for float literals. Do not use M_PI et al as they aren't

@@ -1,9 +1,11 @@
 #include <AP_HAL/AP_HAL.h>
+#include <string>
 #include "AP_MotorsOveractuated.h"
 #include "AP_MotorsOveractuated.h"
 #include "AP_Motors_Class.h"
 #include <AP_Vehicle/AP_Vehicle.h>
 #include <SRV_Channel/SRV_Channel.h>
+#include <GCS_MAVLink/GCS.h>
 extern const AP_HAL::HAL& hal;
 
 void AP_MotorsOveractuated::output_to_motors()
@@ -149,9 +151,9 @@ void AP_MotorsOveractuated::output_armed_stabilizing()
         float(MU), 0.0f, -float(MU), 0.0f, float(MU), 0.0f, -float(MU), 0.0f, 
         0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 
         0.0f, float(MU), 0.0f , -float(MU), 0.0f, float(MU), 0.0f, -float(MU), 
-        float(-K),float(P * MU * L ), -float(K), -float(P* L * MU), -float(K), -float(P*L*MU), -float(K), float(P * L * MU), 
-        float(K),float(-P * MU * L ), float(K), -float(P* L * MU), float(K), float(P*L*MU), float(K), float(P * L * MU), 
-        float(-P * L * MU), float(-K), float(P * L * MU), float(-K), float(P * L * MU), float(-K ), float(-P * L * MU), float(-K)
+        -float(Km),float(angle_const * MU * TorqueLength ), -float(Km), -float(angle_const* TorqueLength * MU), -float(Km), -float(angle_const*TorqueLength*MU), -float(Km), float(angle_const* TorqueLength * MU), 
+        float(Km),float(-angle_const * MU * TorqueLength ), float(Km), -float(angle_const* TorqueLength * MU), float(Km), float(angle_const*TorqueLength*MU), float(Km), float(angle_const * TorqueLength * MU), 
+        -float(angle_const * TorqueLength * MU), -float(Km), float(angle_const * TorqueLength * MU), -float(Km), float(angle_const * TorqueLength * MU), -float(Km ), -float(angle_const * TorqueLength * MU), -float(Km)
     }; 
 
     float wrench[6] = {
@@ -162,25 +164,28 @@ void AP_MotorsOveractuated::output_armed_stabilizing()
         pitch_thrust, 
         yaw_thrust
     }; 
-    Matrix<float, 6, 8> A0(coefficient_matrix);
-	Matrix<float, 8, 6> A0_I;
-    Matrix<float, 6, 1> U(wrench)
-    geninv(A0, A0_I); 
-    Matrix<float, 8, 1> outputs = A0_I * U; 
-    float w_motor1 = sqrt((1/MU) * sqrt((powf(U(0, 0), 2.0f), powf(U(1, 0), 2.0f))));
-    float w_motor2 = sqrt((1/MU) * sqrt((powf(U(2, 0), 2.0f), powf(U(3, 0), 2.0f))));
-    float w_motor3 = sqrt((1/MU) * sqrt((powf(U(4, 0), 2.0f), powf(U(5, 0), 2.0f))));
-    float w_motor4 = sqrt((1/MU) * sqrt((powf(U(6, 0), 2.0f), powf(U(7, 0), 2.0f))));
+    matrix::Matrix<float, 6, 8> A0(coefficient_matrix);
+	matrix::Matrix<float, 8, 6> A0_I;
+    matrix::Matrix<float, 6, 1> U(wrench);
+    bool inverse_exists = geninv(A0, A0_I); 
+    matrix::Matrix<float, 8, 1> outputs = A0_I * U;
+    gcs().send_text(MAV_SEVERITY_CRITICAL, "A0_I %i",bool(inverse_exists));
+    
+    float w_motor1 = sqrt((1/MU) * sqrt((powf(outputs(0, 0), 2.0f), powf(outputs(1, 0), 2.0f))));
+    float w_motor2 = sqrt((1/MU) * sqrt((powf(outputs(2, 0), 2.0f), powf(outputs(3, 0), 2.0f))));
+    float w_motor3 = sqrt((1/MU) * sqrt((powf(outputs(4, 0), 2.0f), powf(outputs(5, 0), 2.0f))));
+    float w_motor4 = sqrt((1/MU) * sqrt((powf(outputs(6, 0), 2.0f), powf(outputs(7, 0), 2.0f))));
+    
     _thrust_rpyt_out[AP_MOTORS_MOT_1] = constrain_float(w_motor1, -1.0f, 1.0f);
     _thrust_rpyt_out[AP_MOTORS_MOT_2] = constrain_float(w_motor2, -1.0f, 1.0f);
     _thrust_rpyt_out[AP_MOTORS_MOT_3] = constrain_float(w_motor3, -1.0f, 1.0f);
     _thrust_rpyt_out[AP_MOTORS_MOT_4] = constrain_float(w_motor4, -1.0f, 1.0f);
 
     // calculates the servo angle to accomplish the desired x-y movement
-    _servo_pitch1_angle = atan2(U(0,0), U(1,0));
-    _servo_pitch2_angle = atan2(U(2,0), U(3,0));
-    _servo_pitch3_angle = atan2(U(4,0), U(5,0));
-    _servo_pitch4_angle = atan2(U(6,0), U(7,0)); 
+    _servo_pitch1_angle = M_PI_2+atan2(outputs(0,0), outputs(1,0));
+    _servo_pitch2_angle = M_PI_2+atan2(outputs(2,0), outputs(3,0));
+    _servo_pitch3_angle = M_PI_2+atan2(outputs(4,0), outputs(5,0));
+    _servo_pitch4_angle = M_PI_2+atan2(outputs(6,0), outputs(7,0)); 
     _servo_roll_angle = M_PI_2 + safe_asin(thrust_vec.y);
     /*
         apply deadzone to revesible motors, this stops motors from reversing direction too often
