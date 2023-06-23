@@ -1,6 +1,7 @@
 #include <AP_HAL/AP_HAL.h>
 #include "AP_MotorsOveractuated.h"
 #include "AP_MotorsOveractuated.h"
+#include "AP_Motors_Class.h"
 #include <AP_Vehicle/AP_Vehicle.h>
 #include <SRV_Channel/SRV_Channel.h>
 extern const AP_HAL::HAL& hal;
@@ -50,13 +51,13 @@ void AP_MotorsOveractuated::output_to_motors()
                 }
             }
             // writes the outputs to the servos for translational movement
-            rc_write(AP_MOTORS_1PITCH, 1000+AP_1PITCH_TRIM+((degrees(_servo_pitch_angle)/180)*1000) );
+            rc_write(AP_MOTORS_1PITCH, 1000+AP_1PITCH_TRIM+((degrees(_servo_pitch1_angle)/180)*1000) );
             rc_write(AP_MOTORS_1ROLL, 1000+AP_1ROLL_TRIM+((degrees(_servo_roll_angle)/180)*1000 ));
-            rc_write(AP_MOTORS_2PITCH, 2000+AP_2PITCH_TRIM-((degrees(_servo_pitch_angle)/180)*1000 ));
+            rc_write(AP_MOTORS_2PITCH, 2000+AP_2PITCH_TRIM-((degrees(_servo_pitch2_angle)/180)*1000 ));
             rc_write(AP_MOTORS_2ROLL, 2000+AP_2ROLL_TRIM-((degrees(_servo_roll_angle)/180)*1000) );
-            rc_write(AP_MOTORS_3PITCH, 2000+AP_3PITCH_TRIM-((degrees(_servo_pitch_angle)/180)*1000));
+            rc_write(AP_MOTORS_3PITCH, 2000+AP_3PITCH_TRIM-((degrees(_servo_pitch3_angle)/180)*1000));
             rc_write(AP_MOTORS_3ROLL,1000+ AP_3ROLL_TRIM+((degrees(_servo_roll_angle)/180)*1000) );
-            rc_write(AP_MOTORS_4PITCH,1000+ AP_4PITCH_TRIM+((degrees(_servo_pitch_angle)/180)*1000 ));
+            rc_write(AP_MOTORS_4PITCH,1000+ AP_4PITCH_TRIM+((degrees(_servo_pitch4_angle)/180)*1000 ));
             rc_write(AP_MOTORS_4ROLL, 2000+ AP_4ROLL_TRIM-((degrees(_servo_roll_angle)/180)*1000 ));
             break;
     }
@@ -115,44 +116,15 @@ void AP_MotorsOveractuated::output_armed_stabilizing()
     /*
         upwards thrust, independent of orientation
     */
-    thrust_vec.x = 0.0f;
-    thrust_vec.y = 0.0f;
+    thrust_vec.x = forward_thrust;
+    thrust_vec.y = right_thrust;
     thrust_vec.z = throttle_thrust;
     thrust_vec = rot * thrust_vec;
-    for (i = 0; i < AP_MOTORS_MAX_NUM_MOTORS; i++) {
-        if (motor_enabled[i]) {
-            _thrust_rpyt_out[i] =  thrust_vec.x * _forward_factor[i];
-            _thrust_rpyt_out[i] += thrust_vec.y * _right_factor[i];
-            _thrust_rpyt_out[i] += thrust_vec.z * _throttle_factor[i];
-
-            if (fabsf(_thrust_rpyt_out[i]) >= 1) {
-                // if we hit this the mixer is probably scaled incorrectly
-                limit.throttle_upper = true;
-            }
-            _thrust_rpyt_out[i] = constrain_float(_thrust_rpyt_out[i],-1.0f,1.0f);
-        }
-    }
-
-
     /*
         rotations: roll, pitch and yaw
     */
     float rpy_ratio = 1.0f;  // scale factor, output will be scaled by this ratio so it can all fit evenly
     float thrust[AP_MOTORS_MAX_NUM_MOTORS];
-    for (i = 0; i < AP_MOTORS_MAX_NUM_MOTORS; i++) {
-        if (motor_enabled[i]) {
-            thrust[i] =  roll_thrust * _roll_factor[i];
-            thrust[i] += pitch_thrust * _pitch_factor[i];
-            thrust[i] += yaw_thrust * _yaw_factor[i];
-            float total_thrust = _thrust_rpyt_out[i] + thrust[i];
-            // control input will be limited by motor range
-            if (total_thrust > 1.0f) {
-                rpy_ratio = MIN(rpy_ratio,(1.0f - _thrust_rpyt_out[i]) / thrust[i]);
-            } else if (total_thrust < -1.0f) {
-                rpy_ratio = MIN(rpy_ratio,(-1.0f -_thrust_rpyt_out[i]) / thrust[i]);
-            }
-        }
-    }
 
     // set limit flags if output is being scaled
     if (rpy_ratio < 1) {
@@ -169,37 +141,46 @@ void AP_MotorsOveractuated::output_armed_stabilizing()
     }
 
     /*
-        forward and lateral, independent of orentaiton
+        forward and lateral, independent of orientation
     */
-    thrust_vec.x = forward_thrust;
-    thrust_vec.y = right_thrust;
-    thrust_vec.z = 0.0f;
-    thrust_vec = rot * thrust_vec;
+    
 
-    float horz_ratio = 1.0f; 
-    for (i = 0; i < AP_MOTORS_MAX_NUM_MOTORS; i++) {
-        if (motor_enabled[i]) {
-            thrust[i] =  thrust_vec.x * _forward_factor[i];
-            thrust[i] += thrust_vec.y * _right_factor[i];
-            thrust[i] += thrust_vec.z * _throttle_factor[i];
-            float total_thrust = _thrust_rpyt_out[i] + thrust[i];
-            // control input will be limited by motor range
-            if (total_thrust > 1.0f) {
-                horz_ratio = MIN(horz_ratio,(1.0f - _thrust_rpyt_out[i]) / thrust[i]);
-            } else if (total_thrust < -1.0f) {
-                horz_ratio = MIN(horz_ratio,(-1.0f -_thrust_rpyt_out[i]) / thrust[i]);
-            }
-        }
-    }
+    float coefficient_matrix[48] = {
+        float(MU), 0.0f, -float(MU), 0.0f, float(MU), 0.0f, -float(MU), 0.0f, 
+        0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 
+        0.0f, float(MU), 0.0f , -float(MU), 0.0f, float(MU), 0.0f, -float(MU), 
+        float(-K),float(P * MU * L ), -float(K), -float(P* L * MU), -float(K), -float(P*L*MU), -float(K), float(P * L * MU), 
+        float(K),float(-P * MU * L ), float(K), -float(P* L * MU), float(K), float(P*L*MU), float(K), float(P * L * MU), 
+        float(-P * L * MU), float(-K), float(P * L * MU), float(-K), float(P * L * MU), float(-K ), float(-P * L * MU), float(-K)
+    }; 
 
-    // scale back evenly so it will all fit
-    for (i = 0; i < AP_MOTORS_MAX_NUM_MOTORS; i++) {
-        if (motor_enabled[i]) {
-            _thrust_rpyt_out[i] = constrain_float(_thrust_rpyt_out[i] + thrust[i] * horz_ratio,-1.0f,1.0f);
-        }
-    }
+    float wrench[6] = {
+        forward_thrust, 
+        right_thrust, 
+        throttle_thrust, 
+        roll_thrust, 
+        pitch_thrust, 
+        yaw_thrust
+    }; 
+    Matrix<float, 6, 8> A0(coefficient_matrix);
+	Matrix<float, 8, 6> A0_I;
+    Matrix<float, 6, 1> U(wrench)
+    geninv(A0, A0_I); 
+    Matrix<float, 8, 1> outputs = A0_I * U; 
+    float w_motor1 = sqrt((1/MU) * sqrt((powf(U(0, 0), 2.0f), powf(U(1, 0), 2.0f))));
+    float w_motor2 = sqrt((1/MU) * sqrt((powf(U(2, 0), 2.0f), powf(U(3, 0), 2.0f))));
+    float w_motor3 = sqrt((1/MU) * sqrt((powf(U(4, 0), 2.0f), powf(U(5, 0), 2.0f))));
+    float w_motor4 = sqrt((1/MU) * sqrt((powf(U(6, 0), 2.0f), powf(U(7, 0), 2.0f))));
+    _thrust_rpyt_out[AP_MOTORS_MOT_1] = constrain_float(w_motor1, -1.0f, 1.0f);
+    _thrust_rpyt_out[AP_MOTORS_MOT_2] = constrain_float(w_motor2, -1.0f, 1.0f);
+    _thrust_rpyt_out[AP_MOTORS_MOT_3] = constrain_float(w_motor3, -1.0f, 1.0f);
+    _thrust_rpyt_out[AP_MOTORS_MOT_4] = constrain_float(w_motor4, -1.0f, 1.0f);
+
     // calculates the servo angle to accomplish the desired x-y movement
-    _servo_pitch_angle = M_PI_2 + safe_asin(thrust_vec.x); 
+    _servo_pitch1_angle = atan2(U(0,0), U(1,0));
+    _servo_pitch2_angle = atan2(U(2,0), U(3,0));
+    _servo_pitch3_angle = atan2(U(4,0), U(5,0));
+    _servo_pitch4_angle = atan2(U(6,0), U(7,0)); 
     _servo_roll_angle = M_PI_2 + safe_asin(thrust_vec.y);
     /*
         apply deadzone to revesible motors, this stops motors from reversing direction too often

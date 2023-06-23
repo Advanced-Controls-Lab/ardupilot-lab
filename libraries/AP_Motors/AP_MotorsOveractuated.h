@@ -1,6 +1,7 @@
 #pragma once
 #include <AP_Common/AP_Common.h>
 #include <AP_Math/AP_Math.h>
+#include <AP_Math/math.hpp> 
 #include <RC_Channel/RC_Channel.h>
 #include "AP_MotorsMatrix.h"
 
@@ -24,7 +25,10 @@
 #define AP_4PITCH_TRIM       -100 
 #define AP_4ROLL_TRIM        20 
 
-
+#define MU                 0.000001610
+#define K                  0.000016
+#define L                  0.16
+#define P         0.707106781
 class AP_MotorsOveractuated : public AP_MotorsMatrix {
 public:
 
@@ -76,7 +80,11 @@ protected:
     float _last_thrust_out[AP_MOTORS_MAX_NUM_MOTORS];
 
     // Current offset angles, radians
-    float _servo_pitch_angle; 
+    float _servo_pitch1_angle;
+    float _servo_pitch2_angle;
+    float _servo_pitch3_angle;
+    float _servo_pitch4_angle;
+     
     float _servo_roll_angle; 
     float _roll_offset;
     float _pitch_offset; 

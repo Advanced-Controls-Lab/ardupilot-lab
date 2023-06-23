@@ -21,7 +21,7 @@ namespace matrix
  * Courrieu, P. (2008). Fast Computation of Moore-Penrose Inverse Matrices, 8(2), 25–29. http://arxiv.org/abs/0804.4809
  */
 template<typename Type, size_t M, size_t N>
-bool geninv(const Matrix<Type, M, N> & G, Matrix<Type, N, M>& res)
+bool geninv(const Matrix< Type, M, N> & G, Matrix<Type, N, M>& res)
 {
     size_t rank;
     if (M <= N) {
