@@ -1,6 +1,7 @@
 #pragma once
 #include <AP_Common/AP_Common.h>
 #include <AP_Math/AP_Math.h>
+#include <AP_Math/math.hpp> 
 #include <RC_Channel/RC_Channel.h>
 #include "AP_MotorsMatrix.h"
 

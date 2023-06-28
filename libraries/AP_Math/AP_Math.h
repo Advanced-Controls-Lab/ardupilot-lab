@@ -97,6 +97,9 @@ inline bool is_negative(const double fVal1) {
 template <typename T>
 float safe_asin(const T v);
 
+template <typename T>
+float safe_atan(const T v);
+
 /*
  * A variant of sqrt() that checks the input ranges and ensures a valid value
  * as output. If a negative number is given then 0 is returned.  The reasoning

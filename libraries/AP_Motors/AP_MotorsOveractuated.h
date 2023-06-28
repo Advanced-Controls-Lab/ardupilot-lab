@@ -29,6 +29,7 @@
 #define Km                  0.000160
 #define TorqueLength                  0.16
 #define angle_const                  0.707106781
+#define angle_Scale        1.0
 class AP_MotorsOveractuated : public AP_MotorsMatrix {
 public:
 
@@ -85,7 +86,10 @@ protected:
     float _servo_pitch3_angle;
     float _servo_pitch4_angle;
      
-    float _servo_roll_angle; 
+    float _servo_roll1_angle;
+    float _servo_roll2_angle;
+    float _servo_roll3_angle;
+    float _servo_roll4_angle; 
     float _roll_offset;
     float _pitch_offset; 
   

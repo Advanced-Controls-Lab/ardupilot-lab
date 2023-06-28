@@ -55,13 +55,13 @@ void AP_MotorsOveractuated::output_to_motors()
             }
             // writes the outputs to the servos for translational movement
             rc_write(AP_MOTORS_1PITCH, 1000+AP_1PITCH_TRIM+((degrees(_servo_pitch1_angle)/180)*1000) );
-            rc_write(AP_MOTORS_1ROLL, 1000+AP_1ROLL_TRIM+((degrees(_servo_roll_angle)/180)*1000 ));
-            rc_write(AP_MOTORS_2PITCH, 1000+AP_1PITCH_TRIM+((degrees(_servo_pitch1_angle)/180)*1000));
-            rc_write(AP_MOTORS_2ROLL, 2000+AP_2ROLL_TRIM-((degrees(_servo_roll_angle)/180)*1000) );
-            rc_write(AP_MOTORS_3PITCH, 1000+AP_1PITCH_TRIM+((degrees(_servo_pitch1_angle)/180)*1000));
-            rc_write(AP_MOTORS_3ROLL,1000+ AP_3ROLL_TRIM+((degrees(_servo_roll_angle)/180)*1000) );
+            rc_write(AP_MOTORS_1ROLL, 1000+AP_1ROLL_TRIM+((degrees(_servo_roll1_angle)/180)*1000 ));
+            rc_write(AP_MOTORS_2PITCH, 2000+AP_2PITCH_TRIM-((degrees(_servo_pitch2_angle)/180)*1000 ));
+            rc_write(AP_MOTORS_2ROLL, 2000+AP_2ROLL_TRIM-((degrees(_servo_roll2_angle)/180)*1000) );
+            rc_write(AP_MOTORS_3PITCH, 2000+AP_3PITCH_TRIM-((degrees(_servo_pitch3_angle)/180)*1000));
+            rc_write(AP_MOTORS_3ROLL,1000+ AP_3ROLL_TRIM+((degrees(_servo_roll3_angle)/180)*1000) );
             rc_write(AP_MOTORS_4PITCH,1000+ AP_4PITCH_TRIM+((degrees(_servo_pitch4_angle)/180)*1000 ));
-            rc_write(AP_MOTORS_4ROLL, 2000+ AP_4ROLL_TRIM-((degrees(_servo_roll_angle)/180)*1000 ));
+            rc_write(AP_MOTORS_4ROLL, 2000+ AP_4ROLL_TRIM-((degrees(_servo_roll4_angle)/180)*1000 ));
             break;
     }
 
@@ -156,69 +156,72 @@ void AP_MotorsOveractuated::output_armed_stabilizing()
         float(Km),float(-angle_const * MU * TorqueLength ), float(Km), -float(angle_const* TorqueLength * MU), float(Km), float(angle_const*TorqueLength*MU), float(Km), float(angle_const * TorqueLength * MU), 
         -float(angle_const * TorqueLength * MU), -float(Km), float(angle_const * TorqueLength * MU), -float(Km), float(angle_const * TorqueLength * MU), -float(Km ), -float(angle_const * TorqueLength * MU), -float(Km)
     };*/ 
-    float pseudo_inv[48] = {
-          156250.0f, 0.0f,0.0f,-189153.0f, 189153.0f, -1353571.0f,
-          0.0f, 0.0f, 156250.0f, 1327149.0f, -1327149.0f, -192919.0f,
-        -156250.0f,0.0f, 0.0f, -189153.0f, 189153.0f, 1353571.0f,
-         0.0f, 0.0f, -156250.0f,-1381068.0f ,-1381068.0f,  -192919.0f,
-        156250.0f, 0.0f, 0.0f, -189153.0f,189153.0f , 1353572.0f,
-        0.0f,0.0f, 156250.0f, -1327149.0f, 1327149.0f, -192919.0f,
-        -156250.0f, 0.0f,0.0f,-189153.0f,189153.0f, -1353571.0f,
-        0.0f, 0.0f, -156250.0f,1381068.0f, 1381068.0f, -192919.0f
+    float pseudo_inv[72] = {
+        156250.0f,0.0f, 0.0f,-156250.0f,0.0f,0.0f,156250.0f,0.0f,0.0f,-156250.0f,0.0f,0.0f,
+        0.0f, -156250.0f, 0.0f,0.0f,156250.0f,0.0f,0.0f,-156250.0f,0.0f,0.0f,156250.0f,0.0f,
+        0.0f,0.0f,156250.0f,0.0f,0.0f,-156250.0f,0.0f,0.0f,156250.0f,0.0f,0.0f, -156250.0f,
+        -189153.55f,0.0f,1327149.25f,  -189153.55f, 0.0f, -1381067.9f, -189153.55f, 0.0f,-1327149.25f,-189153.55f,0.0f,1381067.93f,
+        189153.55f, 0.0f, -1327149.25f,189153.55f,0.0f,-1381067.93f, 189153.55f,0.0f,1327149.25f,189153.55f,0.0f,1381067.93f,
+        -683590.82f,-683590.83f,-97429.62f,683590.83f, -683590.83f,-97429.611f,683590.83f,683590.83f,-97429.61f,-683590.83f,683590.83f,-97429.611f
     };
     float wrench[6] = {
-        forward_thrust, 
-        right_thrust, 
-        throttle_thrust, 
+        float(thrust_vec.x), 
+        float(thrust_vec.y), 
+        float(thrust_vec.z), 
         roll_thrust, 
         pitch_thrust, 
         yaw_thrust
     }; 
-    /*matrix::Matrix<float, 6, 8> A0(coefficient_matrix);
-	matrix::Matrix<float, 8, 6> A0_I;
     
-    bool inverse_exists = geninv(A0, A0_I); */
+    
+    
     /*
-    matrix::Matrix<float, 6, 1> U(wrench);
-    matrix::Matrix<float, 6, 8> pseudo_inverse(pseudo_inv); 
-    matrix::Matrix<float, 8, 1> outputs = pseudo_inverse.transpose() * U;
-    */
-    float outputs[8]; 
-    for( i = 0;i<8; i++){ 
-        outputs[i] = pseudo_inv[6*i] * wrench[0] + pseudo_inv[6*i + 1] * wrench[1] + pseudo_inv[6*i + 2] * wrench[2] + pseudo_inv[6*i + 3] * wrench[3] + pseudo_inv[6*i + 4] * wrench[4] + pseudo_inv[6*i + 5] * wrench[5];
+    float outputs[12]; 
+    for( i = 0;i<12; i++){ 
+        outputs[i] = (pseudo_inv[6*i] * wrench[0] + pseudo_inv[6*i + 1] * wrench[1] + pseudo_inv[6*i + 2] * wrench[2] + pseudo_inv[6*i + 3] * wrench[3] + pseudo_inv[6*i + 4] * wrench[4] + pseudo_inv[6*i + 5] * wrench[5]);
     }
-    /*
-    float w_motor1 = sqrt((1/MU) * sqrt((powf(outputs[0], 2.0f), powf(outputs[1], 2.0f))))/150000;
-    float w_motor2 = sqrt((1/MU) * sqrt((powf(outputs[2], 2.0f), powf(outputs[3], 2.0f))))/150000;
-    float w_motor3 = sqrt((1/MU) * sqrt((powf(outputs[4], 2.0f), powf(outputs[5], 2.0f))))/150000;
-    float w_motor4 = sqrt((1/MU) * sqrt((powf(outputs[6], 2.0f), powf(outputs[7], 2.0f))))/150000;
-    
-    //gcs().send_text(MAV_SEVERITY_CRITICAL, "omega1 %5.3f", w_motor1);
-    _thrust_rpyt_out[AP_MOTORS_MOT_1] = constrain_float(w_motor1, -1.0f, 1.0f);
-    _thrust_rpyt_out[AP_MOTORS_MOT_2] = constrain_float(w_motor2, -1.0f, 1.0f);
-    _thrust_rpyt_out[AP_MOTORS_MOT_3] = constrain_float(w_motor3, -1.0f, 1.0f);
-    _thrust_rpyt_out[AP_MOTORS_MOT_4] = constrain_float(w_motor4, -1.0f, 1.0f);
     */
-    _thrust_rpyt_out[AP_MOTORS_MOT_1] = 0.0f;
-    _thrust_rpyt_out[AP_MOTORS_MOT_2] = 0.0f;
-    _thrust_rpyt_out[AP_MOTORS_MOT_3] = 0.0f;
-    _thrust_rpyt_out[AP_MOTORS_MOT_4] = 0.0f;
-    // calculates the servo angle to accomplish the desired x-y movement
-    if (throttle_thrust <= 0.001 or pitch_thrust <= 0.01 or roll_thrust <= 0.01 or yaw_thrust <0.01){
-        _servo_pitch1_angle = M_PI_2;
-        _servo_pitch2_angle = M_PI_2;
-        _servo_pitch3_angle = M_PI_2;
-        _servo_pitch4_angle = M_PI_2;    
+    if ((thrust_vec.z < 0.01)||(pitch_thrust <= 0.001)||(roll_thrust <= 0.001)){
+        _thrust_rpyt_out[AP_MOTORS_MOT_1] = 0.0f;
+        _thrust_rpyt_out[AP_MOTORS_MOT_2] = 0.0f;
+        _thrust_rpyt_out[AP_MOTORS_MOT_3] = 0.0f;
+        _thrust_rpyt_out[AP_MOTORS_MOT_4] = 0.0f; 
+
+    _servo_pitch1_angle = M_PI_2;
+    _servo_pitch2_angle = M_PI_2;
+    _servo_pitch3_angle = M_PI_2;
+    _servo_pitch4_angle = M_PI_2;
+
+    _servo_roll1_angle = M_PI_2 ;
+    _servo_roll3_angle = M_PI_2 ;
+    _servo_roll2_angle = M_PI_2 ;
+    _servo_roll4_angle = M_PI_2 ;   
     }
     else{
-        _servo_pitch1_angle = M_PI_2 + atan2(outputs[0],outputs[1]);
-        _servo_pitch3_angle = M_PI_2 + atan2(outputs[2],outputs[3]);
-        _servo_pitch2_angle = M_PI_2 + atan2(outputs[4],outputs[5]);
-        _servo_pitch4_angle = M_PI_2 + atan2(outputs[6],outputs[7]);    
+    matrix::Matrix<float, 6, 1> U(wrench);
+    matrix::Matrix<float, 6,12> pseudo_inverse(pseudo_inv); 
+    matrix::Matrix<float, 12, 1> outputs = pseudo_inverse.transpose() * U;
+    float w_motor1 = sqrt(abs(outputs(2, 0)))/1500;
+    float w_motor2 = sqrt(abs(outputs(5, 0)))/1500;
+    float w_motor3 = sqrt(abs(outputs(8, 0)))/1500;
+    float w_motor4 = sqrt(abs(outputs(11, 0)))/1500;
+    _thrust_rpyt_out[AP_MOTORS_MOT_1] = constrain_float(w_motor1, 0.0f, 1.0f);
+    _thrust_rpyt_out[AP_MOTORS_MOT_2] = constrain_float(w_motor2, 0.0f, 1.0f);
+    _thrust_rpyt_out[AP_MOTORS_MOT_3] = constrain_float(w_motor3, 0.0f, 1.0f);
+    _thrust_rpyt_out[AP_MOTORS_MOT_4] = constrain_float(w_motor4, 0.0f, 1.0f);
+
+    _servo_pitch1_angle = M_PI_2+float(outputs(0,0)/outputs(2,0))/angle_Scale;
+    _servo_pitch3_angle = M_PI_2+float(outputs(3,0)/outputs(5,0))/angle_Scale;
+    _servo_pitch2_angle = M_PI_2+float(outputs(6,0)/outputs(8,0))/angle_Scale;
+    _servo_pitch4_angle = M_PI_2+float(outputs(9,0)/outputs(11,0))/angle_Scale;
+
+    _servo_roll1_angle = M_PI_2+float(outputs(1,0)/outputs(2,0))/angle_Scale;
+    _servo_roll3_angle = M_PI_2+float(outputs(4,0)/outputs(5,0))/angle_Scale;
+    _servo_roll2_angle = M_PI_2+float(outputs(7,0)/outputs(8,0))/angle_Scale;
+    _servo_roll4_angle = M_PI_2+float(outputs(10,0)/outputs(11,0))/angle_Scale;
+
     }
-     
-    _servo_roll_angle = M_PI_2 + safe_asin(thrust_vec.y);
-    //gcs().send_text(MAV_SEVERITY_CRITICAL, "Fz %5.3f", throttle_thrust);
+    
     /*
         apply deadzone to revesible motors, this stops motors from reversing direction too often
         re-use yaw headroom param for deadzone, constain to a max of 25%
