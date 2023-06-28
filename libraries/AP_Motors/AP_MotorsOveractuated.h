@@ -26,7 +26,7 @@
 #define AP_4ROLL_TRIM        20 
 
 #define MU                  0.000016
-#define Km                  0.000160a
+#define Km                  0.000160
 #define TorqueLength                  0.16
 #define angle_const                  0.707106781
 class AP_MotorsOveractuated : public AP_MotorsMatrix {
