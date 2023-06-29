@@ -90,6 +90,10 @@ protected:
     float _servo_roll2_angle;
     float _servo_roll3_angle;
     float _servo_roll4_angle; 
+
+    float _previous_pitch_angles[4]; 
+    float _previous_roll_angles[4];
+
     float _roll_offset;
     float _pitch_offset; 
   
