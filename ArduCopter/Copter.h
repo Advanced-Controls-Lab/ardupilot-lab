@@ -805,7 +805,9 @@ private:
     void Log_Write_Data(LogDataID id, uint16_t value);
     void Log_Write_Data(LogDataID id, float value);
     void Log_Write_Parameter_Tuning(uint8_t param, float tuning_val, float tune_min, float tune_max);
+    void Log_Write_Overactuated(); 
     void Log_Video_Stabilisation();
+    
 #if FRAME_CONFIG == HELI_FRAME
     void Log_Write_Heli(void);
 #endif

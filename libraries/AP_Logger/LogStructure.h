@@ -257,6 +257,20 @@ struct PACKED log_RCIN {
     uint16_t chan14;
 };
 
+struct PACKED log_OverActuated{
+    LOG_PACKET_HEADER
+    uint64_t time_us 
+    float _servo_pitch1_angle;
+    float _servo_pitch2_angle;
+    float _servo_pitch3_angle;
+    float _servo_pitch4_angle;
+     
+    float _servo_roll1_angle;
+    float _servo_roll2_angle;
+    float _servo_roll3_angle;
+    float _servo_roll4_angle;
+};
+
 struct PACKED log_RCIN2 {
     LOG_PACKET_HEADER;
     uint64_t time_us;
@@ -991,6 +1005,18 @@ struct PACKED log_VER {
 // @Field: C16: channel 16 input
 // @Field: OMask: bitmask of RC channels being overridden by mavlink input
 
+// @LoggerMessage: Overactuated
+// @Description: Angles written to the servos 
+// @Field: TimeUS: Time since system startup 
+// @Field: _servo_pitch1_angle: pitch servo 1 angle
+// @Field: _servo_pitch2_angle: pitch servo 2 angle
+// @Field: _servo_pitch3_angle: pitch servo 3 angle
+// @Field: _servo_pitch4_angle: pitch servo 4 angle
+// @Field: _servo_roll1_angle: roll servo 1 angle
+// @Field: _servo_roll2_angle: roll servo 2 angle
+// @Field: _servo_roll3_angle: roll servo 3 angle
+// @Field: _servo_roll4_angle: roll servo 4 angle
+
 // @LoggerMessage: RCIN
 // @Description: RC input channels to vehicle
 // @Field: TimeUS: Time since system startup
@@ -1221,6 +1247,8 @@ LOG_STRUCTURE_FROM_GPS \
       "RCIN",  "QHHHHHHHHHHHHHH",     "TimeUS,C1,C2,C3,C4,C5,C6,C7,C8,C9,C10,C11,C12,C13,C14", "sYYYYYYYYYYYYYY", "F--------------", true }, \
     { LOG_RCIN2_MSG, sizeof(log_RCIN2), \
       "RCI2",  "QHHH",     "TimeUS,C15,C16,OMask", "sYY-", "F---", true }, \
+    { LOG_OVERACTUATED_MSG, sizeof(log_OverActuated),\
+      "OVERACT", "Qffffffff", "TimeUS,P1,P2,P3,P4,R1,R2,R3,R4", "sdddddddd","F--------",true}, \
     { LOG_RCOUT_MSG, sizeof(log_RCOUT), \
       "RCOU",  "QHHHHHHHHHHHHHH",     "TimeUS,C1,C2,C3,C4,C5,C6,C7,C8,C9,C10,C11,C12,C13,C14", "sYYYYYYYYYYYYYY", "F--------------", true  }, \
     { LOG_RCOUT2_MSG, sizeof(log_RCOUT2), \
@@ -1410,7 +1438,7 @@ enum LogMessages : uint8_t {
     LOG_VER_MSG,
     LOG_RCOUT2_MSG,
     LOG_RCOUT3_MSG,
-
+    LOG_OVERACTUATED_MSG,
     _LOG_LAST_MSG_
 };
 
