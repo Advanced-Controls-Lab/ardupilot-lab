@@ -481,7 +481,6 @@ void Copter::fourhundred_hz_logging()
 {
     if (should_log(MASK_LOG_ATTITUDE_FAST) && !copter.flightmode->logs_attitude()) {
         Log_Write_Attitude();
-        Log_Write_Overactuated();
     }
 }
 
@@ -630,24 +629,7 @@ void Copter::init_simple_bearing()
     }
 }
 
-//Function to log servo angles for overactuated drones
-void Copter::Log_Write_Overactuated()
-    {
-        struct PACKED log_OverActuated{
-            LOG_PACKET_HEADER
-            uint64_t time_us 
-            float _servo_pitch1_angle;
-            float _servo_pitch2_angle;
-            float _servo_pitch3_angle;
-            float _servo_pitch4_angle;
-            
-            float _servo_roll1_angle;
-            float _servo_roll2_angle;
-            float _servo_roll3_angle;
-            float _servo_roll4_angle;
-        };
-    logger.WriteBlock(&pkt, sizeof(pkt));
-    }
+
 
 // update_simple_mode - rotates pilot input if we are in simple mode
 void Copter::update_simple_mode(void)

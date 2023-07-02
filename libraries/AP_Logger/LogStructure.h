@@ -259,16 +259,16 @@ struct PACKED log_RCIN {
 
 struct PACKED log_OverActuated{
     LOG_PACKET_HEADER
-    uint64_t time_us 
-    float _servo_pitch1_angle;
-    float _servo_pitch2_angle;
-    float _servo_pitch3_angle;
-    float _servo_pitch4_angle;
+    uint64_t time_us; 
+    float pitch1_angle;
+    float pitch2_angle;
+    float pitch3_angle;
+    float pitch4_angle;
      
-    float _servo_roll1_angle;
-    float _servo_roll2_angle;
-    float _servo_roll3_angle;
-    float _servo_roll4_angle;
+    float roll1_angle;
+    float roll2_angle;
+    float roll3_angle;
+    float roll4_angle;
 };
 
 struct PACKED log_RCIN2 {

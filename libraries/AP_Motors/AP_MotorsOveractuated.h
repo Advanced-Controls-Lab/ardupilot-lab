@@ -29,7 +29,7 @@
 #define Km                  0.000160
 #define TorqueLength                  0.16
 #define angle_const                  0.707106781
-#define angle_Scale        1.0
+#define filter_scale        0.15
 class AP_MotorsOveractuated : public AP_MotorsMatrix {
 public:
 
@@ -62,9 +62,16 @@ public:
     void init(motor_frame_class frame_class, motor_frame_type frame_type) override;
     bool init(uint8_t expected_num_motors) override; 
 
+    // Current offset angles, radians
+
+    
+
+    
+    
 protected:
     // output - sends commands to the motors
     void output_armed_stabilizing() override;
+
 
     // nothing to do for setup, scripting will mark as initalized when done
     void setup_motors(motor_frame_class frame_class, motor_frame_type frame_type) override {};
@@ -76,11 +83,11 @@ protected:
 
     // true if motor is reversible, it can go from -Spin max to +Spin max, if false motor is can go from Spin min to Spin max
     bool _reversible[AP_MOTORS_MAX_NUM_MOTORS];
-
+    void Log_Write_Overactuated();
     // store last values to allow deadzone
     float _last_thrust_out[AP_MOTORS_MAX_NUM_MOTORS];
+    
 
-    // Current offset angles, radians
     float _servo_pitch1_angle;
     float _servo_pitch2_angle;
     float _servo_pitch3_angle;
@@ -91,12 +98,10 @@ protected:
     float _servo_roll3_angle;
     float _servo_roll4_angle; 
 
-    float _previous_pitch_angles[4]; 
-    float _previous_roll_angles[4];
-
     float _roll_offset;
     float _pitch_offset; 
-  
+    float _previous_pitch_angles[4] = {0.0f, 0.0f, 0.0f, 0.0f}; 
+    float _previous_roll_angles[4] = {0.0f, 0.0f, 0.0f, 0.0f};
 private:
     static AP_MotorsOveractuated *_singleton;
 

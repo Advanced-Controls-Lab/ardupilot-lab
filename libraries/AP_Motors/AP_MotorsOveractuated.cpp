@@ -2,8 +2,9 @@
 #include <cmath>
 #include <string>
 #include "AP_MotorsOveractuated.h"
-#include "AP_MotorsOveractuated.h"
 #include "AP_Motors_Class.h"
+
+#include <AP_Logger/AP_Logger.h>
 #include <AP_Vehicle/AP_Vehicle.h>
 #include <SRV_Channel/SRV_Channel.h>
 #include <GCS_MAVLink/GCS.h>
@@ -54,14 +55,14 @@ void AP_MotorsOveractuated::output_to_motors()
                 }
             }
             // writes the outputs to the servos for translational movement
-            rc_write(AP_MOTORS_1PITCH, 1000+AP_1PITCH_TRIM+((degrees(_servo_pitch1_angle)/180)*1000) -4500);
-            rc_write(AP_MOTORS_1ROLL, 1000+AP_1ROLL_TRIM+((degrees(_servo_roll1_angle)/180)*1000 )-4500);
-            rc_write(AP_MOTORS_2PITCH, 2000+AP_2PITCH_TRIM-((degrees(_servo_pitch2_angle)/180)*1000));
-            rc_write(AP_MOTORS_2ROLL, 2000+AP_2ROLL_TRIM-((degrees(_servo_roll2_angle)/180)*1000));
-            rc_write(AP_MOTORS_3PITCH, 2000+AP_3PITCH_TRIM-((degrees(_servo_pitch3_angle)/180)*1000)-4500);
-            rc_write(AP_MOTORS_3ROLL,1000+ AP_3ROLL_TRIM+((degrees(_servo_roll3_angle)/180)*1000)-4500 );
-            rc_write(AP_MOTORS_4PITCH,1000+ AP_4PITCH_TRIM+((degrees(_servo_pitch4_angle)/180)*1000 )-4500);
-            rc_write(AP_MOTORS_4ROLL, 2000+ AP_4ROLL_TRIM-((degrees(_servo_roll4_angle)/180)*1000 )-4500);
+            rc_write(AP_MOTORS_1PITCH, 1000+AP_1PITCH_TRIM+(((_servo_pitch1_angle)/180)*1000) );
+            rc_write(AP_MOTORS_1ROLL, 1000+AP_1ROLL_TRIM+(((_servo_roll1_angle)/180)*1000 ));
+            rc_write(AP_MOTORS_2PITCH, 2000+AP_2PITCH_TRIM-(((_servo_pitch2_angle)/180)*1000 ));
+            rc_write(AP_MOTORS_2ROLL, 2000+AP_2ROLL_TRIM-(((_servo_roll2_angle)/180)*1000) );
+            rc_write(AP_MOTORS_3PITCH, 2000+AP_3PITCH_TRIM-(((_servo_pitch3_angle)/180)*1000));
+            rc_write(AP_MOTORS_3ROLL,1000+ AP_3ROLL_TRIM+(((_servo_roll3_angle)/180)*1000) );
+            rc_write(AP_MOTORS_4PITCH,1000+ AP_4PITCH_TRIM+(((_servo_pitch4_angle)/180)*1000 ));
+            rc_write(AP_MOTORS_4ROLL, 2000+ AP_4ROLL_TRIM-(((_servo_roll4_angle)/180)*1000 ));
             break;
     }
 
@@ -72,6 +73,23 @@ void AP_MotorsOveractuated::output_to_motors()
         }
     }
 }
+
+void AP_MotorsOveractuated::Log_Write_Overactuated()
+    {
+        const struct log_OverActuated pkt = {
+            LOG_PACKET_HEADER_INIT(LOG_OVERACTUATED_MSG),
+            time_us : AP_HAL::micros64(),
+            pitch1_angle: _servo_pitch1_angle,
+            pitch2_angle: _servo_pitch2_angle,
+            pitch3_angle: _servo_pitch3_angle,
+            pitch4_angle: _servo_pitch4_angle,
+            roll1_angle: _servo_roll1_angle,
+            roll2_angle: _servo_roll2_angle,
+            roll3_angle: _servo_roll3_angle,
+            roll4_angle: _servo_roll4_angle
+        };
+    AP::logger().WriteBlock(&pkt, sizeof(pkt));
+    }
 
 void AP_MotorsOveractuated::output_armed_stabilizing()
 {
@@ -95,7 +113,6 @@ void AP_MotorsOveractuated::output_armed_stabilizing()
     // so we don't break the lean angle proportional acceleration assumption made by the position controller
     forward_thrust = get_forward() * throttle_thrust;
     right_thrust = get_lateral() * throttle_thrust;
-
 
     // set throttle limit flags
     if (throttle_thrust <= 0) {
@@ -151,73 +168,63 @@ void AP_MotorsOveractuated::output_armed_stabilizing()
         roll_thrust, 
         pitch_thrust, 
         yaw_thrust
-    }; 
+    };
+    _previous_pitch_angles[0] = 0.0f;
+    _previous_pitch_angles[1] = 0.0f;
+    _previous_pitch_angles[2] = 0.0f;
+    _previous_pitch_angles[3] = 0.0f;
+
+    _previous_roll_angles[0] = 0.0f; 
+    _previous_roll_angles[1] = 0.0f; 
+    _previous_roll_angles[2] = 0.0f; 
+    _previous_roll_angles[3] = 0.0f;
+
     matrix::Matrix<float, 6, 1> U(wrench);
-        matrix::Matrix<float, 6,12> pseudo_inverse(pseudo_inv); 
-        matrix::Matrix<float, 12, 1> outputs = pseudo_inverse.transpose() * U;
-        float w_motor1 = sqrt(abs(outputs(2, 0)))/15000;
-        float w_motor2 = sqrt(abs(outputs(5, 0)))/15000;
-        float w_motor3 = sqrt(abs(outputs(8, 0)))/15000;
-        float w_motor4 = sqrt(abs(outputs(11, 0)))/15000;
-        _thrust_rpyt_out[AP_MOTORS_MOT_1] = constrain_float(w_motor1, 0.0f, 1.0f);
-        _thrust_rpyt_out[AP_MOTORS_MOT_2] = constrain_float(w_motor2, 0.0f, 1.0f);
-        _thrust_rpyt_out[AP_MOTORS_MOT_3] = constrain_float(w_motor3, 0.0f, 1.0f);
-        _thrust_rpyt_out[AP_MOTORS_MOT_4] = constrain_float(w_motor4, 0.0f, 1.0f);
-        if(isnan(_previous_pitch_angles[0])|| isnan(_previous_roll_angles[0])){
-            float pitch1_angle = float(outputs(0,0)/outputs(2,0));
-            float pitch2_angle = float(outputs(3,0)/outputs(2,0));
-            float pitch3_angle = float(outputs(6,0)/outputs(2,0));
-            float pitch4_angle = float(outputs(9,0)/outputs(2,0));
-            _servo_pitch1_angle = M_PI_2 + remainder(pitch1_angle,M_PI);
-            _servo_pitch3_angle = M_PI_2 +remainder(pitch2_angle,M_PI);
-            _servo_pitch2_angle = M_PI_2 +remainder(pitch3_angle,M_PI);
-            _servo_pitch4_angle = M_PI_2 +remainder(pitch4_angle,M_PI);
-            _previous_pitch_angles[0] = _servo_pitch1_angle;
-            _previous_pitch_angles[1] = _servo_pitch2_angle;
-            _previous_pitch_angles[2] = _servo_pitch3_angle;
-            _previous_pitch_angles[3] = _servo_pitch4_angle;
+    matrix::Matrix<float, 6,12> pseudo_inverse(pseudo_inv); 
+    matrix::Matrix<float, 12, 1> outputs = pseudo_inverse.transpose() * U;
+    float w_motor1 = sqrt(abs(outputs(2, 0)))/15000;
+    float w_motor2 = sqrt(abs(outputs(5, 0)))/15000;
+    float w_motor3 = sqrt(abs(outputs(8, 0)))/15000;
+    float w_motor4 = sqrt(abs(outputs(11, 0)))/15000;
+    _thrust_rpyt_out[AP_MOTORS_MOT_1] = constrain_float(w_motor1, 0.0f, 1.0f);
+    _thrust_rpyt_out[AP_MOTORS_MOT_2] = constrain_float(w_motor2, 0.0f, 1.0f);
+    _thrust_rpyt_out[AP_MOTORS_MOT_3] = constrain_float(w_motor3, 0.0f, 1.0f);
+    _thrust_rpyt_out[AP_MOTORS_MOT_4] = constrain_float(w_motor4, 0.0f, 1.0f);
+    float pitch1_angle = float(outputs(0,0)/outputs(2,0));
+        float pitch2_angle = float(outputs(3,0)/outputs(2,0));
+        float pitch3_angle = float(outputs(6,0)/outputs(2,0));
+        float pitch4_angle = float(outputs(9,0)/outputs(2,0));
+        _servo_pitch1_angle =   M_PI_2_F + ((remainderf(pitch1_angle,M_PI_2_F) - _previous_pitch_angles[0]) * filter_scale) + _previous_pitch_angles[0];
+        _servo_pitch3_angle =   M_PI_2_F + ((remainderf(pitch3_angle,M_PI_2_F) - _previous_pitch_angles[1]) * filter_scale) + _previous_pitch_angles[1];
+        _servo_pitch2_angle =   M_PI_2_F + ((remainderf(pitch2_angle,M_PI_2_F) - _previous_pitch_angles[2]) * filter_scale) + _previous_pitch_angles[2];
+        _servo_pitch4_angle =   M_PI_2_F + ((remainderf(pitch4_angle,M_PI_2_F) - _previous_pitch_angles[3]) * filter_scale) + _previous_pitch_angles[3];
+        _previous_pitch_angles[0] = _servo_pitch1_angle;
+        _previous_pitch_angles[1] = _servo_pitch2_angle;
+        _previous_pitch_angles[2] = _servo_pitch3_angle;
+        _previous_pitch_angles[3] = _servo_pitch4_angle;
+        _servo_pitch1_angle =  degrees(_servo_pitch1_angle);
+        _servo_pitch3_angle =  degrees(_servo_pitch3_angle);
+        _servo_pitch2_angle =  degrees(_servo_pitch2_angle);
+        _servo_pitch4_angle =   degrees(_servo_pitch4_angle);
 
-            float roll1_angle = float(outputs(1,0)/outputs(2,0));
-            float roll2_angle = float(outputs(4,0)/outputs(2,0));
-            float roll3_angle = float(outputs(7,0)/outputs(2,0));
-            float roll4_angle = float(outputs(10,0)/outputs(2,0));
-            _servo_roll1_angle = M_PI_2 +remainder(roll1_angle,M_PI);
-            _servo_roll3_angle = M_PI_2 +remainder(roll2_angle,M_PI);
-            _servo_roll2_angle = M_PI_2 +remainder(roll3_angle,M_PI);
-            _servo_roll4_angle = M_PI_2 +remainder(roll4_angle,M_PI);
-            _previous_roll_angles[0] = _servo_roll1_angle; 
-            _previous_roll_angles[1] = _servo_roll2_angle; 
-            _previous_roll_angles[2] = _servo_roll3_angle; 
-            _previous_roll_angles[3] = _servo_roll4_angle; 
+        float roll1_angle = float(outputs(1,0)/outputs(2,0));
+        float roll2_angle = float(outputs(4,0)/outputs(2,0));
+        float roll3_angle = float(outputs(7,0)/outputs(2,0));
+        float roll4_angle = float(outputs(10,0)/outputs(2,0));
+        _servo_roll1_angle = M_PI_2_F +  ((remainderf(roll1_angle,M_PI_2_F) - _previous_roll_angles[0])*filter_scale) + _previous_roll_angles[0] ;
+        _servo_roll3_angle = M_PI_2_F +   ((remainderf(roll3_angle,M_PI_2_F) - _previous_roll_angles[1])*filter_scale) + _previous_roll_angles[1];
+        _servo_roll2_angle = M_PI_2_F +  ((remainderf(roll2_angle,M_PI_2_F) - _previous_roll_angles[2])*filter_scale) + _previous_roll_angles[2];
+        _servo_roll4_angle = M_PI_2_F + ((remainderf(roll4_angle,M_PI_2_F) - _previous_roll_angles[3])*filter_scale) + _previous_roll_angles[3];
+        _previous_roll_angles[0] = _servo_roll1_angle; 
+        _previous_roll_angles[1] = _servo_roll2_angle; 
+        _previous_roll_angles[2] = _servo_roll3_angle; 
+        _previous_roll_angles[3] = _servo_roll4_angle;
+        _servo_roll1_angle =  degrees(_servo_roll1_angle);
+        _servo_roll3_angle =  degrees(_servo_roll3_angle);
+        _servo_roll2_angle =  degrees(_servo_roll2_angle);
+        _servo_roll4_angle =  degrees(_servo_roll4_angle);
+    
         
-        }
-        else{
-            float pitch1_angle = float(outputs(0,0)/outputs(2,0));
-            float pitch2_angle = float(outputs(3,0)/outputs(2,0));
-            float pitch3_angle = float(outputs(6,0)/outputs(2,0));
-            float pitch4_angle = float(outputs(9,0)/outputs(2,0));
-            _servo_pitch1_angle = M_PI_2 + (remainder(pitch1_angle,M_PI) - _previous_pitch_angles[0]) * 0.1 + _previous_pitch_angles[0];
-            _servo_pitch3_angle = M_PI_2 + (remainder(pitch2_angle,M_PI) - _previous_pitch_angles[1]) * 0.1 + _previous_pitch_angles[1];
-            _servo_pitch2_angle = M_PI_2 + (remainder(pitch3_angle,M_PI) - _previous_pitch_angles[2]) * 0.1 + _previous_pitch_angles[2];
-            _servo_pitch4_angle = M_PI_2 + (remainder(pitch4_angle,M_PI) - _previous_pitch_angles[3]) * 0.1 + _previous_pitch_angles[3];
-            _previous_pitch_angles[0] = _servo_pitch1_angle;
-            _previous_pitch_angles[1] = _servo_pitch2_angle;
-            _previous_pitch_angles[2] = _servo_pitch3_angle;
-            _previous_pitch_angles[3] = _servo_pitch4_angle;
-
-            float roll1_angle = float(outputs(1,0)/outputs(2,0));
-            float roll2_angle = float(outputs(4,0)/outputs(2,0));
-            float roll3_angle = float(outputs(7,0)/outputs(2,0));
-            float roll4_angle = float(outputs(10,0)/outputs(2,0));
-            _servo_roll1_angle = M_PI_2 + (remainder(roll1_angle,M_PI) - _previous_roll_angles[0])*0.1 + _previous_roll_angles[0];
-            _servo_roll3_angle = M_PI_2 + (remainder(roll2_angle,M_PI) - _previous_roll_angles[1])*0.1 + _previous_roll_angles[1];
-            _servo_roll2_angle = M_PI_2 + (remainder(roll3_angle,M_PI) - _previous_roll_angles[2])*0.1 + _previous_roll_angles[2];
-            _servo_roll4_angle = M_PI_2 + (remainder(roll4_angle,M_PI) - _previous_roll_angles[3])*0.1 + _previous_roll_angles[3];
-            _previous_roll_angles[0] = _servo_roll1_angle; 
-            _previous_roll_angles[1] = _servo_roll2_angle; 
-            _previous_roll_angles[2] = _servo_roll3_angle; 
-            _previous_roll_angles[3] = _servo_roll4_angle;
-        }
     /*
     if ((thrust_vec.x < 0.005)||((thrust_vec.y <0.005))){
         _thrust_rpyt_out[AP_MOTORS_MOT_1] = 0.0f;
@@ -225,15 +232,15 @@ void AP_MotorsOveractuated::output_armed_stabilizing()
         _thrust_rpyt_out[AP_MOTORS_MOT_3] = 0.0f;
         _thrust_rpyt_out[AP_MOTORS_MOT_4] = 0.0f; 
 
-        _servo_pitch1_angle = M_PI_2;
-        _servo_pitch2_angle = M_PI_2;
-        _servo_pitch3_angle = M_PI_2;
-        _servo_pitch4_angle = M_PI_2;
+        _servo_pitch1_angle = M_PI_2_F;
+        _servo_pitch2_angle = M_PI_2_F;
+        _servo_pitch3_angle = M_PI_2_F;
+        _servo_pitch4_angle = M_PI_2_F;
 
-        _servo_roll1_angle = M_PI_2 ;
-        _servo_roll3_angle = M_PI_2 ;
-        _servo_roll2_angle = M_PI_2 ;
-        _servo_roll4_angle = M_PI_2 ;   
+        _servo_roll1_angle = M_PI_2_F ;
+        _servo_roll3_angle = M_PI_2_F ;
+        _servo_roll2_angle = M_PI_2_F ;
+        _servo_roll4_angle = M_PI_2_F ;   
     }
     else{
     
@@ -253,10 +260,10 @@ void AP_MotorsOveractuated::output_armed_stabilizing()
             float pitch2_angle = float(outputs(3,0)/outputs(2,0));
             float pitch3_angle = float(outputs(6,0)/outputs(2,0));
             float pitch4_angle = float(outputs(9,0)/outputs(2,0));
-            _servo_pitch1_angle = remainder(pitch1_angle,M_PI);
-            _servo_pitch3_angle = remainder(pitch2_angle,M_PI);
-            _servo_pitch2_angle = remainder(pitch3_angle,M_PI);
-            _servo_pitch4_angle = remainder(pitch4_angle,M_PI);
+            _servo_pitch1_angle = remainderf(pitch1_angle,M_PI);
+            _servo_pitch3_angle = remainderf(pitch2_angle,M_PI);
+            _servo_pitch2_angle = remainderf(pitch3_angle,M_PI);
+            _servo_pitch4_angle = remainderf(pitch4_angle,M_PI);
             _previous_pitch_angles[0] = _servo_pitch1_angle;
             _previous_pitch_angles[1] = _servo_pitch2_angle;
             _previous_pitch_angles[2] = _servo_pitch3_angle;
@@ -266,10 +273,10 @@ void AP_MotorsOveractuated::output_armed_stabilizing()
             float roll2_angle = float(outputs(4,0)/outputs(2,0));
             float roll3_angle = float(outputs(7,0)/outputs(2,0));
             float roll4_angle = float(outputs(10,0)/outputs(2,0));
-            _servo_roll1_angle = remainder(roll1_angle,M_PI);
-            _servo_roll3_angle = remainder(roll2_angle,M_PI);
-            _servo_roll2_angle = remainder(roll3_angle,M_PI);
-            _servo_roll4_angle = remainder(roll4_angle,M_PI);
+            _servo_roll1_angle = remainderf(roll1_angle,M_PI);
+            _servo_roll3_angle = remainderf(roll2_angle,M_PI);
+            _servo_roll2_angle = remainderf(roll3_angle,M_PI);
+            _servo_roll4_angle = remainderf(roll4_angle,M_PI);
             _previous_roll_angles[0] = _servo_roll1_angle; 
             _previous_roll_angles[1] = _servo_roll2_angle; 
             _previous_roll_angles[2] = _servo_roll3_angle; 
@@ -281,10 +288,10 @@ void AP_MotorsOveractuated::output_armed_stabilizing()
             float pitch2_angle = float(outputs(3,0)/outputs(2,0));
             float pitch3_angle = float(outputs(6,0)/outputs(2,0));
             float pitch4_angle = float(outputs(9,0)/outputs(2,0));
-            _servo_pitch1_angle = (remainder(pitch1_angle,M_PI) - _previous_pitch_angles[0]) * 0.1 + _previous_pitch_angles[0];
-            _servo_pitch3_angle = (remainder(pitch2_angle,M_PI) - _previous_pitch_angles[1]) * 0.1 + _previous_pitch_angles[1];
-            _servo_pitch2_angle = (remainder(pitch3_angle,M_PI) - _previous_pitch_angles[2]) * 0.1 + _previous_pitch_angles[2];
-            _servo_pitch4_angle = (remainder(pitch4_angle,M_PI) - _previous_pitch_angles[3]) * 0.1 + _previous_pitch_angles[3];
+            _servo_pitch1_angle = (remainderf(pitch1_angle,M_PI) - _previous_pitch_angles[0]) * 0.1 + _previous_pitch_angles[0];
+            _servo_pitch3_angle = (remainderf(pitch2_angle,M_PI) - _previous_pitch_angles[1]) * 0.1 + _previous_pitch_angles[1];
+            _servo_pitch2_angle = (remainderf(pitch3_angle,M_PI) - _previous_pitch_angles[2]) * 0.1 + _previous_pitch_angles[2];
+            _servo_pitch4_angle = (remainderf(pitch4_angle,M_PI) - _previous_pitch_angles[3]) * 0.1 + _previous_pitch_angles[3];
             _previous_pitch_angles[0] = _servo_pitch1_angle;
             _previous_pitch_angles[1] = _servo_pitch2_angle;
             _previous_pitch_angles[2] = _servo_pitch3_angle;
@@ -294,10 +301,10 @@ void AP_MotorsOveractuated::output_armed_stabilizing()
             float roll2_angle = float(outputs(4,0)/outputs(2,0));
             float roll3_angle = float(outputs(7,0)/outputs(2,0));
             float roll4_angle = float(outputs(10,0)/outputs(2,0));
-            _servo_roll1_angle = (remainder(roll1_angle,M_PI) - _previous_roll_angles[0])*0.1 + _previous_roll_angles[0];
-            _servo_roll3_angle = (remainder(roll2_angle,M_PI) - _previous_roll_angles[1])*0.1 + _previous_roll_angles[1];
-            _servo_roll2_angle = (remainder(roll3_angle,M_PI) - _previous_roll_angles[2])*0.1 + _previous_roll_angles[2];
-            _servo_roll4_angle = (remainder(roll4_angle,M_PI) - _previous_roll_angles[3])*0.1 + _previous_roll_angles[3];
+            _servo_roll1_angle = (remainderf(roll1_angle,M_PI) - _previous_roll_angles[0])*0.1 + _previous_roll_angles[0];
+            _servo_roll3_angle = (remainderf(roll2_angle,M_PI) - _previous_roll_angles[1])*0.1 + _previous_roll_angles[1];
+            _servo_roll2_angle = (remainderf(roll3_angle,M_PI) - _previous_roll_angles[2])*0.1 + _previous_roll_angles[2];
+            _servo_roll4_angle = (remainderf(roll4_angle,M_PI) - _previous_roll_angles[3])*0.1 + _previous_roll_angles[3];
             _previous_roll_angles[0] = _servo_roll1_angle; 
             _previous_roll_angles[1] = _servo_roll2_angle; 
             _previous_roll_angles[2] = _servo_roll3_angle; 
@@ -309,9 +316,8 @@ void AP_MotorsOveractuated::output_armed_stabilizing()
     
     */
 
-    
+    Log_Write_Overactuated();
 }
-
 
 // sets the roll and pitch offset, this rotates the thrust vector in body frame
 // these are typically set such that the throttle thrust vector is earth frame up
