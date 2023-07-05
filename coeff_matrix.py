@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpb 
 
-mu = (1.6*(10**-6))
+mu = (1.6*(10**-6)/(1.94 *0.25 * 9.81 * (100/70)))
 Km = (2.58 *(10**-8))
 L = 0.16
 c = 0.707106781
@@ -31,7 +31,7 @@ angular_velocity = np.sqrt(np.abs(outputs[2:outputs.shape[0]:3]))/1500
 
 alpha_angles = np.zeros(outputs.shape)
 beta_angles = np.zeros(outputs.shape)
-lowpass_filter = 1
+lowpass_filter = 0
 previous_beta = [0,0,0,0] 
 previous_alpha = [0,0,0,0] 
 for j in range(0, outputs.shape[1]):
