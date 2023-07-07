@@ -25,8 +25,7 @@ noise[3] = np.linspace(0.01, 1.0, points)
 outputs = np.linalg.pinv(coeff_array).dot(noise)
 np.set_printoptions(suppress=True)
 #print(repr(np.linalg.pinv(coeff_array).T.reshape((72,))))
-print(f" This is the condition number for the pseduo-inverse {np.linalg.cond(np.linalg.pinv(coeff_array))}")
-print(f"This is the condition number for the coefficient matrix {np.linalg.cond(coeff_array)}")
+print(np.linalg.cond(np.linalg.pinv(coeff_array)))
 angular_velocity = np.sqrt(np.abs(outputs[2:outputs.shape[0]:3]))/1500
 
 alpha_angles = np.zeros(outputs.shape)
@@ -40,9 +39,9 @@ for j in range(0, outputs.shape[1]):
 
         if previous_alpha[counter] == 0 or previous_beta[counter] == 0 or lowpass_filter == 0:
             alpha_angles2 = (outputs[i,j]/outputs[i+2,j]) 
-            alpha_angles[i//3,j] = np.remainder(alpha_angles2, np.pi) * (180/np.pi)
+            alpha_angles[i,j] = np.remainder(alpha_angles2, np.pi) * (180/np.pi)
             beta_angles2 = (outputs[i+1,j]/outputs[i+2,j]) 
-            beta_angles[i//3,j] = np.remainder(beta_angles2, np.pi) * (180/np.pi)
+            beta_angles[i,j] = np.remainder(beta_angles2, np.pi) * (180/np.pi)
             previous_alpha[counter] = alpha_angles[i//3,j]
             previous_beta[counter] = beta_angles[i//3,j]
             counter+=1
@@ -83,10 +82,11 @@ for row in range(2):
 plot_colors = ['turquoise', 'steelblue', 'orchid', 'red']
 pitch_angles = ["alpha 1", "alpha 2 ", "alpha 3", "alpha 4"]
 roll_angles = ["beta 1", "beta 2 ", "beta 3", "beta 4"]
-
-for i in range(0, 2): 
-    axes[0, 2].plot(noise[3], beta_angles[(i)][:], color=plot_colors[i], label=roll_angles[i])
-    axes[1, 2].plot(noise[3], alpha_angles[i][:], color=plot_colors[i], label=pitch_angles[i])
+print(beta_angles)
+for i in range(0, outputs.shape[0], 3):
+    print(i) 
+    axes[0, 2].plot(noise[3], beta_angles[(i)][:], color=plot_colors[(i-1)//3], label=roll_angles[(i-1)//3])
+    axes[1, 2].plot(noise[3], alpha_angles[(i)][:], color=plot_colors[(i-1)//3], label=pitch_angles[(i-1)//3])
     axes[0, 2].set_title("Roll Angles plotted against each other")
     axes[1, 2].set_title("Pitch Angles plotted against each other")
     axes[0, 2].legend()

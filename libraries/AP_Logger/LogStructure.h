@@ -269,6 +269,13 @@ struct PACKED log_OverActuated{
     float roll2_angle;
     float roll3_angle;
     float roll4_angle;
+
+    float forward_thrust; 
+    float right_thrust; 
+    float throttle_thrust; 
+    float roll_thrust; 
+    float pitch_thrust; 
+    float yaw_thrust; 
 };
 
 struct PACKED log_RCIN2 {
@@ -1248,7 +1255,7 @@ LOG_STRUCTURE_FROM_GPS \
     { LOG_RCIN2_MSG, sizeof(log_RCIN2), \
       "RCI2",  "QHHH",     "TimeUS,C15,C16,OMask", "sYY-", "F---", true }, \
     { LOG_OVERACTUATED_MSG, sizeof(log_OverActuated),\
-      "OVERACT", "Qffffffff", "TimeUS,P1,P2,P3,P4,R1,R2,R3,R4", "sdddddddd","F--------",true}, \
+      "OVERACT", "Qffffffffffffff", "TimeUS,P1,P2,P3,P4,R1,R2,R3,R4,FX,FY,FZ,TR,TP,TY", "sdddddddd------","F--------------",true}, \
     { LOG_RCOUT_MSG, sizeof(log_RCOUT), \
       "RCOU",  "QHHHHHHHHHHHHHH",     "TimeUS,C1,C2,C3,C4,C5,C6,C7,C8,C9,C10,C11,C12,C13,C14", "sYYYYYYYYYYYYYY", "F--------------", true  }, \
     { LOG_RCOUT2_MSG, sizeof(log_RCOUT2), \

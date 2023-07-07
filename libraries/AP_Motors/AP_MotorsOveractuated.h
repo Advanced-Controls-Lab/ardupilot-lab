@@ -29,7 +29,7 @@
 #define Km                  0.000160
 #define TorqueLength                  0.16
 #define angle_const                  0.707106781
-#define filter_scale        0.15
+#define filter_scale        0.5
 class AP_MotorsOveractuated : public AP_MotorsMatrix {
 public:
 
@@ -102,6 +102,8 @@ protected:
     float _pitch_offset; 
     float _previous_pitch_angles[4] = {0.0f, 0.0f, 0.0f, 0.0f}; 
     float _previous_roll_angles[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+    float _previous_thrust[6] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+
 private:
     static AP_MotorsOveractuated *_singleton;
 
