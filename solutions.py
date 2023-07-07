@@ -7,7 +7,7 @@ Km = (2.58 * (10**-8))/(1.94*0.5*(100/70)*9.81*0.16)
 L = 0.16
 c = 0.707106781
 A = c * L * mu
-lamb = (2 * (10**-11))
+lamb = (5 * (10**-9))
 
 coefficient_matrix = [
        [-float(mu), 0.0,0.0, -float(mu), 0.0,0.0,-float(mu), 0.0,0.0, -float(mu), 0.0, 0.0], 
@@ -31,49 +31,30 @@ coeff_array = np.matrix(np.array(coefficient_matrix))
 B_array = np.matrix(np.identity(12))
 B_array[np.arange(1, 12), np.arange(0,11)] = -1 
 points = 500
-noise = np.random.normal(0.01,0.02,6*points).reshape((6,points))
-noise[1] = np.linspace(0.01, 1.0 ,points)
-noise[4] = np.linspace(0.01, 1.0, points)
-#outputs = np.linalg.pinv(coeff_array).dot(noise)
+noise = np.random.normal(0.001,0.02,6*points).reshape((6,points))
+noise[2] = np.linspace(0.01, 1.0 ,points)
+#noise[3] = np.linspace(0.01, 1.0, points)
 lambda_array = lamb * np.identity(12)
-sol_array = np.linalg.inv((coeff_array.H.dot(coeff_array) + (lamb**2)*B_array.H.dot(B_array))).dot(coeff_array.H) 
+sol_array = np.linalg.pinv((coeff_array.T.dot(coeff_array) + (lamb**2)*B_array.T.dot(B_array))).dot(coeff_array.T) 
+sol_array2 = np.linalg.pinv((coeff_array.T.dot(coeff_array) + (lamb**2)*np.matrix(np.identity(12)))).dot(coeff_array.T)
 outputs = sol_array.dot(noise)
 np.set_printoptions(suppress=True)
 print(repr(sol_array.T.reshape((72,))))
+print(np.linalg.cond(sol_array))
 angular_velocity = np.sqrt(np.abs(outputs[2:outputs.shape[0]:3]))/1500
 
-alpha_angles = np.zeros(outputs.shape)
-beta_angles = np.zeros(outputs.shape)
-lowpass_filter = 1
-previous_beta = [0,0,0,0] 
-previous_alpha = [0,0,0,0] 
-for j in range(0, outputs.shape[1]):
-    counter = 0
-    for i in range(0,outputs.shape[0],3):
+beta_angles = np.remainder(outputs[np.arange(1, 12, 3)]/outputs[np.arange(2, 12, 3)], np.pi)
+alpha_angles = np.remainder(outputs[np.arange(0, 10, 3)]/outputs[np.arange(2,12, 3)], np.pi) 
+beta_angles *= (180/np.pi)
+alpha_angles *= (180/np.pi)
 
-        if previous_alpha[counter] == 0 or previous_beta[counter] == 0 or lowpass_filter == 0:
-            alpha_angles2 = (outputs[i,j]/outputs[i+2,j]) 
-            alpha_angles[i//3,j] = np.remainder(alpha_angles2, np.pi) * (180/np.pi)
-            beta_angles2 = (outputs[i+1,j]/outputs[i+2,j]) 
-            beta_angles[i//3,j] = np.remainder(beta_angles2, np.pi) * (180/np.pi)
-            previous_alpha[counter] = alpha_angles[i//3,j]
-            previous_beta[counter] = beta_angles[i//3,j]
-            counter+=1
-        else: 
-            alpha_angles2 = (outputs[i,j]/outputs[i+2,j]) 
-            alpha_angles[i//3,j] = 0.5 * (np.remainder(alpha_angles2, np.pi) * (180/np.pi) - previous_alpha[counter]) +(previous_alpha[counter])
-            beta_angles2 = (outputs[i+1,j]/outputs[i+2,j]) 
-            beta_angles[i//3,j] = 0.5 *(np.remainder(beta_angles2, np.pi) * (180/np.pi) - previous_beta[counter]) + (previous_beta[counter])
-            previous_alpha[counter] = alpha_angles[i//3,j]
-            previous_beta[counter] = beta_angles[i//3,j] 
-            counter+=1   
 time = np.linspace(0,points,num=points)
 fig,axes = plt.subplots(ncols=4, nrows=2, figsize=(5,6))
 counter = 1
 for row in range(2): 
     for col in range(2): 
-        axes[row, col].plot(noise[3], alpha_angles[counter-1].T, color='red', label="pitch angle")
-        axes[row, col].plot(noise[3], beta_angles[counter-1].T, color='blue', label="roll angle")
+        axes[row, col].plot(noise[2], alpha_angles[counter-1].T, color='red', label="pitch angle")
+        axes[row, col].plot(noise[2], beta_angles[counter-1].T, color='blue', label="roll angle")
         axes[row, col].legend()
         axes[row, col].set_title(f"Servo Angles for Motor {counter}")
         axes[row, col].set_xlabel("points(t)")
@@ -93,4 +74,3 @@ for row in range(2):
         counter+=1
 
 plt.show()
-
