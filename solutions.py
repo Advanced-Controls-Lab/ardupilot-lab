@@ -21,17 +21,17 @@ coefficient_matrix = [
 C = 0.0
 
 coeff_array = normalize(np.array(coefficient_matrix))
-#coeff_array[0:3] /= (1.94*9.81*0.25*(100/70))
-#coeff_array[3:6] /= (1.94*0.5*(100/70)*9.81*0.16)
+print(np.linalg.cond(coeff_array))
 w = np.matrix(np.identity(12))
 for i in range(0,12,3): 
-    w[i,i] = 0.125
-    w[i+1, i+1] = 0.125 
-    w[i+2, i+2] = 0.75
+    w[i,i] = 0.3
+    w[i+1, i+1] = 0.3 
+    w[i+2, i+2] = 0.4
 points = 1000
-noise = np.random.normal(0.15,0.01,6*points).reshape((6,points))
-noise[5] = 0.01
-noise[2] = np.linspace(0, 1, points)
+noise = np.random.normal(0.2,0.01,6*points).reshape((6,points))
+#noise[0] = np.linspace(0.01, 0.15, points)
+#noise[1] = np.linspace(0.01, 0.15, points)
+noise[2] = np.linspace(0.01, 1, points)
 lambda_array = lamb * np.identity(12)
 w_1 = np.linalg.inv(w)
 outputs = ((w_1.dot(coeff_array.T)).dot(np.linalg.inv(coeff_array.dot(w_1.dot(coeff_array.T))))).dot(noise)
@@ -39,7 +39,7 @@ outputs = ((w_1.dot(coeff_array.T)).dot(np.linalg.inv(coeff_array.dot(w_1.dot(co
 np.set_printoptions(suppress=True)
 #print(repr(sol_array.T.reshape((72,))))
 #print(np.linalg.cond(sol_array))
-angular_velocity = np.sqrt(np.abs(outputs[2:outputs.shape[0]:3] - (1725**2)))
+angular_velocity = np.sqrt(np.abs(outputs[2:outputs.shape[0]:3]))
 
 beta_angles = np.remainder(outputs[np.arange(1, 12, 3)]/outputs[np.arange(2, 12, 3)], np.pi)
 alpha_angles = np.remainder(outputs[np.arange(0, 10, 3)]/outputs[np.arange(2,12, 3)], np.pi) 
@@ -51,8 +51,8 @@ fig,axes = plt.subplots(ncols=4, nrows=2, figsize=(5,6))
 counter = 1
 for row in range(2): 
     for col in range(2): 
-        axes[row, col].plot(noise[2], alpha_angles[counter-1].T, color='red', label="pitch angle")
-        axes[row, col].plot(noise[2], beta_angles[counter-1].T, color='blue', label="roll angle")
+        axes[row, col].plot(time, alpha_angles[counter-1].T, color='red', label="pitch angle")
+        axes[row, col].plot(time, beta_angles[counter-1].T, color='blue', label="roll angle")
         axes[row, col].legend()
         axes[row, col].set_title(f"Servo Angles for Motor {counter}")
         axes[row, col].set_xlabel("points(t)")
