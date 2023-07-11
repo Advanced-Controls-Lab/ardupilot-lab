@@ -22,13 +22,13 @@ coeff_array = np.matrix(np.array(coefficient_matrix))
 B_array = np.matrix(np.identity(12))
 B_array[np.arange(1, 12), np.arange(0,11)] = -1 
 points = 500
-noise = np.random.normal(0.01,0.02,6*points).reshape((6,points))
-noise[1] = np.linspace(0.01, 1.0 ,points)
-noise[4] = np.linspace(0.01, 1.0, points)
+noise = np.random.normal(0.15,0.02,6*points).reshape((6,points))
+noise += np.array([0, 0, (1.94*9.81), 0, 0, 0]).reshape((6,1))
 #outputs = np.linalg.pinv(coeff_array).dot(noise)
 lambda_array = lamb * np.identity(12)
 sol_array = np.linalg.inv((coeff_array.H.dot(coeff_array) + (lamb**2)*B_array.H.dot(B_array))).dot(coeff_array.H) 
 outputs = sol_array.dot(noise)
+
 np.set_printoptions(suppress=True)
 print(repr(sol_array.T.reshape((72,))))
 angular_velocity = np.sqrt(np.abs(outputs[2:outputs.shape[0]:3]))/1500
@@ -64,8 +64,8 @@ fig,axes = plt.subplots(ncols=3, nrows=2, figsize=(5,6))
 counter = 1
 for row in range(2): 
     for col in range(2): 
-        axes[row, col].plot(noise[3], alpha_angles[counter-1].T, color='red', label="pitch angle")
-        axes[row, col].plot(noise[3], beta_angles[counter-1].T, color='blue', label="roll angle")
+        axes[row, col].plot(time, alpha_angles[counter-1].T, color='red', label="pitch angle")
+        axes[row, col].plot(time, beta_angles[counter-1].T, color='blue', label="roll angle")
         axes[row, col].legend()
         axes[row, col].set_title(f"Servo Angles for Motor {counter}")
         axes[row, col].set_xlabel("points(t)")
@@ -87,7 +87,7 @@ for row in range(2):
 plot_colors = ['turquoise', 'steelblue', 'orchid', 'red']
 pitch_angles = ["alpha 1", "alpha 2 ", "alpha 3", "alpha 4"]
 roll_angles = ["beta 1", "beta 2 ", "beta 3", "beta 4"]
-
+'''
 for i in range(0, 2): 
     axes[0, 2].plot(noise[3], beta_angles[(i)][:], color=plot_colors[i], label=roll_angles[i])
     axes[1, 2].plot(noise[3], alpha_angles[i][:], color=plot_colors[i], label=pitch_angles[i])
@@ -95,5 +95,6 @@ for i in range(0, 2):
     axes[1, 2].set_title("Pitch Angles plotted against each other")
     axes[0, 2].legend()
     axes[1,2].legend()
+    '''
 plt.show()
 
