@@ -29,7 +29,7 @@
 #define Km                  0.000160
 #define TorqueLength                  0.16
 #define angle_const                  0.707106781
-#define filter_scale        1.0
+#define filter_scale        1.0f
 class AP_MotorsOveractuated : public AP_MotorsMatrix {
 public:
 
