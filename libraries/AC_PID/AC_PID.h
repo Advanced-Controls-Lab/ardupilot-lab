@@ -6,6 +6,7 @@
 #include <AP_Common/AP_Common.h>
 #include <AP_Param/AP_Param.h>
 #include <stdlib.h>
+#include <AP_Math/math.hpp>
 #include <cmath>
 #include <Filter/SlewLimiter.h>
 
