@@ -83,7 +83,6 @@ protected:
 
     // true if motor is reversible, it can go from -Spin max to +Spin max, if false motor is can go from Spin min to Spin max
     bool _reversible[AP_MOTORS_MAX_NUM_MOTORS];
-    void Log_Write_Overactuated();
     // store last values to allow deadzone
     float _last_thrust_out[AP_MOTORS_MAX_NUM_MOTORS];
     

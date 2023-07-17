@@ -60,29 +60,6 @@ void AP_MotorsOveractuated::output_to_motors()
     }
 }
 
-void AP_MotorsOveractuated::Log_Write_Overactuated()
-    {
-        const struct log_OverActuated pkt = {
-            LOG_PACKET_HEADER_INIT(LOG_OVERACTUATED_MSG),
-            time_us : AP_HAL::micros64(),
-            pitch1_angle: _servo_pitch1_angle,
-            pitch2_angle: _servo_pitch2_angle,
-            pitch3_angle: _servo_pitch3_angle,
-            pitch4_angle: _servo_pitch4_angle,
-            roll1_angle: _servo_roll1_angle,
-            roll2_angle: _servo_roll2_angle,
-            roll3_angle: _servo_roll3_angle,
-            roll4_angle: _servo_roll4_angle, 
-            forward_thrust: _previous_thrust[0], 
-            right_thrust: _previous_thrust[1], 
-            throttle_thrust: _previous_thrust[2], 
-            roll_thrust: _previous_thrust[3], 
-            pitch_thrust: _previous_thrust[4], 
-            yaw_thrust: _previous_thrust[5]
-            
-        };
-    AP::logger().WriteBlock(&pkt, sizeof(pkt));
-    }
 
 void AP_MotorsOveractuated::output_armed_stabilizing()
 {
@@ -252,7 +229,7 @@ void AP_MotorsOveractuated::output_armed_stabilizing()
     _servo_roll4_angle =  degrees(_servo_roll4_angle);
     //}
 
-    Log_Write_Overactuated();
+   
 }
 
 // sets the roll and pitch offset, this rotates the thrust vector in body frame

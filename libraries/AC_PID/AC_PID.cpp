@@ -132,7 +132,8 @@ void AC_PID::slew_limit(float smax)
 //  target and error are filtered
 //  the derivative is then calculated and filtered
 //  the integral is then updated based on the setting of the limit flag
-float AC_PID::update_all(float target, float measurement, bool limit)
+//  param : 1 = Roll, 2 = Pitch, 3 = Yaw
+float AC_PID::update_all(float target, float measurement, int param, bool limit)
 {
     // don't process inf or NaN
     if (!isfinite(target) || !isfinite(measurement)) {
@@ -176,7 +177,30 @@ float AC_PID::update_all(float target, float measurement, bool limit)
     _pid_info.P = P_out;
     _pid_info.D = D_out;
 
-    return P_out + _integrator + D_out;
+    // float output = P_out + _integrator + D_out; // Very low values (10^-3 maybe 10^-2 but rare)
+
+    // Adaptive Controller (We consider ref_state = target, ref_error_integral = 0)
+    error_integral += _dt*(-_error);
+    float u_nominal = (- measurement - error_integral)/500;
+    float err[2] = {measurement - target, error_integral - 0};
+    matrix::Matrix<float, 1, 2> e(err);
+    float w_array[4] = {measurement, error_integral, target, 1};
+    matrix::Matrix<float, 4, 1> w(w_array);
+    matrix::Matrix<float, 4, 1> MRAC_coef(MRAC_array);
+    matrix::Matrix<float, 2, 2> P(P_array);
+    matrix::Matrix<float, 2, 1> B(B_array);
+    MRAC_coef += _dt*w*e*P*B;
+    // I transpose it then
+    MRAC_array[0] = MRAC_coef(0, 0);
+    MRAC_array[1] = MRAC_coef(1, 0);
+    MRAC_array[2] = MRAC_coef(2, 0);
+    MRAC_array[3] = MRAC_coef(3, 0);
+    matrix::Matrix<float, 4, 1> MRAC_coef2(MRAC_array);
+    float Gamma = 0.1;
+    float u_adapt = (-Gamma*MRAC_coef2.transpose()*w)(0,0);
+    float output = u_nominal + u_adapt;
+
+    return output;
 }
 
 //  update_error - set error input to PID controller and calculate outputs

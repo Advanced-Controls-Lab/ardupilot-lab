@@ -35,7 +35,7 @@ public:
     //  target and error are filtered
     //  the derivative is then calculated and filtered
     //  the integral is then updated based on the setting of the limit flag
-    float update_all(float target, float measurement, bool limit = false);
+    float update_all(float target, float measurement, int param, bool limit = false);
 
     //  update_error - set error input to PID controller and calculate outputs
     //  target is set to zero and error is set and filtered
@@ -156,6 +156,10 @@ protected:
     float _error;             // error value to enable filtering
     float _derivative;        // derivative value to enable filtering
     int8_t _slew_limit_scale;
+    float error_integral;
+    float B_array[2] = {1, 0};
+    float P_array[4] = {0.01, 0.01, 0.005, 1.005};
+    float MRAC_array[4] = {0, 0, 0, 0};
 
     AP_PIDInfo _pid_info;
 };
