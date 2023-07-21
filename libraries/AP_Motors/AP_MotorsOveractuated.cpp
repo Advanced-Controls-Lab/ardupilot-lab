@@ -37,7 +37,21 @@ void AP_MotorsOveractuated::output_to_motors()
             // set motor output based on thrust requests
             for (uint8_t i = 0; i < AP_MOTORS_MAX_NUM_MOTORS; i++) {
                 if (motor_enabled[i]) {
-                    set_actuator_with_slew(_actuator[i], thrust_to_actuator(_thrust_rpyt_out[i]));
+                    if (_reversible[i]) {
+                        // revesible motor can provide both positive and negative thrust, +- spin max, spin min does not apply
+                        if (is_positive(_thrust_rpyt_out[i])) { 
+                            _actuator[i] = apply_thrust_curve_and_volt_scaling(_thrust_rpyt_out[i]) *_spin_max;
+
+                        } else if (is_negative(_thrust_rpyt_out[i])) {
+                            _actuator[i] = apply_thrust_curve_and_volt_scaling(-_thrust_rpyt_out[i]) * _spin_max;
+
+                        } else {
+                            _actuator[i] = 0.0f;
+                        }
+                    } else {
+                        // motor can only provide trust in a single direction, spin min to spin max as 'normal' copter
+                         _actuator[i] = thrust_to_actuator(_thrust_rpyt_out[i]);
+                    }
                 }
             }
             // writes the outputs to the servos for translational movement
@@ -144,39 +158,62 @@ void AP_MotorsOveractuated::output_armed_stabilizing()
         limit.pitch = true;
         limit.yaw = true;
     }
-    /*
-    thrust_vec.x = (filter_scale * thrust_vec.x) + ((1-filter_scale) * _previous_thrust[0]);
-    thrust_vec.y = (filter_scale * thrust_vec.y) + ((1-filter_scale) * _previous_thrust[1]);
-    thrust_vec.z = (filter_scale * thrust_vec.z) + ((1-filter_scale) * _previous_thrust[2]);
-    roll_thrust = (filter_scale * roll_thrust) + ((1-filter_scale) * _previous_thrust[3]);
-    pitch_thrust = (filter_scale * pitch_thrust) + ((1-filter_scale) * _previous_thrust[4]);
-    yaw_thrust = (filter_scale * yaw_thrust) + ((1-filter_scale) * _previous_thrust[5]);
-    */
+
+
+    thrust_vec.x = thrust_vec.x * (1.94 * 9.81 * (0.26179938779));
+    thrust_vec.y = thrust_vec.y * (1.94 * 9.81 * (0.26179938779));
+    thrust_vec.z = thrust_vec.z * (1.94 * 9.81 * 2.5);  
+    yaw_thrust = yaw_thrust * -0.50;
+    pitch_thrust = pitch_thrust * 1.5; 
+    roll_thrust = roll_thrust * 1.5 ;  
     _previous_thrust[0] = thrust_vec.x; 
     _previous_thrust[1] = thrust_vec.y;
     _previous_thrust[2] = thrust_vec.z; 
     _previous_thrust[3] = roll_thrust; 
-    _previous_thrust[4] = pitch_thrust; 
-    _previous_thrust[5] = yaw_thrust; 
+    _previous_thrust[4] = pitch_thrust ; 
+    _previous_thrust[5] = yaw_thrust ; 
 
 
 
     
     float sol_array[72] = {
-         0.5f       , 0.0f        ,  0.01796959f,  0.32341432f,  0.01657949f,0.35841223f, 
-         0.0f        ,  0.5f       ,  0.01763923f,  0.01627469f,-0.29056013f,  0.3518231f, 
-         0.0f        ,  0.0f        , -0.49972811f,-0.46107004f,  0.46157175f,  0.00542288f,  
-         0.5       ,  0.0f        ,-0.01763923f,  0.29056013f, -0.01627469f, -0.3518231f,  
-         0.0f        ,0.5f       , -0.01796959f, -0.01657949f, -0.32341432f, -0.35841223f,
-        0.0f        ,  0.0f        , -0.49972811f,  0.46157175f, -0.46107004f,0.00542288f,  
-        0.5f       ,  0.0f        , -0.01796959f, -0.32341432f, -0.01657949f, -0.35841223f, 
-        0.0f        ,  0.5f       ,  0.01796959f,0.01657949f,  0.32341432f,  0.35841223f,  
-        0.0f        ,  0.0f        ,-0.50031897f,  0.4610266f,  0.4610266f, -0.00636201f,  
-        0.5f      , 0.0f        ,  0.01763923f, -0.29056013f,  0.01627469f,  0.3518231f,
-        0.0f        ,  0.5f       , -0.01763923f, -0.01627469f,  0.29056013f,-0.3518231f , 
-        0.0f        ,  0.0f        , -0.5002248f, -0.4615283f,-0.4615283f, -0.00448376f
+        0.5f       ,  0.0f        ,  0.01759198f,  0.05313416f, -0.01741598f,
+        0.35088059f,  0.0f        ,  0.5f       ,  0.01794574f, -0.0177662f,
+       -0.08831634f,  0.35793661f, 0.0f        , 0.0f        , -0.49873374f,
+        0.49374406f, -0.49625125f,  0.02525626f,  0.5f       , 0.0f        ,
+       -0.01794574f,  0.08831634f,  0.0177662f , -0.35793661f, 0.0f        ,
+        0.5f       , -0.01759198f,  0.01741598f, -0.05313416f, -0.35088059f,
+        0.0f        ,  0.0f        , -0.49873374f, -0.49625125f,  0.49374406f,
+        0.02525626f,  0.5f       , 0.0f        , -0.01759198f, -0.05313416f,
+        0.01741598f, -0.35088059f,  0.0f        ,  0.5f       ,  0.01759198f,
+       -0.01741598f,  0.05313416f,  0.35088059f,  0.0f        , 0.0f        ,
+       -0.50131669f, -0.49369414f, -0.49369414f, -0.02626193f,  0.5f       ,
+        0.0f        ,  0.01794574f, -0.08831634f, -0.0177662f ,  0.35793661f,
+       0.0f        ,  0.5f       , -0.01794574f,  0.0177662f ,  0.08831634f,
+       -0.35793661f, 0.0f        ,  0.0f        , -0.50121584f,  0.49620133f,
+        0.49620133f, -0.02425059f
     };
-
+    /*
+    weighted pseudo-inverse 
+    
+    float sol_array[72] = {
+        0.5f       ,  0.0f       ,  0.01761777f,  0.12124487f, -0.01710104f,
+        0.35139511f,  0.0f       ,  0.5f       ,  0.01796507f, -0.01743816f,
+       -0.15578407f,  0.35832218f,  0.0f       ,  0.0f       , -0.49936606f,
+        0.48471964f, -0.48595032f,  0.01264416f,  0.5f       ,  0.0f       ,
+       -0.01796507f,  0.15578407f,  0.01743816f, -0.35832218f,  0.0f       ,
+        0.5f       , -0.01761777f,  0.01710104f, -0.12124487f, -0.35139511f,
+        0.0f       ,  0.0f       , -0.49936606f, -0.48595032f,  0.48471964f,
+        0.01264416f,  0.5f       ,  0.0f       , -0.01761777f, -0.12124487f,
+        0.01710104f, -0.35139511f,  0.0f       ,  0.5f       ,  0.01761777f,
+       -0.01710104f,  0.12124487f,  0.35139511f,  0.0f       ,  0.0f       ,
+       -0.50068344f, -0.48467159f, -0.48467159f, -0.01363145f,  0.5f       ,
+        0.0f       ,  0.01796507f, -0.15578407f, -0.01743816f,  0.35832218f,
+        0.0f       ,  0.5f       , -0.01796507f,  0.01743816f,  0.15578407f,
+       -0.35832218f,  0.0f       ,  0.0f       , -0.50058444f,  0.48590228f,
+        0.48590228f, -0.01165688f
+    };
+    */
 
     float wrench[6] = {
         float(thrust_vec.x), 
@@ -190,27 +227,34 @@ void AP_MotorsOveractuated::output_armed_stabilizing()
     matrix::Matrix<float, 6, 1> U(wrench);
     matrix::Matrix<float, 12,6> solution(sol_array); 
     matrix::Matrix<float, 12, 1> outputs = (solution * U);
-    float w_motor1 = sqrt(abs(outputs(2, 0)));
-    float w_motor2 = sqrt(abs(outputs(5, 0)));
-    float w_motor3 = sqrt(abs(outputs(8, 0)));
-    float w_motor4 = sqrt(abs(outputs(11, 0)));
-    _thrust_rpyt_out[AP_MOTORS_MOT_1] = w_motor1;
-    _thrust_rpyt_out[AP_MOTORS_MOT_2] = w_motor2;
-    _thrust_rpyt_out[AP_MOTORS_MOT_3] = w_motor3;
-    _thrust_rpyt_out[AP_MOTORS_MOT_4] = w_motor4;
-    /*
-    if(abs((thrust_vec.x)) < 0.01){ 
-        _servo_pitch1_angle = M_PI_2_F + safe_asin(thrust_vec.x);
-        _servo_pitch2_angle = M_PI_2_F + safe_asin(thrust_vec.x);
-        _servo_pitch3_angle = M_PI_2_F + safe_asin(thrust_vec.x);
-        _servo_pitch4_angle = M_PI_2_F + safe_asin(thrust_vec.x);
-        _servo_pitch1_angle =  degrees(_servo_pitch1_angle);
-        _servo_pitch2_angle =  degrees(_servo_pitch2_angle);
-        _servo_pitch3_angle =  degrees(_servo_pitch3_angle);
-        _servo_pitch4_angle =   degrees(_servo_pitch4_angle);
+    if(outputs(2,0)< 0.0f){ 
+        outputs(2,0) = -1 * outputs(2,0); 
     }
-    else{
-    */
+    if(outputs(5,0)< 0.0f){ 
+        outputs(5,0) = -1 * outputs(5,0); 
+    }
+    if(outputs(8,0)< 0.0f){ 
+        outputs(8,0) = -1 * outputs(8,0); 
+    }
+    if(outputs(11,0)< 0.0f){ 
+        outputs(11,0) = -1 * outputs(11,0); 
+    }
+
+    float w_motor1 = safe_sqrt((outputs(2, 0)))/5.2;
+    float w_motor2 = safe_sqrt((outputs(5, 0)))/ 5.2;
+    float w_motor3 = safe_sqrt((outputs(8, 0)))/5.2;
+    float w_motor4 = safe_sqrt((outputs(11, 0)))/5.2;
+
+    _thrust_rpyt_out[AP_MOTORS_MOT_1] = (w_motor1);
+    _thrust_rpyt_out[AP_MOTORS_MOT_2] = (w_motor2);
+    _thrust_rpyt_out[AP_MOTORS_MOT_3] = (w_motor3);
+    _thrust_rpyt_out[AP_MOTORS_MOT_4] = (w_motor4);
+    
+    _thrust_rpyt_out[AP_MOTORS_MOT_1] = constrain_float(w_motor1, 0.0f, 1.0f);
+    _thrust_rpyt_out[AP_MOTORS_MOT_2] = constrain_float(w_motor2, 0.0f, 1.0f);
+    _thrust_rpyt_out[AP_MOTORS_MOT_3] = constrain_float(w_motor3, 0.0f, 1.0f);
+    _thrust_rpyt_out[AP_MOTORS_MOT_4] = constrain_float(w_motor4, 0.0f, 1.0f);
+      
     float pitch1_angle = float(outputs(0,0)/outputs(2,0));
     float pitch2_angle = float(outputs(3,0)/outputs(5,0));
     float pitch3_angle = float(outputs(6,0)/outputs(8,0));
@@ -223,21 +267,6 @@ void AP_MotorsOveractuated::output_armed_stabilizing()
     _servo_pitch2_angle =  degrees(_servo_pitch2_angle);
     _servo_pitch3_angle =  degrees(_servo_pitch3_angle);
     _servo_pitch4_angle =   degrees(_servo_pitch4_angle);
-    //}
-    /*
-    if(abs((thrust_vec.y))< 0.01){
-        _servo_roll1_angle = M_PI_2_F + safe_asin(thrust_vec.y);
-        _servo_roll2_angle = M_PI_2_F + safe_asin(thrust_vec.y);
-        _servo_roll3_angle = M_PI_2_F + safe_asin(thrust_vec.y);
-        _servo_roll4_angle = M_PI_2_F + safe_asin(thrust_vec.y);
-        _servo_roll1_angle =  degrees(_servo_roll1_angle);
-        _servo_roll2_angle =  degrees(_servo_roll2_angle);
-        _servo_roll3_angle =  degrees(_servo_roll3_angle);
-        _servo_roll4_angle =  degrees(_servo_roll4_angle);
-    }
-    else
-    {
-    */
     float roll1_angle = float(outputs(1,0)/outputs(2,0));
     float roll2_angle = float(outputs(4,0)/outputs(5,0));
     float roll3_angle = float(outputs(7,0)/outputs(8,0));

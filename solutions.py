@@ -34,34 +34,28 @@ if __name__ == "__main__":
     c = 0.707106781
     A = c * L * mu
     lamb = (7 * (10**-10))
-    coefficient_matrix = [
-       [-float(mu), 0.0,0.0, -float(mu), 0.0,0.0,-float(mu), 0.0,0.0, -float(mu), 0.0, 0.0], 
-       [ 0.0, -float(mu),0.0, 0.0, -float(mu), 0.0, 0.0, -float(mu), 0.0, 0.0, -float(mu), 0.0], 
-       [ 0.0, 0.0, float(mu), 0.0,0.0, float(mu), 0.0,0.0, float(mu), 0.0,0.0, float(mu)], 
-       [float(Km),0.0,float(A), float(Km),0.0, -float(A), -float(Km),0.0, -float(A), -float(Km),0.0, float(A)], 
-       [0.0,-float(Km),-float(A),0.0,-float(Km), float(A),0.0, float(Km), -float(A), 0.0,float(Km), float(A)], 
-       [-float(A),-float(A), float(Km), float(A),float(A), float(Km), -float(A),float(A), -float(Km ), float(A),-float(A), -float(Km)]
-    ]
+
     coefficient_matrix = [
         [-float(mu), 0.0,0.0, -float(mu), 0.0,0.0,-float(mu), 0.0,0.0, -float(mu), 0.0, 0.0], 
         [ 0.0, -float(mu),0.0, 0.0, -float(mu), 0.0, 0.0, -float(mu), 0.0, 0.0, -float(mu), 0.0], 
         [ 0.0, 0.0, float(mu), 0.0,0.0, float(mu), 0.0,0.0, float(mu), 0.0,0.0, float(mu)], 
-        [float(Km),0.0,float(A ), float(Km),0.0, -float(A), -float(Km),0.0, -float(A), -float(Km),0.0, float(A)], 
-        [0, -Km , -A, 0, -Km , A, 0, Km, -A, 0, Km, A],
+        [float(Km),0.0,-float(A ), float(Km),0.0, float(A), -float(Km),0.0, float(A), -float(Km),0.0, -float(A)], 
+        [0, -Km , A, 0, -Km , -A, 0, Km, A, 0, Km, -A],
         [-A, -A,Km, A, A, Km, A, -A, -Km, -A, A, Km ]
         ]
     
-    C = 0.0
+
 
     coeff_array = normalize(np.array(coefficient_matrix))
     print(f" This is the condition number of the coefficient matrix {np.linalg.cond(coeff_array)}")
     
     points = 1000
     noise = np.random.normal(0.11,0.02,6*points).reshape((6,points))
-    noise[1] = np.linspace(0.01, 0.85, points)
-    #noise[0] = np.linspace(0.01, 0.15, points)
-    noise[2] = 0.5
-    W = generate_weights(0.15, 0.15, 0.7, 12)
+    noise[3] = np.linspace(0, 1, points)
+    noise[1] *= ((15*np.pi)/180) * ( 9.81)
+    noise[0] *= ((15*np.pi)/180) * (9.81)
+    noise[2] *= (9.81 * 2)
+    W = generate_weights(0.25, 0.25, 0.5, 12)
     B = generate_weighted_pinv(W, coeff_array, weighted=True)
     alphas,betas, omegas = calc_actuator(B, noise)
     np.set_printoptions(suppress=True)

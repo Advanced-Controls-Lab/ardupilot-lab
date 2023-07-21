@@ -16,9 +16,9 @@
 #define AP_MOTORS_4PITCH  CH_6 
 #define AP_MOTORS_4ROLL   CH_11
 // Trims for each of the servos
-#define AP_1PITCH_TRIM       100 
+#define AP_1PITCH_TRIM       -50 
 #define AP_1ROLL_TRIM        0
-#define AP_2PITCH_TRIM       100 
+#define AP_2PITCH_TRIM       -100 
 #define AP_2ROLL_TRIM        -75 
 #define AP_3PITCH_TRIM        -60
 #define AP_3ROLL_TRIM        0 
