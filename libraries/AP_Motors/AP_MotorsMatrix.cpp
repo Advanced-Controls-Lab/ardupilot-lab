@@ -177,7 +177,18 @@ void AP_MotorsMatrix::output_to_motors()
     // convert output to PWM and send to each motor
     for (i = 0; i < AP_MOTORS_MAX_NUM_MOTORS; i++) {
         if (motor_enabled[i]) {
-            rc_write(i, output_to_pwm(_actuator[i]));
+            if (_checker && i == _motor_num){
+                int output = (int)((1-_percent_loss)*output_to_pwm(_actuator[i])); // calculate output
+                if (output < 1100){  // if lower than the minimum, replace it with minimum
+                    rc_write(i, 1100);
+                }
+                else {
+                    rc_write(i, output);
+                }
+            }
+            else {
+                rc_write(i, output_to_pwm(_actuator[i]));
+            }
         }
     }
 }
@@ -400,7 +411,7 @@ void AP_MotorsMatrix::output_armed_stabilizing()
     _throttle_out = throttle_thrust_best_plus_adj / compensation_gain;
 
     // check for failed motor
-    check_for_failed_motor(throttle_thrust_best_plus_adj);
+    // check_for_failed_motor(throttle_thrust_best_plus_adj);
 }
 
 // check for failed motor

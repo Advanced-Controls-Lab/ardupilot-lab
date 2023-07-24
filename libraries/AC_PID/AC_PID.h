@@ -156,10 +156,13 @@ protected:
     float _error;             // error value to enable filtering
     float _derivative;        // derivative value to enable filtering
     int8_t _slew_limit_scale;
-    float error_integral;
-    float B_array[2] = {1, 0};
-    float P_array[4] = {0.01, 0.01, 0.005, 1.005};
-    float MRAC_array[4] = {0, 0, 0, 0};
+    // float error_integral;
+    // float B_array[2] = {1, 0};
+    // float P_array[4] = {0.01, 0.01, 0.005, 1.005};
+    // float MRAC_array[4] = {0, 0, 0, 0};
+    // float B = 1;
+    // float P = 0.01;
+    // float MRAC_array[3] = {0, 0, 0};
 
     AP_PIDInfo _pid_info;
 };

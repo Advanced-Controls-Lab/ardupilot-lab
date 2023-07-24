@@ -1,6 +1,7 @@
 #include "AC_AttitudeControl_Multi.h"
 #include <AP_HAL/AP_HAL.h>
 #include <AP_Math/AP_Math.h>
+#include <AP_Logger/AP_Logger.h>
 
 // table of user settable parameters
 const AP_Param::GroupInfo AC_AttitudeControl_Multi::var_info[] = {
@@ -232,6 +233,12 @@ const AP_Param::GroupInfo AC_AttitudeControl_Multi::var_info[] = {
     // @User: Advanced
     AP_GROUPINFO("THR_MIX_MAN", 6, AC_AttitudeControl_Multi, _thr_mix_man, AC_ATTITUDE_CONTROL_MAN_DEFAULT),
 
+    // @Param: Take_off
+    // @DisplayName: To know if you are taking off or not
+    // @Description: To know if you are taking off or not
+    // @Values: 1 if taking off, 0 otherwise
+    AP_GROUPINFO("TAKE_OFF", 60, AC_AttitudeControl_Multi, _take_off, 1),
+
     AP_GROUPEND
 };
 
@@ -335,17 +342,84 @@ void AC_AttitudeControl_Multi::rate_controller_run()
 
     Vector3f gyro_latest = _ahrs.get_gyro_latest();
 
-    _motors.set_roll(get_rate_roll_pid().update_all(_ang_vel_body.x, gyro_latest.x, 1, _motors.limit.roll) + _actuator_sysid.x);
+    un_roll = get_rate_roll_pid().update_all(_ang_vel_body.x, gyro_latest.x, 1, _motors.limit.roll) + _actuator_sysid.x;
+    un_pitch = get_rate_pitch_pid().update_all(_ang_vel_body.y, gyro_latest.y, 2, _motors.limit.pitch) + _actuator_sysid.y;
+    un_yaw = get_rate_yaw_pid().update_all(_ang_vel_body.z, gyro_latest.z, 3, _motors.limit.yaw) + _actuator_sysid.z;
+
+    x_error_integral[0] += _dt*(gyro_latest.x - _ang_vel_body.x);
+    x_error_integral[1] += _dt*(gyro_latest.y - _ang_vel_body.y);
+    x_error_integral[2] += _dt*(gyro_latest.z - _ang_vel_body.z);
+
+    // un_roll = (_ang_vel_body.x - gyro_latest.x)/500;
+    // un_pitch = (_ang_vel_body.y - gyro_latest.y)/500;
+    // un_yaw = (_ang_vel_body.z - gyro_latest.z)/500;
+    float err[3] = {gyro_latest.x - _ang_vel_body.x, gyro_latest.y - _ang_vel_body.y, gyro_latest.z - _ang_vel_body.z};
+    float w_array[7] = {gyro_latest.x, gyro_latest.y, gyro_latest.z, _ang_vel_body.x, _ang_vel_body.y, _ang_vel_body.z, 1};
+
+    matrix::Matrix<float, 1, 3> e(err);
+    matrix::Matrix<float, 7, 1> w(w_array);
+    matrix::Matrix<float, 7, 3> MRAC_coef(MRAC_array);
+    matrix::Matrix<float, 3, 3> P(P_array);
+    matrix::Matrix<float, 3, 3> B(B_array);
+    MRAC_coef += _dt*w*e*P*B;
+    MRAC_array[0] = MRAC_coef(0, 0);
+    MRAC_array[1] = MRAC_coef(0, 1);
+    MRAC_array[2] = MRAC_coef(0, 2);
+    MRAC_array[3] = MRAC_coef(1, 0);
+    MRAC_array[4] = MRAC_coef(1, 1);
+    MRAC_array[5] = MRAC_coef(1, 2);
+    MRAC_array[6] = MRAC_coef(2, 0);
+    MRAC_array[7] = MRAC_coef(2, 1);
+    MRAC_array[8] = MRAC_coef(2, 2);
+    MRAC_array[9] = MRAC_coef(3, 0);
+    MRAC_array[10] = MRAC_coef(3, 1);
+    MRAC_array[11] = MRAC_coef(3, 2);
+    MRAC_array[12] = MRAC_coef(4, 0);
+    MRAC_array[13] = MRAC_coef(4, 1);
+    MRAC_array[14] = MRAC_coef(4, 2);
+    MRAC_array[15] = MRAC_coef(5, 0);
+    MRAC_array[16] = MRAC_coef(5, 1);
+    MRAC_array[17] = MRAC_coef(5, 2);
+    MRAC_array[18] = MRAC_coef(6, 0);
+    MRAC_array[19] = MRAC_coef(6, 1);
+    MRAC_array[20] = MRAC_coef(6, 2);
+    matrix::Matrix<float, 7, 3> MRAC_coef2(MRAC_array);
+    float Gamma = 10;
+    ua_roll = (-Gamma*MRAC_coef2.transpose()*w)(0, 0);
+    ua_pitch = (-Gamma*MRAC_coef2.transpose()*w)(1, 0);
+    ua_yaw = (-Gamma*MRAC_coef2.transpose()*w)(2, 0);
+
+    // if (_take_off)
+    // {
+    //     ua_roll = 0;
+    //     ua_pitch = 0;
+    //     ua_yaw = 0;
+    // }
+
+    _motors.set_roll(un_roll + ua_roll);
     _motors.set_roll_ff(get_rate_roll_pid().get_ff());
 
-    _motors.set_pitch(get_rate_pitch_pid().update_all(_ang_vel_body.y, gyro_latest.y, 2, _motors.limit.pitch) + _actuator_sysid.y);
+    _motors.set_pitch(un_pitch + ua_pitch);
     _motors.set_pitch_ff(get_rate_pitch_pid().get_ff());
 
-    _motors.set_yaw(get_rate_yaw_pid().update_all(_ang_vel_body.z, gyro_latest.z, 3, _motors.limit.yaw) + _actuator_sysid.z);
+    _motors.set_yaw(un_yaw + ua_yaw);
     _motors.set_yaw_ff(get_rate_yaw_pid().get_ff()*_feedforward_scalar);
 
     _sysid_ang_vel_body.zero();
     _actuator_sysid.zero();
+
+    // logging the values
+    AP::logger().Write("MRAC", "TimeUS,un_roll,un_pitch,un_yaw,ua_roll,ua_pitch,ua_yaw",
+                   "s------", // units: None
+                   "F------", // mult: None
+                   "Qffffff", // format: float
+                   AP_HAL::micros64(),
+                   un_roll,
+                   un_pitch,
+                   un_yaw,
+                   ua_roll,
+                   ua_pitch,
+                   ua_yaw);
 
     control_monitor_update();
 }
