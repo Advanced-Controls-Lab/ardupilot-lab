@@ -40,7 +40,7 @@ if __name__ == "__main__":
         [ 0.0, float(mu),0.0, 0.0, float(mu), 0.0, 0.0, float(mu), 0.0, 0.0, float(mu), 0.0], 
         [ 0.0, 0.0, -float(mu), 0.0,0.0, -float(mu), 0.0,0.0, -float(mu), 0.0,0.0, -float(mu)], 
         [float(Km),0.0,-float(A), float(Km),0.0, float(A), -float(Km),0.0, float(A), -float(Km),0.0, -float(A)], 
-        [0, -Km , A, 0, -Km , -A, 0, Km, A, 0, Km, -A],
+        [0, Km , A, 0, Km , -A, 0, -Km, A, 0, -Km, -A],
         [-A, A,Km, A, -A, Km, A, A, -Km, -A, -A, -Km ]
         ]
     
