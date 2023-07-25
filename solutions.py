@@ -28,7 +28,7 @@ def calc_actuator(c,wrench):
     return alphas,betas, omegas 
 
 if __name__ == "__main__":
-    mu = -(1.6 *(10**-6))
+    mu = (1.6 *(10**-6))
     Km = (2.58 * (10**-8))
     L = 0.16
     c = 0.707106781
@@ -36,16 +36,16 @@ if __name__ == "__main__":
     lamb = (7 * (10**-10))
 
     coefficient_matrix = [
-        [-float(mu), 0.0,0.0, -float(mu), 0.0,0.0,-float(mu), 0.0,0.0, -float(mu), 0.0, 0.0], 
-        [ 0.0, -float(mu),0.0, 0.0, -float(mu), 0.0, 0.0, -float(mu), 0.0, 0.0, -float(mu), 0.0], 
-        [ 0.0, 0.0, float(mu), 0.0,0.0, float(mu), 0.0,0.0, float(mu), 0.0,0.0, float(mu)], 
-        [float(Km),0.0,-float(A ), float(Km),0.0, float(A), -float(Km),0.0, float(A), -float(Km),0.0, -float(A)], 
+        [float(mu), 0.0,0.0, float(mu), 0.0,0.0,float(mu), 0.0,0.0, float(mu), 0.0, 0.0], 
+        [ 0.0, float(mu),0.0, 0.0, float(mu), 0.0, 0.0, float(mu), 0.0, 0.0, float(mu), 0.0], 
+        [ 0.0, 0.0, -float(mu), 0.0,0.0, -float(mu), 0.0,0.0, -float(mu), 0.0,0.0, -float(mu)], 
+        [float(Km),0.0,-float(A), float(Km),0.0, float(A), -float(Km),0.0, float(A), -float(Km),0.0, -float(A)], 
         [0, -Km , A, 0, -Km , -A, 0, Km, A, 0, Km, -A],
-        [-A, -A,Km, A, A, Km, A, -A, -Km, -A, A, Km ]
+        [-A, A,Km, A, -A, Km, A, A, -Km, -A, -A, -Km ]
         ]
     
 
-
+    
     coeff_array = normalize(np.array(coefficient_matrix))
     print(f" This is the condition number of the coefficient matrix {np.linalg.cond(coeff_array)}")
     
@@ -56,7 +56,7 @@ if __name__ == "__main__":
     noise[0] *= ((15*np.pi)/180) * (9.81)
     noise[2] *= (9.81 * 2)
     W = generate_weights(0.25, 0.25, 0.5, 12)
-    B = generate_weighted_pinv(W, coeff_array, weighted=True)
+    B = generate_weighted_pinv(W, coeff_array, weighted=False)
     alphas,betas, omegas = calc_actuator(B, noise)
     np.set_printoptions(suppress=True)
     print(repr(B.reshape((72,))))
