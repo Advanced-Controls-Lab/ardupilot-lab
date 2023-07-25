@@ -17,6 +17,14 @@ def generate_weights(alpha_i, beta_i,motor_i, size):
     W[np.arange(2, size, 3 ),np.arange(2, size, 3)] = motor_i 
     return W 
  
+def print_matrix(matrix): 
+    matrix = matrix.round(7)
+    for i in range(matrix.shape[0]):
+        string=""
+        for j in range(matrix.shape[1]):
+            string+= str(matrix[i, j]) + "f" + " ,"
+        print(string)
+
 def calc_actuator(c,wrench): 
     outputs = c.dot(wrench)
     actuators = c.shape[0] 
@@ -59,7 +67,8 @@ if __name__ == "__main__":
     B = generate_weighted_pinv(W, coeff_array, weighted=False)
     alphas,betas, omegas = calc_actuator(B, noise)
     np.set_printoptions(suppress=True)
-    print(repr(B.reshape((72,))))
+    #print(repr(B.reshape((72,))))
+    print_matrix(B)
     
     time = np.linspace(0,points,num=points).reshape((points,1))
     fig,axes = plt.subplots(ncols=4, nrows=2, figsize=(5,6))
