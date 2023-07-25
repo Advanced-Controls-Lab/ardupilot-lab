@@ -29,7 +29,7 @@ def print_matrix(matrix):
             if i == 0 and j == 0: 
                 string +=  str(matrix[i, j]) + "f" + " ,"
             else:
-                string += "," + str(matrix[i, j]) + "f" + " ,"
+                string +=  str(matrix[i, j]) + "f" + " ,"
         print(string)
 
 def calc_actuator(c,wrench): 
@@ -43,7 +43,7 @@ def calc_actuator(c,wrench):
     return alphas,betas, omegas 
 
 if __name__ == "__main__":
-    mu = -(1.6 *(10**-6))
+    mu = (1.6 *(10**-6))
     Km = (2.58 * (10**-8))
     L = 0.16
     c = 0.707106781
@@ -68,15 +68,19 @@ if __name__ == "__main__":
         [-A, A,Km, A, -A, Km, A, A, -Km, -A, -A, -Km ]
     ]
 
+    
+
+    
     coeff_array = normalize(np.array(coefficient_matrix))
     print(f" This is the condition number of the coefficient matrix {np.linalg.cond(coeff_array)}")
     
     points = 1000
-    noise = generate_wrench(0.02, 0.01, np.array([2,4]))
-    noise[0] *= (15 *(np.pi/180)) * 9.81
-    noise[1] *= (15 *(np.pi/180)) * 9.81
-    noise[2] *= 9.81 * 2.5
-    W = generate_weights(0.15, 0.15, 0.7, 12)
+    noise = np.random.normal(0.11,0.02,6*points).reshape((6,points))
+    noise[3] = np.linspace(0, 1, points)
+    noise[1] *= ((15*np.pi)/180) * ( 9.81)
+    noise[0] *= ((15*np.pi)/180) * (9.81)
+    noise[2] *= (9.81 * 2)
+    W = generate_weights(0.25, 0.25, 0.5, 12)
     B = generate_weighted_pinv(W, coeff_array, weighted=False)
     alphas,betas, omegas = calc_actuator(B, noise)
     np.set_printoptions(suppress=True)
