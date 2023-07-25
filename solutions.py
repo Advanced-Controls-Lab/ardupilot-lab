@@ -20,18 +20,17 @@ def generate_weights(alpha_i, beta_i,motor_i, size):
     W[np.arange(1, size-1, 3),np.arange(1, size-1, 3)] = beta_i 
     W[np.arange(2, size, 3 ),np.arange(2, size, 3)] = motor_i 
     return W 
-
+ 
 def print_matrix(matrix): 
-    matrix = matrix.round(6)
+    matrix = matrix.round(7)
+    print("{")
     for i in range(matrix.shape[0]):
-        string = "" 
-        for j in range(matrix.shape[1]): 
-            if i == 0 and j == 0: 
-                string +=  str(matrix[i, j]) + "f" + " ,"
-            else:
-                string +=  str(matrix[i, j]) + "f" + " ,"
+        string=""
+        for j in range(matrix.shape[1]):
+            string+= str(matrix[i, j]) + "f" + " ,"
         print(string)
-
+    print("}")
+    
 def calc_actuator(c,wrench): 
     outputs = c.dot(wrench)
     actuators = c.shape[0] 
@@ -86,11 +85,6 @@ if __name__ == "__main__":
     np.set_printoptions(suppress=True)
     #print(repr(B.reshape((72,))))
     print_matrix(B)
-    for i in range(points): 
-        if np.abs(np.arcsin(noise[0, i] / np.sqrt((noise[0, i]**2 + noise[1, i]**2+ noise[2, i]**2)))) < 0.1: 
-            alphas[0:3, i] = (np.arcsin(noise[0, i] / np.sqrt((noise[0, i]**2 + noise[1, i]**2+ noise[2, i]**2)))) * (180/np.pi)
-        if np.abs(np.arcsin(noise[1, i] / np.sqrt((noise[0, i]**2 + noise[1, i]**2+ noise[2, i]**2)))) < 0.1: 
-            betas[0:3, i] = (np.arcsin(noise[1, i] / np.sqrt((noise[0, i]**2 + noise[1, i]**2+ noise[2, i]**2)))) * (180/np.pi)
     
     time = np.linspace(0,points,num=points).reshape((points,1))
     fig,axes = plt.subplots(ncols=4, nrows=2, figsize=(5,6))
