@@ -69,7 +69,7 @@ for row in range(2):
 
 '''
 axis = ["forward", "right", "throttle", "roll", "pitch", "yaw"]
-counter = 0
+counter =  0
 for row in range(2): 
     for col in range(2,4): 
         axes[row, col].plot(time, angular_velocity[counter-1][:], color='red', label="motor rpm")

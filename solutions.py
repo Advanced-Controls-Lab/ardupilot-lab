@@ -10,13 +10,28 @@ def generate_weighted_pinv(w, b, weighted=True):
         return np.linalg.pinv(b)
     return weighted_static 
 
+def generate_wrench(std, mean, ramp_idx): 
+    noise = np.random.normal(mean,std,6*points).reshape((6,points))
+    noise[ramp_idx] = np.linspace(0, 1, ramp_idx.shape[0] * points).reshape(ramp_idx.shape[0], points)
+    return noise
 def generate_weights(alpha_i, beta_i,motor_i, size):
     W = np.identity(size)
     W[np.arange(0, size-2, 3),np.arange(0, size-2, 3)] = alpha_i
     W[np.arange(1, size-1, 3),np.arange(1, size-1, 3)] = beta_i 
     W[np.arange(2, size, 3 ),np.arange(2, size, 3)] = motor_i 
     return W 
- 
+
+def print_matrix(matrix): 
+    matrix = matrix.round(6)
+    for i in range(matrix.shape[0]):
+        string = "" 
+        for j in range(matrix.shape[1]): 
+            if i == 0 and j == 0: 
+                string +=  str(matrix[i, j]) + "f" + " ,"
+            else:
+                string += "," + str(matrix[i, j]) + "f" + " ,"
+        print(string)
+
 def calc_actuator(c,wrench): 
     outputs = c.dot(wrench)
     actuators = c.shape[0] 
@@ -34,38 +49,44 @@ if __name__ == "__main__":
     c = 0.707106781
     A = c * L * mu
     lamb = (7 * (10**-10))
+
     coefficient_matrix = [
-       [-float(mu), 0.0,0.0, -float(mu), 0.0,0.0,-float(mu), 0.0,0.0, -float(mu), 0.0, 0.0], 
-       [ 0.0, -float(mu),0.0, 0.0, -float(mu), 0.0, 0.0, -float(mu), 0.0, 0.0, -float(mu), 0.0], 
-       [ 0.0, 0.0, float(mu), 0.0,0.0, float(mu), 0.0,0.0, float(mu), 0.0,0.0, float(mu)], 
-       [float(Km),0.0,float(A), float(Km),0.0, -float(A), -float(Km),0.0, -float(A), -float(Km),0.0, float(A)], 
-       [0.0,-float(Km),-float(A),0.0,-float(Km), float(A),0.0, float(Km), -float(A), 0.0,float(Km), float(A)], 
-       [-float(A),-float(A), float(Km), float(A),float(A), float(Km), -float(A),float(A), -float(Km ), float(A),-float(A), -float(Km)]
-    ]
-    coefficient_matrix = [
-        [-float(mu), 0.0,0.0, -float(mu), 0.0,0.0,-float(mu), 0.0,0.0, -float(mu), 0.0, 0.0], 
-        [ 0.0, -float(mu),0.0, 0.0, -float(mu), 0.0, 0.0, -float(mu), 0.0, 0.0, -float(mu), 0.0], 
-        [ 0.0, 0.0, float(mu), 0.0,0.0, float(mu), 0.0,0.0, float(mu), 0.0,0.0, float(mu)], 
-        [float(Km),0.0,float(A ), float(Km),0.0, -float(A), -float(Km),0.0, -float(A), -float(Km),0.0, float(A)], 
+        [- (mu), 0.0,0.0, - (mu), 0.0,0.0,- (mu), 0.0,0.0, - (mu), 0.0, 0.0], 
+        [ 0.0, - (mu),0.0, 0.0, - (mu), 0.0, 0.0, - (mu), 0.0, 0.0, - (mu), 0.0], 
+        [ 0.0, 0.0,  (mu), 0.0,0.0,  (mu), 0.0,0.0,  (mu), 0.0,0.0,  (mu)], 
+        [ (Km),0.0, (A ),  (Km),0.0, - (A), - (Km),0.0, - (A), - (Km),0.0,  (A)], 
         [0, -Km , -A, 0, -Km , A, 0, Km, -A, 0, Km, A],
         [-A, -A,Km, A, A, Km, A, -A, -Km, -A, A, Km ]
         ]
-    
-    C = 0.0
+
+    coefficient_matrix = [ 
+        [(mu), 0.0,0.0, (mu), 0.0,0.0,(mu), 0.0,0.0, (mu), 0.0, 0.0], 
+        [ 0.0, (mu),0.0, 0.0, (mu), 0.0, 0.0, (mu), 0.0, 0.0, (mu), 0.0], 
+        [ 0.0, 0.0, -(mu), 0.0,0.0, -(mu), 0.0,0.0, -(mu), 0.0,0.0, -(mu)], 
+        [ (Km),0.0,(-A ),  (Km),0.0,(A), -(Km),0.0,(A), -(Km),0.0, -(A)], 
+        [0, Km , A, 0, Km , -A, 0, -Km, A, 0, -Km, -A],
+        [-A, A,Km, A, -A, Km, A, A, -Km, -A, -A, -Km ]
+    ]
 
     coeff_array = normalize(np.array(coefficient_matrix))
     print(f" This is the condition number of the coefficient matrix {np.linalg.cond(coeff_array)}")
     
     points = 1000
-    noise = np.random.normal(0.11,0.02,6*points).reshape((6,points))
-    noise[1] = np.linspace(0.01, 0.85, points)
-    #noise[0] = np.linspace(0.01, 0.15, points)
-    noise[2] = 0.5
+    noise = generate_wrench(0.02, 0.01, np.array([2,4]))
+    noise[0] *= (15 *(np.pi/180)) * 9.81
+    noise[1] *= (15 *(np.pi/180)) * 9.81
+    noise[2] *= 9.81 * 2.5
     W = generate_weights(0.15, 0.15, 0.7, 12)
-    B = generate_weighted_pinv(W, coeff_array, weighted=True)
+    B = generate_weighted_pinv(W, coeff_array, weighted=False)
     alphas,betas, omegas = calc_actuator(B, noise)
     np.set_printoptions(suppress=True)
-    print(repr(B.reshape((72,))))
+    #print(repr(B.reshape((72,))))
+    print_matrix(B)
+    for i in range(points): 
+        if np.abs(np.arcsin(noise[0, i] / np.sqrt((noise[0, i]**2 + noise[1, i]**2+ noise[2, i]**2)))) < 0.1: 
+            alphas[0:3, i] = (np.arcsin(noise[0, i] / np.sqrt((noise[0, i]**2 + noise[1, i]**2+ noise[2, i]**2)))) * (180/np.pi)
+        if np.abs(np.arcsin(noise[1, i] / np.sqrt((noise[0, i]**2 + noise[1, i]**2+ noise[2, i]**2)))) < 0.1: 
+            betas[0:3, i] = (np.arcsin(noise[1, i] / np.sqrt((noise[0, i]**2 + noise[1, i]**2+ noise[2, i]**2)))) * (180/np.pi)
     
     time = np.linspace(0,points,num=points).reshape((points,1))
     fig,axes = plt.subplots(ncols=4, nrows=2, figsize=(5,6))
