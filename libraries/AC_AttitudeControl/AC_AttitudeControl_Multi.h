@@ -5,6 +5,7 @@
 
 #include "AC_AttitudeControl.h"
 #include <AP_Motors/AP_MotorsMulticopter.h>
+#include <GCS_MAVLink/GCS.h>
 
 // default rate controller PID gains
 #ifndef AC_ATC_MULTI_RATE_RP_P
@@ -94,6 +95,7 @@ protected:
     AC_PID                _pid_rate_pitch;
     AC_PID                _pid_rate_yaw;
     AP_Int8               _take_off;
+    AP_Int8               _mrac;
 
     AP_Float              _thr_mix_man;     // throttle vs attitude control prioritisation used when using manual throttle (higher values mean we prioritise attitude control over throttle)
     AP_Float              _thr_mix_min;     // throttle vs attitude control prioritisation used when landing (higher values mean we prioritise attitude control over throttle)
@@ -105,10 +107,34 @@ protected:
     float             ua_roll;
     float             ua_pitch;
     float             ua_yaw;
+    float             u_roll;
+    float             u_pitch;
+    float             u_yaw;
+
+    float             xref_roll;
+    float             xref_pitch;
+    float             xref_yaw;
+    float             target_roll;
+    float             target_pitch;
+    float             target_yaw;
+    float             e_roll;
+    float             e_pitch;
+    float             e_yaw;
+
+    float             coef1;
+    float             coef2;
+    float             coef3;
+    float             coef4;
+    float             coef5;
+    float             coef6;
+
+    int c_roll = 1;
+    int c_pitch = 1;
+    int c_yaw = 1;
 
     float xref[6] = {0, 0, 0, 0, 0, 0};
     float x_error_integral[3] = {0, 0, 0};
-    float B_array[9] = {1, 0, 0, 0, 1, 0, 0, 0, 1};
-    float MRAC_array[21] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    float P_array[9] = {0.014, 0, 0,0, 0.014, 0,0, 0, 0.014};
-};
+    float B_array[18] = {1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    float MRAC_array[30] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    float P_array[36] = {0.014, 0, 0, 0.014, 0, 0, 0, 0.014, 0, 0, 0.014, 0, 0, 0, 0.0052, 0, 0, 0.0052, 0.014, 0, 0, 1.02, 0, 0, 0, 0.014, 0, 0, 1.02, 0, 0, 0, 0.0052, 0, 0, 1.005};
+    };
