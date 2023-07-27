@@ -121,13 +121,6 @@ protected:
     float             e_pitch;
     float             e_yaw;
 
-    float             coef1;
-    float             coef2;
-    float             coef3;
-    float             coef4;
-    float             coef5;
-    float             coef6;
-
     int c_roll = 1;
     int c_pitch = 1;
     int c_yaw = 1;
@@ -137,4 +130,10 @@ protected:
     float B_array[18] = {1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     float MRAC_array[30] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     float P_array[36] = {0.014, 0, 0, 0.014, 0, 0, 0, 0.014, 0, 0, 0.014, 0, 0, 0, 0.0052, 0, 0, 0.0052, 0.014, 0, 0, 1.02, 0, 0, 0, 0.014, 0, 0, 1.02, 0, 0, 0, 0.0052, 0, 0, 1.005};
+
+    // float xref[6] = {0, 0, 0, 0, 0, 0};
+    // float x_error_integral[3] = {0, 0, 0};
+    // float B_array[9] = {1, 0, 0, 0, 1, 0, 0, 0, 1};
+    // float MRAC_array[21] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    // float P_array[9] = {0.014, 0, 0,0, 0.014, 0,0, 0, 0.014};
     };

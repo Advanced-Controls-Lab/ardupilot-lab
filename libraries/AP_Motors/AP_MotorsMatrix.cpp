@@ -16,6 +16,7 @@
 #include <AP_HAL/AP_HAL.h>
 #include "AP_MotorsMatrix.h"
 #include <AP_Vehicle/AP_Vehicle.h>
+#include <AP_Logger/AP_Logger.h>
 
 extern const AP_HAL::HAL& hal;
 
@@ -176,9 +177,10 @@ void AP_MotorsMatrix::output_to_motors()
 
     // convert output to PWM and send to each motor
     for (i = 0; i < AP_MOTORS_MAX_NUM_MOTORS; i++) {
+
         if (motor_enabled[i]) {
-            if (_checker && i == _motor_num){
-                int output = (int)((1-_percent_loss)*output_to_pwm(_actuator[i])); // calculate output
+            if (_checker && i == 3){
+                int output = (int)((0.8)*output_to_pwm(_actuator[i])); // calculate output
                 if (output < 1100){  // if lower than the minimum, replace it with minimum
                     rc_write(i, 1100);
                 }
@@ -190,9 +192,8 @@ void AP_MotorsMatrix::output_to_motors()
                 rc_write(i, output_to_pwm(_actuator[i]));
             }
         }
-    }
 }
-
+}
 // get_motor_mask - returns a bitmask of which outputs are being used for motors (1 means being used)
 //  this can be used to ensure other pwm outputs (i.e. for servos) do not conflict
 uint32_t AP_MotorsMatrix::get_motor_mask()

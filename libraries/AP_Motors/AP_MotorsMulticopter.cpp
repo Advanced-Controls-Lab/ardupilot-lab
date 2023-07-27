@@ -207,26 +207,26 @@ const AP_Param::GroupInfo AP_MotorsMulticopter::var_info[] = {
     // @User: Advanced
     AP_GROUPINFO("SAFE_TIME", 42, AP_MotorsMulticopter, _safe_time, AP_MOTORS_SAFE_TIME_DEFAULT),
 
-    // @Param: Motor_Num
-    // @DisplayName: Motor number
-    // @Description: Used to change motor number
-    // @Values : 1 to total number of motors of the drone
-    // @User: Standart
-    AP_GROUPINFO("Motor_num", 50, AP_MotorsMulticopter, _motor_num, 0),
+    // // @Param: Motor_Num
+    // // @DisplayName: Motor number
+    // // @Description: Used to change motor number
+    // // @Values : 1 to total number of motors of the drone
+    // // @User: Standart
+    // AP_GROUPINFO("Motor_num", 50, AP_MotorsMulticopter, _motor_num, 3),
 
-    // @Param: Motor_Pcnt
-    // @DisplayName: Motor loss by percent
-    // @Description: Used to change motor loss
-    // @Values : 0 to 1
-    // @User: Standart
-    AP_GROUPINFO("Motor_Pcnt", 54, AP_MotorsMulticopter, _percent_loss, 0),
+    // // @Param: Motor_Pcnt
+    // // @DisplayName: Motor loss by percent
+    // // @Description: Used to change motor loss
+    // // @Values : 0 to 1
+    // // @User: Standart
+    // AP_GROUPINFO("Motor_Pcnt", 54, AP_MotorsMulticopter, _percent_loss, 0),
 
     // @Param: Checker
     // @DisplayName: Loss enabler
     // @Description: Used to enable motor loss
     // @Values : 0 false, 1 true
     // @User: Standart
-    AP_GROUPINFO("Loss_Enabler", 52, AP_MotorsMulticopter, _checker, 0),
+    AP_GROUPINFO("LOSS", 52, AP_MotorsMulticopter, _checker, 0),
 
     AP_GROUPEND
 };
