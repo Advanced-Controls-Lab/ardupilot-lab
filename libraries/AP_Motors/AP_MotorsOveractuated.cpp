@@ -252,7 +252,7 @@ void AP_MotorsOveractuated::output_armed_stabilizing()
     _thrust_rpyt_out[AP_MOTORS_MOT_3] = constrain_float(w_motor3, 0.0f, 1.0f);
     _thrust_rpyt_out[AP_MOTORS_MOT_4] = constrain_float(w_motor4, 0.0f, 1.0f);
     
-    if(is_negative(throttle_thrust - 0.1)){ 
+    if(is_negative(throttle_thrust - 0.1f)){ 
         _servo_pitch1_angle =  degrees(M_PI_2_F);
         _servo_pitch2_angle =  degrees(M_PI_2_F);
         _servo_pitch3_angle =  degrees(M_PI_2_F);
