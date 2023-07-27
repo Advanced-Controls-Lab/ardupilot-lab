@@ -10,7 +10,7 @@ def generate_weighted_pinv(w, b, weighted=True):
         return np.linalg.pinv(b)
     return weighted_static 
 
-def generate_wrench(std, mean, ramp_idx): 
+def generate_wrench(std, mean, ramp_idx, points): 
     noise = np.random.normal(mean,std,6*points).reshape((6,points))
     noise[ramp_idx] = np.linspace(0, 1, ramp_idx.shape[0] * points).reshape(ramp_idx.shape[0], points)
     return noise
@@ -49,15 +49,6 @@ if __name__ == "__main__":
     A = c * L * mu
     lamb = (7 * (10**-10))
 
-    coefficient_matrix = [
-        [- (mu), 0.0,0.0, - (mu), 0.0,0.0,- (mu), 0.0,0.0, - (mu), 0.0, 0.0], 
-        [ 0.0, - (mu),0.0, 0.0, - (mu), 0.0, 0.0, - (mu), 0.0, 0.0, - (mu), 0.0], 
-        [ 0.0, 0.0,  (mu), 0.0,0.0,  (mu), 0.0,0.0,  (mu), 0.0,0.0,  (mu)], 
-        [ (Km),0.0, (A ),  (Km),0.0, - (A), - (Km),0.0, - (A), - (Km),0.0,  (A)], 
-        [0, -Km , -A, 0, -Km , A, 0, Km, -A, 0, Km, A],
-        [-A, -A,Km, A, A, Km, A, -A, -Km, -A, A, Km ]
-        ]
-
     coefficient_matrix = [ 
         [(mu), 0.0,0.0, (mu), 0.0,0.0,(mu), 0.0,0.0, (mu), 0.0, 0.0], 
         [ 0.0, (mu),0.0, 0.0, (mu), 0.0, 0.0, (mu), 0.0, 0.0, (mu), 0.0], 
@@ -68,17 +59,30 @@ if __name__ == "__main__":
     ]
 
     
+    coefficient_matrix2 = [ 
+        [(mu), 0.0,0.0, (mu), 0.0,0.0,(mu), 0.0,0.0, (mu), 0.0, 0.0], 
+        [ 0.0, (mu),0.0, 0.0, (mu), 0.0, 0.0, (mu), 0.0, 0.0, (mu), 0.0], 
+        [ 0.0, 0.0, -(mu), 0.0,0.0, -(mu), 0.0,0.0, -(mu), 0.0,0.0, -(mu)], 
+        [ (-Km),0.0,(-A ),  (-Km),0.0,(A), (Km),0.0,(A), (Km),0.0, -(A)], 
+        [0, -Km , A, 0, -Km , -A, 0, Km, A, 0, Km, -A],
+        [-A, A,Km, A, -A, Km, A, A, -Km, -A, -A, -Km ]
+    ]
 
     
-    coeff_array = normalize(np.array(coefficient_matrix))
+
+    
+    coeff_array = normalize(np.array(coefficient_matrix2))
+    #coeff_array = np.array(coefficient_matrix)
     print(f" This is the condition number of the coefficient matrix {np.linalg.cond(coeff_array)}")
     
     points = 1000
-    noise = np.random.normal(0.11,0.02,6*points).reshape((6,points))
+    noise = np.random.normal(0.11,0.002,6*points).reshape((6,points))
     noise[3] = np.linspace(0, 1, points)
+    noise[5] = np.linspace(0, 1, points)
     noise[1] *= ((15*np.pi)/180) * ( 9.81)
-    noise[0] *= ((15*np.pi)/180) * (9.81)
+    noise[0] *= ((15*np.pi)/180) * (9.81 )
     noise[2] *= (9.81 * 2)
+    noise[5] *= 0.5
     W = generate_weights(0.25, 0.25, 0.5, 12)
     B = generate_weighted_pinv(W, coeff_array, weighted=False)
     alphas,betas, omegas = calc_actuator(B, noise)
