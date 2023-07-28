@@ -14,6 +14,7 @@
  */
 
 #include "AP_MotorsMulticopter.h"
+#include "AP_Motors_Class.h"
 #include <AP_HAL/AP_HAL.h>
 #include <AP_BattMonitor/AP_BattMonitor.h>
 #include <AP_Logger/AP_Logger.h>
@@ -206,6 +207,30 @@ const AP_Param::GroupInfo AP_MotorsMulticopter::var_info[] = {
     // @Increment: 0.001
     // @User: Advanced
     AP_GROUPINFO("SAFE_TIME", 42, AP_MotorsMulticopter, _safe_time, AP_MOTORS_SAFE_TIME_DEFAULT),
+
+    // @Param: ROLL_SCALE 
+    // @DisplayName: Scaling roll wrench inputs to Overactuated drone
+    // @Range: 0 5 
+    // @Units: None 
+    // @Increment: 0.01 
+    // @User: Advanced
+    AP_GROUPINFO("ROLL_SCALE", 43, AP_MotorsMulticopter, _roll_scale, AP_ROLL_SCALE), 
+    
+    // @Param: PITCH_SCALE 
+    // @DisplayName: Scaling pitch wrench inputs to Overactuated drone
+    // @Range: 0 5 
+    // @Units: None 
+    // @Increment: 0.01 
+    // @User: Advanced
+    AP_GROUPINFO("PITCH_SCALE", 44, AP_MotorsMulticopter, _pitch_scale, AP_PITCH_SCALE), 
+    
+    // @Param: YAW_SCALE 
+    // @DisplayName: Scaling yaw wrench inputs to Overactuated drone
+    // @Range: 0 5 
+    // @Units: None 
+    // @Increment: 0.01 
+    // @User: Advanced
+    AP_GROUPINFO("YAW_SCALE", 45, AP_MotorsMulticopter, _yaw_scale, AP_YAW_SCALE), 
 
     AP_GROUPEND
 };

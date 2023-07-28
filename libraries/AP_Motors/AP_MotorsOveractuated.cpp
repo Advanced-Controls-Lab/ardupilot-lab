@@ -160,12 +160,12 @@ void AP_MotorsOveractuated::output_armed_stabilizing()
     }
 
 
-    thrust_vec.x = thrust_vec.x * (1.94 * 9.81 * (0.26179938779));
-    thrust_vec.y = thrust_vec.y * (1.94 * 9.81 * (0.26179938779));
+    thrust_vec.x = -1 * thrust_vec.x * (1.94 * 9.81 * (0.26179938779));
+    thrust_vec.y = -1 * thrust_vec.y * (1.94 * 9.81 * (0.26179938779));
     thrust_vec.z = thrust_vec.z * (1.94 * 9.81 * 2.5);  
-    yaw_thrust = yaw_thrust * 0.1;
-    pitch_thrust = pitch_thrust * 1.5; 
-    roll_thrust = roll_thrust * 1.5;  
+    yaw_thrust = yaw_thrust * AP_YAW_SCALE;
+    pitch_thrust = pitch_thrust * AP_PITCH_SCALE; 
+    roll_thrust = roll_thrust * AP_ROLL_SCALE;  
     _previous_thrust[0] = thrust_vec.x; 
     _previous_thrust[1] = thrust_vec.y;
     _previous_thrust[2] = thrust_vec.z; 

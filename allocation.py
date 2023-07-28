@@ -31,5 +31,5 @@ y = Matrix([a1,b1,w1,a1,b2,w2,a3,b3,w3,a4,b4,w4])
 jacobian = coeff_matrix.jacobian(y)
 print(sym.shape(jacobian), sym.shape(jacobian.T))
 gamma = 0.1
-wrench = generate_wrench(0.01, 0.11, np.array([2]), 5)
-u_y = gamma * jacobian * (jacobian.T.dot(jacobian)).inv() * (wrench - coeff_matrix)
+wrench = generate_wrench(0.01, 0.11, np.array([2]), 1)
+u_y = gamma * jacobian * (jacobian.T * (jacobian)).inv() 

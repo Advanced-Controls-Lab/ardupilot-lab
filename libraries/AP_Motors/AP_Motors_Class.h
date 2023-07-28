@@ -48,6 +48,9 @@
 #endif
 #ifndef AP_MOTORS_FRAME_6DOF_ENABLED
 #define AP_MOTORS_FRAME_6DOF_ENABLED AP_MOTORS_FRAME_DEFAULT_ENABLED
+#define AP_ROLL_SCALE       1.5 
+#define AP_PITCH_SCALE      1.5 
+#define AP_YAW_SCALE        0.8
 #endif
 // motor update rate
 #define AP_MOTORS_SPEED_DEFAULT     490 // default output rate to the motors
@@ -323,7 +326,9 @@ protected:
     float _yaw_radio_passthrough;      // yaw input from pilot in -1 ~ +1 range.  used for setup and providing servo feedback while landed
 
     AP_Int8             _pwm_type;            // PWM output type
-
+    AP_Float            _roll_scale; 
+    AP_Float            _pitch_scale; 
+    AP_Float            _yaw_scale; 
     // motor failure handling
     bool                _thrust_boost;          // true if thrust boost is enabled to handle motor failure
     bool                _thrust_balanced;       // true when output thrust is well balanced

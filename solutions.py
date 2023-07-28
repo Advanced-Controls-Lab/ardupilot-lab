@@ -77,13 +77,13 @@ if __name__ == "__main__":
     
     points = 1000
     noise = np.random.normal(0.11,0.002,6*points).reshape((6,points))
-    noise[3] = np.linspace(0, 1, points)
+    #noise[3] = np.linspace(0, 1, points)
     noise[5] = np.linspace(0, 1, points)
     noise[1] *= ((15*np.pi)/180) * ( 9.81)
     noise[0] *= ((15*np.pi)/180) * (9.81 )
     noise[2] *= (9.81 * 2)
     noise[5] *= 0.5
-    W = generate_weights(0.25, 0.25, 0.5, 12)
+    W = generate_weights(0.2, 0.2, 0.6, 12)
     B = generate_weighted_pinv(W, coeff_array, weighted=False)
     alphas,betas, omegas = calc_actuator(B, noise)
     np.set_printoptions(suppress=True)
