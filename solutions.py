@@ -37,16 +37,16 @@ def calc_actuator(c,wrench):
     alphas = outputs[np.arange(0, actuators-2, 3)]/outputs[np.arange(2, actuators, 3)]
     betas = outputs[np.arange(1, actuators-1, 3)]/outputs[np.arange(2, actuators, 3)]
     omegas = np.sqrt(np.abs(outputs[np.arange(2, actuators, 3)]))
-    alphas = (np.remainder(alphas, np.pi)) * (180/np.pi)
-    betas = (np.remainder(betas, np.pi)) * (180/np.pi)
+    alphas = (np.remainder(alphas, np.pi) - (np.pi * 0.5)) * (180/np.pi)
+    betas = (np.remainder(betas, np.pi) - (np.pi * 0.5)) * (180/np.pi)
     return alphas,betas, omegas 
 
 if __name__ == "__main__":
     mu = (1.6 *(10**-6))
     Km = (2.58 * (10**-8))
-    L = 0.16
+    L = 0.13
     c = 0.707106781
-    A = c * L * mu
+    A = L * mu
     lamb = (7 * (10**-10))
 
     coefficient_matrix = [ 
@@ -63,9 +63,9 @@ if __name__ == "__main__":
         [(mu), 0.0,0.0, (mu), 0.0,0.0,(mu), 0.0,0.0, (mu), 0.0, 0.0], 
         [ 0.0, (mu),0.0, 0.0, (mu), 0.0, 0.0, (mu), 0.0, 0.0, (mu), 0.0], 
         [ 0.0, 0.0, -(mu), 0.0,0.0, -(mu), 0.0,0.0, -(mu), 0.0,0.0, -(mu)], 
-        [ (-Km),0.0,(-A ),  (-Km),0.0,(A), (Km),0.0,(A), (Km),0.0, -(A)], 
-        [0, -Km , A, 0, -Km , -A, 0, Km, A, 0, Km, -A],
-        [-A, A,Km, A, -A, Km, A, A, -Km, -A, -A, -Km ]
+        [ (Km),0.0,(A ),  (Km),0.0,(-A), (-Km),0.0,(-A), (-Km),0.0, (A)], 
+        [0, -Km , -A, 0, -Km , A, 0, Km, -A, 0, Km, A],
+        [-A, -A, Km, A, A, Km, A, -A, -Km, -A, A, -Km ]
     ]
 
     
@@ -76,15 +76,14 @@ if __name__ == "__main__":
     print(f" This is the condition number of the coefficient matrix {np.linalg.cond(coeff_array)}")
     
     points = 1000
-    noise = np.random.normal(0.11,0.002,6*points).reshape((6,points))
-    #noise[3] = np.linspace(0, 1, points)
-    noise[5] = np.linspace(0, 1, points)
+    noise = np.random.normal(0.005,0.002,6*points).reshape((6,points)) 
+    noise[2] = 0.5
+    noise[5] = np.linspace(0.1, 1, points)
     noise[1] *= ((15*np.pi)/180) * ( 9.81)
     noise[0] *= ((15*np.pi)/180) * (9.81 )
     noise[2] *= (9.81 * 2)
-    noise[5] *= 0.5
-    W = generate_weights(0.2, 0.2, 0.6, 12)
-    B = generate_weighted_pinv(W, coeff_array, weighted=False)
+    W = generate_weights(0.25, 0.25, 0.5, 12)
+    B = generate_weighted_pinv(W, coeff_array, weighted=True)
     alphas,betas, omegas = calc_actuator(B, noise)
     np.set_printoptions(suppress=True)
     #print(repr(B.reshape((72,))))
@@ -114,5 +113,5 @@ if __name__ == "__main__":
             axes[row, col].set_xlabel(f"Data Points")
             axes[row, col].set_ylabel("Motor RPM")
             counter+=1
-
     plt.show()
+  
