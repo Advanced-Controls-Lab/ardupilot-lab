@@ -48,19 +48,9 @@ if __name__ == "__main__":
     c = 0.707106781
     A = L * mu
     lamb = (7 * (10**-10))
-
-    coefficient_matrix = [ 
-        [(mu), 0.0,0.0, (mu), 0.0,0.0,(mu), 0.0,0.0, (mu), 0.0, 0.0], 
-        [ 0.0, (mu),0.0, 0.0, (mu), 0.0, 0.0, (mu), 0.0, 0.0, (mu), 0.0], 
-        [ 0.0, 0.0, -(mu), 0.0,0.0, -(mu), 0.0,0.0, -(mu), 0.0,0.0, -(mu)], 
-        [ (Km),0.0,(-A ),  (Km),0.0,(A), -(Km),0.0,(A), -(Km),0.0, -(A)], 
-        [0, Km , A, 0, Km , -A, 0, -Km, A, 0, -Km, -A],
-        [-A, A,Km, A, -A, Km, A, A, -Km, -A, -A, -Km ]
-    ]
-
     
     coefficient_matrix2 = [ 
-        [(mu), 0.0,0.0, (mu), 0.0,0.0,(mu), 0.0,0.0, (mu), 0.0, 0.0], 
+        [(-mu), 0.0,0.0, (-mu), 0.0,0.0,(-mu), 0.0,0.0, (-mu), 0.0, 0.0], 
         [ 0.0, (mu),0.0, 0.0, (mu), 0.0, 0.0, (mu), 0.0, 0.0, (mu), 0.0], 
         [ 0.0, 0.0, -(mu), 0.0,0.0, -(mu), 0.0,0.0, -(mu), 0.0,0.0, -(mu)], 
         [ (Km),0.0,(A ),  (Km),0.0,(-A), (-Km),0.0,(-A), (-Km),0.0, (A)], 
@@ -72,18 +62,18 @@ if __name__ == "__main__":
 
     
     coeff_array = normalize(np.array(coefficient_matrix2))
-    #coeff_array = np.array(coefficient_matrix)
+    #coeff_array = np.array(coefficient_matrix2)
     print(f" This is the condition number of the coefficient matrix {np.linalg.cond(coeff_array)}")
     
     points = 1000
     noise = np.random.normal(0.005,0.002,6*points).reshape((6,points)) 
     noise[2] = 0.5
     noise[5] = np.linspace(0.1, 1, points)
-    noise[1] *= ((15*np.pi)/180) * ( 9.81)
-    noise[0] *= ((15*np.pi)/180) * (9.81 )
-    noise[2] *= (9.81 * 2)
+    noise[1] *= ((15*np.pi)/180) * (1.94 * 9.81)
+    noise[0] *= ((15*np.pi)/180) * (1.94 * 9.81 )
+    noise[2] *= (9.81 * 2.5 * 1.94)
     W = generate_weights(0.25, 0.25, 0.5, 12)
-    B = generate_weighted_pinv(W, coeff_array, weighted=True)
+    B = generate_weighted_pinv(W, coeff_array, weighted=False)
     alphas,betas, omegas = calc_actuator(B, noise)
     np.set_printoptions(suppress=True)
     #print(repr(B.reshape((72,))))
