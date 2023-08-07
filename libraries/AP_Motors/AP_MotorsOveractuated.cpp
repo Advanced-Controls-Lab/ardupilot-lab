@@ -170,12 +170,12 @@ void AP_MotorsOveractuated::output_armed_stabilizing()
     }
 
 
-    //thrust_vec.x = thrust_vec.x * (1.94 * 9.81 * (0.26179938779));
-    //thrust_vec.y = thrust_vec.y * (1.94 * 9.81 * (0.26179938779));
-    //thrust_vec.z = thrust_vec.z * (1.94 * 9.81 * 2.5);  
-    //yaw_thrust = yaw_thrust * AP_YAW_SCALE;
-    //pitch_thrust = pitch_thrust * AP_PITCH_SCALE; 
-    //roll_thrust = roll_thrust * AP_ROLL_SCALE;  
+    thrust_vec.x = thrust_vec.x * (1.94 * 9.81 );
+    thrust_vec.y = thrust_vec.y * (1.94 * 9.81);
+    thrust_vec.z = thrust_vec.z * (1.94 * 9.81 * 2.5);  
+    yaw_thrust = yaw_thrust * 2;
+    pitch_thrust = pitch_thrust * 2; 
+    roll_thrust = roll_thrust * 2;  
     _previous_thrust[0] = thrust_vec.x; 
     _previous_thrust[1] = thrust_vec.y;
     _previous_thrust[2] = thrust_vec.z; 
@@ -187,18 +187,18 @@ void AP_MotorsOveractuated::output_armed_stabilizing()
 
     
     float sol_array[72] = {
-     -0.5f ,0.0f ,0.0f ,0.0615476f ,-0.0f ,-0.3522013f ,
-0.0f ,0.5f ,0.0f ,0.0f ,-0.0615476f ,-0.3522013f ,
--0.0f ,0.0f ,-0.5f ,0.4961974f ,-0.4961974f ,0.0436865f ,
--0.5f ,0.0f ,0.0f ,0.0615476f ,0.0f ,0.3522013f ,
--0.0f ,0.5f ,0.0f ,0.0f ,-0.0615476f ,0.3522013f ,
--0.0f ,-0.0f ,-0.5f ,-0.4961974f ,0.4961974f ,0.0436865f ,
--0.5f ,-0.0f ,-0.0f ,-0.0615476f ,-0.0f ,0.3522013f ,
-0.0f ,0.5f ,-0.0f ,-0.0f ,0.0615476f ,-0.3522013f ,
-0.0f ,0.0f ,-0.5f ,-0.4961974f ,-0.4961974f ,-0.0436865f ,
--0.5f ,-0.0f ,-0.0f ,-0.0615476f ,-0.0f ,-0.3522013f ,
--0.0f ,0.5f ,-0.0f ,-0.0f ,0.0615476f ,0.3522013f ,
-0.0f ,0.0f ,-0.5f ,0.4961974f ,0.4961974f ,-0.0436865f ,
+     -0.5f ,0.0f ,0.0f ,0.0916272f ,-0.0f ,0.0f ,
+0.0f ,0.5f ,-0.0f ,-0.0f ,-0.0916272f ,-0.0f ,
+-0.0f ,0.0f ,-0.5f ,0.4924664f ,-0.4924664f ,0.5f ,
+-0.5f ,0.0f ,0.0f ,0.0916272f ,-0.0f ,0.0f ,
+0.0f ,0.5f ,-0.0f ,-0.0f ,-0.0916272f ,-0.0f ,
+0.0f ,-0.0f ,-0.5f ,-0.4924664f ,0.4924664f ,0.5f ,
+-0.5f ,-0.0f ,-0.0f ,-0.0916272f ,0.0f ,-0.0f ,
+-0.0f ,0.5f ,-0.0f ,0.0f ,0.0916272f ,-0.0f ,
+0.0f ,-0.0f ,-0.5f ,-0.4924664f ,-0.4924664f ,-0.5f ,
+-0.5f ,-0.0f ,-0.0f ,-0.0916272f ,0.0f ,-0.0f ,
+-0.0f ,0.5f ,-0.0f ,0.0f ,0.0916272f ,-0.0f ,
+-0.0f ,-0.0f ,-0.5f ,0.4924664f ,0.4924664f ,-0.5f ,
     };
     /*
     weighted pseudo-inverse 
@@ -408,9 +408,9 @@ void AP_MotorsOveractuated:: init(motor_frame_class frame_class, motor_frame_typ
     motor_enabled[AP_MOTORS_MOT_4] = true; 
 
     add_motor(AP_MOTORS_MOT_1,     -0.71f,              0.71f,              1.0f,            1.0f,             0,                0,               false,1); 
-    add_motor(AP_MOTORS_MOT_2,     0.71f,              -0.71f,              1.0f,           1.0f,             0,                0,               false,3); 
-    add_motor(AP_MOTORS_MOT_3,     0.71f,              0.71f,               -1.0f,            1.0f,             0,                0,                false,4); 
-    add_motor(AP_MOTORS_MOT_4,     -0.71f,              -0.71f,              -1.0f,           1.0f,             0,                0,                false,2); 
+    add_motor(AP_MOTORS_MOT_2,     0.71f,              -0.71f,              1.0f,           1.0f,             0,                0,               false,2); 
+    add_motor(AP_MOTORS_MOT_3,     0.71f,              0.71f,               -1.0f,            1.0f,             0,                0,                false,3); 
+    add_motor(AP_MOTORS_MOT_4,     -0.71f,              -0.71f,              -1.0f,           1.0f,             0,                0,                false,4); 
     set_update_rate(400); 
     
     _mav_type = MAV_TYPE_DODECAROTOR; 
