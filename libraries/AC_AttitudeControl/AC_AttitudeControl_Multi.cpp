@@ -402,7 +402,7 @@ void AC_AttitudeControl_Multi::rate_controller_run()
     MRAC_array[28] = MRAC_coef(9, 1);
     MRAC_array[29] = MRAC_coef(9, 2);
     matrix::Matrix<float, 10, 3> MRAC_coef2(MRAC_array);
-    float Gamma = 4;
+    float Gamma = 3;
     // matrix::Matrix<float, 1, 3> e(err);
     // matrix::Matrix<float, 7, 1> w(w_array);
     // matrix::Matrix<float, 7, 3> MRAC_coef(MRAC_array);
@@ -494,7 +494,18 @@ void AC_AttitudeControl_Multi::rate_controller_run()
     target_roll = _ang_vel_body.x;
     target_pitch = _ang_vel_body.y;
     target_yaw = _ang_vel_body.z;
-
+    mrac1 = MRAC_array[0];
+    mrac2 = MRAC_array[1];
+    mrac3 = MRAC_array[2];
+    dmrac1 = (_dt*w*e*P*B)(0,0);
+    dmrac2 = (_dt*w*e*P*B)(0,1);
+    dmrac3 = (_dt*w*e*P*B)(0,2);
+    e_xref1 = xref[3];
+    e_xref2 = xref[4];
+    e_xref3 = xref[5];
+    de_xref1 = _dt*(xref[0] - _ang_vel_body.x);
+    de_xref2 = _dt*(xref[1] - _ang_vel_body.y);
+    de_xref3 = _dt*(xref[2] - _ang_vel_body.z);
 
     AP::logger().Write("MRA1", "TimeUS,un_roll,un_pitch,un_yaw,ua_roll,ua_pitch,ua_yaw",
                    "s------", // units: None
@@ -531,6 +542,30 @@ void AC_AttitudeControl_Multi::rate_controller_run()
                    u_roll,
                    u_pitch,
                    u_yaw);
+
+    AP::logger().Write("MRA4", "TimeUS,mrac1,mrac2,mrac3,dmrac1,dmrac2,dmrac3",
+                   "s------", // units: None
+                   "F------", // mult: None
+                   "Qffffff", // format: float
+                   AP_HAL::micros64(),
+                   mrac1,
+                   mrac2,
+                   mrac3,
+                   dmrac1,
+                   dmrac2,
+                   dmrac3);
+
+    AP::logger().Write("MRA5", "TimeUS,e_xref1,e_xref2,e_xref3,de_xref1,de_xref2,de_xref3",
+                   "s------", // units: None
+                   "F------", // mult: None
+                   "Qffffff", // format: float
+                   AP_HAL::micros64(),
+                   e_xref1,
+                   e_xref2,
+                   e_xref3,
+                   de_xref1,
+                   de_xref2,
+                   de_xref3);
 
     control_monitor_update();
 }

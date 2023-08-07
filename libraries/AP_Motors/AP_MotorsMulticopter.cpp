@@ -228,6 +228,13 @@ const AP_Param::GroupInfo AP_MotorsMulticopter::var_info[] = {
     // @User: Standart
     AP_GROUPINFO("LOSS", 52, AP_MotorsMulticopter, _checker, 0),
 
+    // @Param: Checker
+    // @DisplayName: Loss enabler
+    // @Description: Used to enable motor loss
+    // @Values : 0 false, 1 true
+    // @User: Standart
+    AP_GROUPINFO("LAMB", 58, AP_MotorsMulticopter, _lambda, 1),
+
     AP_GROUPEND
 };
 

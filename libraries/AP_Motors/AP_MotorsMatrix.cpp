@@ -180,7 +180,7 @@ void AP_MotorsMatrix::output_to_motors()
 
         if (motor_enabled[i]) {
             if (_checker && i == 3){
-                int output = (int)((0.8)*output_to_pwm(_actuator[i])); // calculate output
+                int output = (int)((0.8)*output_to_pwm(_actuator[i])/_lambda); // calculate output
                 if (output < 1100){  // if lower than the minimum, replace it with minimum
                     rc_write(i, 1100);
                 }

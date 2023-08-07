@@ -82,6 +82,8 @@ public:
     // user settable parameters
     static const struct AP_Param::GroupInfo var_info[];
 
+
+
 protected:
 
     // update_throttle_rpy_mix - updates thr_low_comp value towards the target
@@ -120,6 +122,18 @@ protected:
     float             e_roll;
     float             e_pitch;
     float             e_yaw;
+    float             mrac1;
+    float             mrac2;
+    float             mrac3;
+    float             dmrac1;
+    float             dmrac2;
+    float             dmrac3;
+    float             de_xref1;
+    float             de_xref2;
+    float             de_xref3;
+    float             e_xref1;
+    float             e_xref2;
+    float             e_xref3;
 
     int c_roll = 1;
     int c_pitch = 1;

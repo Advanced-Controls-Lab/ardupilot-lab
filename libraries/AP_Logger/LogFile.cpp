@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <cstdint>
 
 #include <AP_AHRS/AP_AHRS.h>
 #include <AP_Compass/AP_Compass.h>
