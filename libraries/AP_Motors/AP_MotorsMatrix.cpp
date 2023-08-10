@@ -177,12 +177,11 @@ void AP_MotorsMatrix::output_to_motors()
 
     // convert output to PWM and send to each motor
     for (i = 0; i < AP_MOTORS_MAX_NUM_MOTORS; i++) {
-
         if (motor_enabled[i]) {
             if (_checker && i == 3){
-                int output = (int)((0.8)*output_to_pwm(_actuator[i])/_lambda); // calculate output
-                if (output > _pwm_max*0.8){
-                    rc_write(i, _pwm_max*0.8);
+                int output = (int)((1-_percent_loss)*output_to_pwm(_actuator[i])/_lambda); // calculate output
+                if (output > _pwm_max*(1-_percent_loss)){
+                    rc_write(i, _pwm_max*(1-_percent_loss));
                 }
                 else if (output < 1100){  // if lower than the minimum, replace it with minimum
                     rc_write(i, 1100);

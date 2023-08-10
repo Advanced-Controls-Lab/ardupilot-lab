@@ -214,12 +214,12 @@ const AP_Param::GroupInfo AP_MotorsMulticopter::var_info[] = {
     // // @User: Standart
     // AP_GROUPINFO("Motor_num", 50, AP_MotorsMulticopter, _motor_num, 3),
 
-    // // @Param: Motor_Pcnt
-    // // @DisplayName: Motor loss by percent
-    // // @Description: Used to change motor loss
-    // // @Values : 0 to 1
-    // // @User: Standart
-    // AP_GROUPINFO("Motor_Pcnt", 54, AP_MotorsMulticopter, _percent_loss, 0),
+    // @Param: Motor_Pcnt
+    // @DisplayName: Motor loss by percent
+    // @Description: Used to change motor loss
+    // @Values : 0 to 1
+    // @User: Standart
+    AP_GROUPINFO("PRCT", 70, AP_MotorsMulticopter, _percent_loss, 0),
 
     // @Param: Checker
     // @DisplayName: Loss enabler

@@ -239,12 +239,6 @@ const AP_Param::GroupInfo AC_AttitudeControl_Multi::var_info[] = {
     // @Values: 1 if taking off, 0 otherwise
     AP_GROUPINFO("TAKE_OFF", 60, AC_AttitudeControl_Multi, _take_off, 1),
 
-    // @Param: MRAC
-    // @DisplayName: To choose if we use MRAC or not
-    // @Description: To choose if we use MRAC or not
-    // @Values: 1 if using MRAC, 0 if not
-    AP_GROUPINFO("MRAC", 62, AC_AttitudeControl_Multi, _mrac, 1),
-
     AP_GROUPEND
 };
 
@@ -439,7 +433,7 @@ void AC_AttitudeControl_Multi::rate_controller_run()
     ua_yaw = (-Gamma*MRAC_coef2.transpose()*w)(2, 0);
 
 
-    if (_mrac == 0 || _take_off == 1)
+    if (_take_off == 1)
     {    
         ua_roll = 0;
         ua_pitch = 0;
@@ -519,17 +513,17 @@ void AC_AttitudeControl_Multi::rate_controller_run()
                    ua_pitch,
                    ua_yaw);
 
-    AP::logger().Write("MRA2", "TimeUS,xref_r,xref_p,xref_y,targ_r,targ_p,targ_y",
-                   "s------", // units: None
-                   "F------", // mult: None
-                   "Qffffff", // format: float
-                   AP_HAL::micros64(),
-                   xref_roll,
-                   xref_pitch,
-                   xref_yaw,
-                   target_roll,
-                   target_pitch,
-                   target_yaw);
+    // AP::logger().Write("MRA2", "TimeUS,xref_r,xref_p,xref_y,targ_r,targ_p,targ_y",
+    //                "s------", // units: None
+    //                "F------", // mult: None
+    //                "Qffffff", // format: float
+    //                AP_HAL::micros64(),
+    //                xref_roll,
+    //                xref_pitch,
+    //                xref_yaw,
+    //                target_roll,
+    //                target_pitch,
+    //                target_yaw);
 
     AP::logger().Write("MRA3", "TimeUS,e_roll,e_pitch,e_yaw,u_roll,u_pitch,u_yaw",
                    "s------", // units: None
@@ -543,29 +537,29 @@ void AC_AttitudeControl_Multi::rate_controller_run()
                    u_pitch,
                    u_yaw);
 
-    AP::logger().Write("MRA4", "TimeUS,mrac1,mrac2,mrac3,dmrac1,dmrac2,dmrac3",
-                   "s------", // units: None
-                   "F------", // mult: None
-                   "Qffffff", // format: float
-                   AP_HAL::micros64(),
-                   mrac1,
-                   mrac2,
-                   mrac3,
-                   dmrac1,
-                   dmrac2,
-                   dmrac3);
+    // AP::logger().Write("MRA4", "TimeUS,mrac1,mrac2,mrac3,dmrac1,dmrac2,dmrac3",
+    //                "s------", // units: None
+    //                "F------", // mult: None
+    //                "Qffffff", // format: float
+    //                AP_HAL::micros64(),
+    //                mrac1,
+    //                mrac2,
+    //                mrac3,
+    //                dmrac1,
+    //                dmrac2,
+    //                dmrac3);
 
-    AP::logger().Write("MRA5", "TimeUS,e_xref1,e_xref2,e_xref3,de_xref1,de_xref2,de_xref3",
-                   "s------", // units: None
-                   "F------", // mult: None
-                   "Qffffff", // format: float
-                   AP_HAL::micros64(),
-                   e_xref1,
-                   e_xref2,
-                   e_xref3,
-                   de_xref1,
-                   de_xref2,
-                   de_xref3);
+    // AP::logger().Write("MRA5", "TimeUS,e_xref1,e_xref2,e_xref3,de_xref1,de_xref2,de_xref3",
+    //                "s------", // units: None
+    //                "F------", // mult: None
+    //                "Qffffff", // format: float
+    //                AP_HAL::micros64(),
+    //                e_xref1,
+    //                e_xref2,
+    //                e_xref3,
+    //                de_xref1,
+    //                de_xref2,
+    //                de_xref3);
 
     control_monitor_update();
 }

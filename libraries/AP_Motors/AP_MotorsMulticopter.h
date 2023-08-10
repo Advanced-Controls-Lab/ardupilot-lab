@@ -201,7 +201,7 @@ protected:
     float               _disarm_safe_timer;     // Timer for the esc when transitioning between zero pwm to minimum
     //int                 _motor_num = 3;         // Motor to be turned off
     AP_Int8             _checker;               // 0 false, 1 true
-    //float               _percent_loss = 0.2;    // decrease the output by this much
+    AP_Float            _percent_loss;    // decrease the output by this much
     AP_Float            _lambda;
 
     // vehicle supplied callback for thrust compensation. Used for tiltrotors and tiltwings
