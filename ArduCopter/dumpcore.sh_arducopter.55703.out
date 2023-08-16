@@ -1,0 +1,3 @@
+.
+Aug 11 16:06:15 laurent-desktop kernel: [ 7905.342512] EXT4-fs error (device mmcblk1p1): ext4_dx_find_entry:1646: inode #1967484: block 2: comm g++: Directory block failed checksum
+Aug 11 16:06:15 laurent-desktop kernel: [ 7905.367595] EXT4-fs warning (device mmcblk1p1): ext4_dirblock_csum_verify:377: inode #1967484: comm g++: No space for direc

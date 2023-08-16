@@ -233,11 +233,11 @@ const AP_Param::GroupInfo AC_AttitudeControl_Multi::var_info[] = {
     // @User: Advanced
     AP_GROUPINFO("THR_MIX_MAN", 6, AC_AttitudeControl_Multi, _thr_mix_man, AC_ATTITUDE_CONTROL_MAN_DEFAULT),
 
-    // @Param: Take_off
-    // @DisplayName: To know if you are taking off or not
-    // @Description: To know if you are taking off or not
-    // @Values: 1 if taking off, 0 otherwise
-    AP_GROUPINFO("TAKE_OFF", 60, AC_AttitudeControl_Multi, _take_off, 1),
+    // @Param: MRAC
+    // @DisplayName: To say if we use the adaptive control or not
+    // @Description: To say if we use the adaptive control or not
+    // @Values: 1 if we use it, 0 otherwise
+    AP_GROUPINFO("MRAC", 60, AC_AttitudeControl_Multi, _mrac, 0),
 
     AP_GROUPEND
 };
@@ -433,7 +433,7 @@ void AC_AttitudeControl_Multi::rate_controller_run()
     ua_yaw = (-Gamma*MRAC_coef2.transpose()*w)(2, 0);
 
 
-    if (_take_off == 1)
+    if (_mrac == 0)
     {    
         ua_roll = 0;
         ua_pitch = 0;
