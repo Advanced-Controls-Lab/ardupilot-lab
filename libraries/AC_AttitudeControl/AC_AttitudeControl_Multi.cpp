@@ -394,7 +394,10 @@ void AC_AttitudeControl_Multi::rate_controller_run()
     // un_yaw = (- 5*gyro_latest.z - x_error_integral[2])/300;
 
 
-    // We apply the MRAC equation
+    // --------------------
+    // Adaptive controller
+    // --------------------
+    // We apply the MRAC equation according to the paper from the MIT attached in the folder.
     float err[6] = {gyro_latest.x - xref[0] ,  gyro_latest.y - xref[1] ,  gyro_latest.z - xref[2] ,  x_error_integral[0] - xref[3] ,  x_error_integral[1] - xref[4] ,  x_error_integral[2] - xref[5]};  // Error between the state and the reference model
     float w_array[10] = {gyro_latest.x, gyro_latest.y, gyro_latest.z, x_error_integral[0], x_error_integral[1], x_error_integral[2], _ang_vel_body.x, _ang_vel_body.y, _ang_vel_body.z, 1};
     matrix::Matrix<float, 1, 6> e(err);
@@ -415,7 +418,7 @@ void AC_AttitudeControl_Multi::rate_controller_run()
 
 
     // Commande we send (each value should be between -1 and 1), it is not exactly torque
-    u_roll = un_roll + ua_roll;
+    u_roll = un_roll + ua_roll;  // Nominal controller + Adaptive controller 
     u_pitch = un_pitch + ua_pitch;
     u_yaw = un_yaw + ua_yaw;
 
