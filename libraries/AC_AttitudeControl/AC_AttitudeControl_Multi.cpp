@@ -358,7 +358,8 @@ void AC_AttitudeControl_Multi::rate_controller_run()
     /* 
     Here we are trying to implement a Model Reference Adaptive Controller on a sub system (only angular velocities) based on the paper from the MIT attached in the folder.
     It does work not as good as we expected, and I didn't manage to fix the problem.
-    Maybe it is because we state that the reference model is equal to the target, whereas it is not excatly true, instead of propagating the reference model. 
+    Maybe it is because we cannot implement the Vz component in the controller here as in the python script we made 
+    Or because we state that the reference model is equal to the target, whereas it is not excatly true, instead of propagating the reference model. 
     But we can't propagate properly the reference model as we don't have access to the desired position/velocity here. 
     */
 
