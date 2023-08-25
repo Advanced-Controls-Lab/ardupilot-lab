@@ -102,6 +102,22 @@ protected:
     AP_Float              _thr_mix_min;     // throttle vs attitude control prioritisation used when landing (higher values mean we prioritise attitude control over throttle)
     AP_Float              _thr_mix_max;     // throttle vs attitude control prioritisation used during active flight (higher values mean we prioritise attitude control over throttle)
     
+    // Parameters initialization
+    float dh = 0.25;
+    float Jxx = 0.01;
+    float Jyy = 0.01;
+    float Jzz = 0.02;
+
+    // Matrix initialization
+    float xref[6] = {0, 0, 0, 0, 0, 0};
+    float x_error_integral[3] = {0, 0, 0};
+    matrix::Matrix<float, 10, 3> MRAC_coef;
+    matrix::Matrix<float, 6, 6> P;
+    matrix::Matrix<float, 6, 3> B;
+    bool ini = false;
+    void InitializeMatrix();
+
+    // Log variables
     float             un_roll;
     float             un_pitch;
     float             un_yaw;
@@ -111,42 +127,14 @@ protected:
     float             u_roll;
     float             u_pitch;
     float             u_yaw;
-
-    float             xref_roll;
-    float             xref_pitch;
-    float             xref_yaw;
+    float             roll;
+    float             pitch;
+    float             yaw;
     float             target_roll;
     float             target_pitch;
     float             target_yaw;
     float             e_roll;
     float             e_pitch;
     float             e_yaw;
-    float             mrac1;
-    float             mrac2;
-    float             mrac3;
-    float             dmrac1;
-    float             dmrac2;
-    float             dmrac3;
-    float             de_xref1;
-    float             de_xref2;
-    float             de_xref3;
-    float             e_xref1;
-    float             e_xref2;
-    float             e_xref3;
 
-    int c_roll = 1;
-    int c_pitch = 1;
-    int c_yaw = 1;
-
-    float xref[6] = {0, 0, 0, 0, 0, 0};
-    float x_error_integral[3] = {0, 0, 0};
-    float B_array[18] = {1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    float MRAC_array[30] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    float P_array[36] = {0.014, 0, 0, 0.014, 0, 0, 0, 0.014, 0, 0, 0.014, 0, 0, 0, 0.0052, 0, 0, 0.0052, 0.014, 0, 0, 1.02, 0, 0, 0, 0.014, 0, 0, 1.02, 0, 0, 0, 0.0052, 0, 0, 1.005};
-
-    // float xref[6] = {0, 0, 0, 0, 0, 0};
-    // float x_error_integral[3] = {0, 0, 0};
-    // float B_array[9] = {1, 0, 0, 0, 1, 0, 0, 0, 1};
-    // float MRAC_array[21] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    // float P_array[9] = {0.014, 0, 0,0, 0.014, 0,0, 0, 0.014};
     };

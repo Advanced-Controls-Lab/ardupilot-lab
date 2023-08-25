@@ -333,8 +333,35 @@ void AC_AttitudeControl_Multi::update_throttle_rpy_mix()
     _throttle_rpy_mix = constrain_float(_throttle_rpy_mix, 0.1f, AC_ATTITUDE_CONTROL_MAX);
 }
 
+void AC_AttitudeControl_Multi::InitializeMatrix()
+{
+    MRAC_coef.setZero();
+    
+    B.setZero();
+    B(0, 0) = dh/Jxx;
+    B(1, 1) = dh/Jyy;
+    B(2, 2) = 1/Jzz;
+
+    // P is calculated offline using python scipy to solve lyapunov equation
+    P.setZero();
+    P(0, 0) = 0.0063; P(0, 3) = 0.0063;
+    P(1, 1) = 0.0063; P(1, 4) = 0.0063;
+    P(2, 2) = 0.00315; P(2, 5) = 0.00315;
+    P(3, 0) = 0.0063; P(3, 3) = 1.0063;
+    P(4, 1) = 0.0063; P(4, 4) = 1.0063;
+    P(5, 2) = 0.00315; P(5, 5) = 1.00315;
+}
+
+
 void AC_AttitudeControl_Multi::rate_controller_run()
 {
+    /* 
+    Here we are trying to implement a Model Reference Adaptive Controller on a sub system (only angular velocities) based on the paper from the MIT attached in the folder.
+    It does work not as good as we expected, and I didn't manage to fix the problem.
+    Maybe it is because we state that the reference model is equal to the target, whereas it is not excatly true, instead of propagating the reference model. 
+    But we can't propagate properly the reference model as we don't have access to the desired position/velocity here. 
+    */
+
     // move throttle vs attitude mixing towards desired (called from here because this is conveniently called on every iteration)
     update_throttle_rpy_mix();
 
@@ -342,98 +369,44 @@ void AC_AttitudeControl_Multi::rate_controller_run()
 
     Vector3f gyro_latest = _ahrs.get_gyro_latest();
 
+    // We initialize the Matrix just one time at the beginning, We created a function to initialize because we cannot set values to the matrix in the header file
+    if (not(ini)){
+        InitializeMatrix();
+        ini = false;
+    }
 
+    // --------------------
+    // Nominal controller
+    // --------------------
+    /* To implement the MRAC we usually create the nominal controller, which is stored in a matrix Kx,
+    and then we deduced the P matrix from the Kx matrix. Here we calculated the P matrix offline using
+    a PI controller. So we should use PI controller as our nominal controller as well. 
+    Ardupilot are PIDs controller but the D component is very low so we can use it. */ 
+    
+
+    // Here we state thate Nominal controller = Results of the PIDs
     un_roll = get_rate_roll_pid().update_all(_ang_vel_body.x, gyro_latest.x, 1, _motors.limit.roll) + _actuator_sysid.x;
     un_pitch = get_rate_pitch_pid().update_all(_ang_vel_body.y, gyro_latest.y, 2, _motors.limit.pitch) + _actuator_sysid.y;
     un_yaw = get_rate_yaw_pid().update_all(_ang_vel_body.z, gyro_latest.z, 3, _motors.limit.yaw) + _actuator_sysid.z;
-
-    float err[6] = {gyro_latest.x - xref[0] ,  gyro_latest.y - xref[1] ,  gyro_latest.z - xref[2] ,  x_error_integral[0] - xref[3] ,  x_error_integral[1] - xref[4] ,  x_error_integral[2] - xref[5]};
-    float w_array[10] = {gyro_latest.x, gyro_latest.y, gyro_latest.z, x_error_integral[0], x_error_integral[1], x_error_integral[2], _ang_vel_body.x, _ang_vel_body.y, _ang_vel_body.z, 1};
-    // float err[3] = {gyro_latest.x - _ang_vel_body.x, gyro_latest.y - _ang_vel_body.y, gyro_latest.z - _ang_vel_body.z};
-    // float w_array[7] = {gyro_latest.x, gyro_latest.y, gyro_latest.z, _ang_vel_body.x, _ang_vel_body.y, _ang_vel_body.z, 1};
-
+    // We can try other nominal controller but they are not as efficient as Ardupilot' PIDs
     // un_roll = (- 5*gyro_latest.x - x_error_integral[0])/300;
     // un_pitch = (- 5*gyro_latest.y - x_error_integral[1])/300;
     // un_yaw = (- 5*gyro_latest.z - x_error_integral[2])/300;
-    // un_roll = (_ang_vel_body.x - gyro_latest.x)/500;
-    // un_pitch = (_ang_vel_body.y - gyro_latest.y)/500;
-    // un_yaw = (_ang_vel_body.z - gyro_latest.z)/500;
 
+
+    // We apply the MRAC equation
+    float err[6] = {gyro_latest.x - xref[0] ,  gyro_latest.y - xref[1] ,  gyro_latest.z - xref[2] ,  x_error_integral[0] - xref[3] ,  x_error_integral[1] - xref[4] ,  x_error_integral[2] - xref[5]};  // Error between the state and the reference model
+    float w_array[10] = {gyro_latest.x, gyro_latest.y, gyro_latest.z, x_error_integral[0], x_error_integral[1], x_error_integral[2], _ang_vel_body.x, _ang_vel_body.y, _ang_vel_body.z, 1};
     matrix::Matrix<float, 1, 6> e(err);
     matrix::Matrix<float, 10, 1> w(w_array);
-    matrix::Matrix<float, 10, 3> MRAC_coef(MRAC_array);
-    matrix::Matrix<float, 6, 6> P(P_array);
-    matrix::Matrix<float, 6, 3> B(B_array);
     MRAC_coef += _dt*w*e*P*B;
-    MRAC_array[0] = MRAC_coef(0, 0);
-    MRAC_array[1] = MRAC_coef(0, 1);
-    MRAC_array[2] = MRAC_coef(0, 2);
-    MRAC_array[3] = MRAC_coef(1, 0);
-    MRAC_array[4] = MRAC_coef(1, 1);
-    MRAC_array[5] = MRAC_coef(1, 2);
-    MRAC_array[6] = MRAC_coef(2, 0);
-    MRAC_array[7] = MRAC_coef(2, 1);
-    MRAC_array[8] = MRAC_coef(2, 2);
-    MRAC_array[9] = MRAC_coef(3, 0);
-    MRAC_array[10] = MRAC_coef(3, 1);
-    MRAC_array[11] = MRAC_coef(3, 2);
-    MRAC_array[12] = MRAC_coef(4, 0);
-    MRAC_array[13] = MRAC_coef(4, 1);
-    MRAC_array[14] = MRAC_coef(4, 2);
-    MRAC_array[15] = MRAC_coef(5, 0);
-    MRAC_array[16] = MRAC_coef(5, 1);
-    MRAC_array[17] = MRAC_coef(5, 2);
-    MRAC_array[18] = MRAC_coef(6, 0);
-    MRAC_array[19] = MRAC_coef(6, 1);
-    MRAC_array[20] = MRAC_coef(6, 2);
-    MRAC_array[21] = MRAC_coef(7, 0);
-    MRAC_array[22] = MRAC_coef(7, 1);
-    MRAC_array[23] = MRAC_coef(7, 2);
-    MRAC_array[24] = MRAC_coef(8, 0);
-    MRAC_array[25] = MRAC_coef(8, 1);
-    MRAC_array[26] = MRAC_coef(8, 2);
-    MRAC_array[27] = MRAC_coef(9, 0);
-    MRAC_array[28] = MRAC_coef(9, 1);
-    MRAC_array[29] = MRAC_coef(9, 2);
-    matrix::Matrix<float, 10, 3> MRAC_coef2(MRAC_array);
-    float Gamma = 3;
-    // matrix::Matrix<float, 1, 3> e(err);
-    // matrix::Matrix<float, 7, 1> w(w_array);
-    // matrix::Matrix<float, 7, 3> MRAC_coef(MRAC_array);
-    // matrix::Matrix<float, 3, 3> P(P_array);
-    // matrix::Matrix<float, 3, 3> B(B_array);
-    // MRAC_coef += _dt*w*e*P*B;
-    // MRAC_array[0] = MRAC_coef(0, 0);
-    // MRAC_array[1] = MRAC_coef(0, 1);
-    // MRAC_array[2] = MRAC_coef(0, 2);
-    // MRAC_array[3] = MRAC_coef(1, 0);
-    // MRAC_array[4] = MRAC_coef(1, 1);
-    // MRAC_array[5] = MRAC_coef(1, 2);
-    // MRAC_array[6] = MRAC_coef(2, 0);
-    // MRAC_array[7] = MRAC_coef(2, 1);
-    // MRAC_array[8] = MRAC_coef(2, 2);
-    // MRAC_array[9] = MRAC_coef(3, 0);
-    // MRAC_array[10] = MRAC_coef(3, 1);
-    // MRAC_array[11] = MRAC_coef(3, 2);
-    // MRAC_array[12] = MRAC_coef(4, 0);
-    // MRAC_array[13] = MRAC_coef(4, 1);
-    // MRAC_array[14] = MRAC_coef(4, 2);
-    // MRAC_array[15] = MRAC_coef(5, 0);
-    // MRAC_array[16] = MRAC_coef(5, 1);
-    // MRAC_array[17] = MRAC_coef(5, 2);
-    // MRAC_array[18] = MRAC_coef(6, 0);
-    // MRAC_array[19] = MRAC_coef(6, 1);
-    // MRAC_array[20] = MRAC_coef(6, 2);
-    // matrix::Matrix<float, 7, 3> MRAC_coef2(MRAC_array);
-    // float Gamma = 20;
+    float Gamma = 2;  // Learning rate (if we increase it the MRAC will be more responsive)
+    ua_roll = (-Gamma*MRAC_coef.transpose()*w)(0, 0);
+    ua_pitch = (-Gamma*MRAC_coef.transpose()*w)(1, 0);
+    ua_yaw = (-Gamma*MRAC_coef.transpose()*w)(2, 0);
 
 
-    ua_roll = (-Gamma*MRAC_coef2.transpose()*w)(0, 0);
-    ua_pitch = (-Gamma*MRAC_coef2.transpose()*w)(1, 0);
-    ua_yaw = (-Gamma*MRAC_coef2.transpose()*w)(2, 0);
-
-
-    if (_mrac == 0)
+    if (_mrac == 0)  // Parameter we can control from a python code to use only Ardupilot controller instead of our MRAC
     {    
         ua_roll = 0;
         ua_pitch = 0;
@@ -441,6 +414,7 @@ void AC_AttitudeControl_Multi::rate_controller_run()
     }
 
 
+    // Commande we send (each value should be between -1 and 1), it is not exactly torque
     u_roll = un_roll + ua_roll;
     u_pitch = un_pitch + ua_pitch;
     u_yaw = un_yaw + ua_yaw;
@@ -463,45 +437,30 @@ void AC_AttitudeControl_Multi::rate_controller_run()
     x_error_integral[2] += _dt*(gyro_latest.z - _ang_vel_body.z);
 
     // Ref model
-    // xref[0] = _dt*c_roll*un_roll;
-    // xref[1] = _dt*c_pitch*un_pitch;
-    // xref[2] = _dt*c_yaw*un_yaw;
     xref[3] += _dt*(xref[0] - _ang_vel_body.x);
     xref[4] += _dt*(xref[1] - _ang_vel_body.y);
     xref[5] += _dt*(xref[2] - _ang_vel_body.z);
-    xref[0] = _ang_vel_body.x;
+    xref[0] = _ang_vel_body.x; // We state the that reference model is equal to the target.
     xref[1] = _ang_vel_body.y;
     xref[2] = _ang_vel_body.z;
-
-
 
     _sysid_ang_vel_body.zero();
     _actuator_sysid.zero();
 
-    // logging the values
-    xref_roll = xref[0];
-    xref_pitch = xref[1];
-    xref_yaw = xref[2];
-    e_roll = gyro_latest.x - target_roll;
-    e_pitch = gyro_latest.y - target_pitch;
-    e_yaw = gyro_latest.z - target_yaw;
+
+    // Logging the values
+    roll = gyro_latest.x;
+    pitch = gyro_latest.y;
+    yaw = gyro_latest.z;
     target_roll = _ang_vel_body.x;
     target_pitch = _ang_vel_body.y;
     target_yaw = _ang_vel_body.z;
-    mrac1 = MRAC_array[0];
-    mrac2 = MRAC_array[1];
-    mrac3 = MRAC_array[2];
-    dmrac1 = (_dt*w*e*P*B)(0,0);
-    dmrac2 = (_dt*w*e*P*B)(0,1);
-    dmrac3 = (_dt*w*e*P*B)(0,2);
-    e_xref1 = xref[3];
-    e_xref2 = xref[4];
-    e_xref3 = xref[5];
-    de_xref1 = _dt*(xref[0] - _ang_vel_body.x);
-    de_xref2 = _dt*(xref[1] - _ang_vel_body.y);
-    de_xref3 = _dt*(xref[2] - _ang_vel_body.z);
+    e_roll = roll - target_roll;
+    e_pitch = pitch - target_pitch;
+    e_yaw = yaw - target_yaw;
 
-    AP::logger().Write("MRA1", "TimeUS,un_roll,un_pitch,un_yaw,ua_roll,ua_pitch,ua_yaw",
+
+    AP::logger().Write("ADA1", "TimeUS,un_roll,un_pitch,un_yaw,ua_roll,ua_pitch,ua_yaw",
                    "s------", // units: None
                    "F------", // mult: None
                    "Qffffff", // format: float
@@ -513,19 +472,19 @@ void AC_AttitudeControl_Multi::rate_controller_run()
                    ua_pitch,
                    ua_yaw);
 
-    // AP::logger().Write("MRA2", "TimeUS,xref_r,xref_p,xref_y,targ_r,targ_p,targ_y",
-    //                "s------", // units: None
-    //                "F------", // mult: None
-    //                "Qffffff", // format: float
-    //                AP_HAL::micros64(),
-    //                xref_roll,
-    //                xref_pitch,
-    //                xref_yaw,
-    //                target_roll,
-    //                target_pitch,
-    //                target_yaw);
+    AP::logger().Write("ADA2", "TimeUS,roll,pitch,yaw,targ_r,targ_p,targ_y",
+                   "s------", // units: None
+                   "F------", // mult: None
+                   "Qffffff", // format: float
+                   AP_HAL::micros64(),
+                   roll,
+                   pitch,
+                   yaw,
+                   target_roll,
+                   target_pitch,
+                   target_yaw);
 
-    AP::logger().Write("MRA3", "TimeUS,e_roll,e_pitch,e_yaw,u_roll,u_pitch,u_yaw",
+    AP::logger().Write("ADA3", "TimeUS,e_roll,e_pitch,e_yaw,u_roll,u_pitch,u_yaw",
                    "s------", // units: None
                    "F------", // mult: None
                    "Qffffff", // format: float
@@ -536,30 +495,6 @@ void AC_AttitudeControl_Multi::rate_controller_run()
                    u_roll,
                    u_pitch,
                    u_yaw);
-
-    // AP::logger().Write("MRA4", "TimeUS,mrac1,mrac2,mrac3,dmrac1,dmrac2,dmrac3",
-    //                "s------", // units: None
-    //                "F------", // mult: None
-    //                "Qffffff", // format: float
-    //                AP_HAL::micros64(),
-    //                mrac1,
-    //                mrac2,
-    //                mrac3,
-    //                dmrac1,
-    //                dmrac2,
-    //                dmrac3);
-
-    // AP::logger().Write("MRA5", "TimeUS,e_xref1,e_xref2,e_xref3,de_xref1,de_xref2,de_xref3",
-    //                "s------", // units: None
-    //                "F------", // mult: None
-    //                "Qffffff", // format: float
-    //                AP_HAL::micros64(),
-    //                e_xref1,
-    //                e_xref2,
-    //                e_xref3,
-    //                de_xref1,
-    //                de_xref2,
-    //                de_xref3);
 
     control_monitor_update();
 }

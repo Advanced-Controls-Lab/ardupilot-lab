@@ -175,13 +175,23 @@ void AP_MotorsMatrix::output_to_motors()
             break;
     }
 
+    // ----------------------
+    // We apply the fault here
+    // ----------------------
+    
     // convert output to PWM and send to each motor
     for (i = 0; i < AP_MOTORS_MAX_NUM_MOTORS; i++) {
+        /*
+        - _lambda = 1 at the beginning (lambda = 1-fault), it is the parameter we send from a python code to compensate the fault 
+        - _percent_loss = 0.2 usually (20% Thrust Loss)
+        */
+        int fault_motor_number = 3;
         if (motor_enabled[i]) {
-            if (_checker && i == 3){
+            if (_checker && i == fault_motor_number){
                 int output = (int)((1-_percent_loss)*output_to_pwm(_actuator[i])/_lambda); // calculate output
+                // Saturation : pwm_max = 2000, but if we create a 20% fault then pwm_max = 1600 for example
                 if (output > _pwm_max*(1-_percent_loss)){
-                    rc_write(i, _pwm_max*(1-_percent_loss));
+                    rc_write(i, _pwm_max*(1-_percent_loss)); 
                 }
                 else if (output < 1100){  // if lower than the minimum, replace it with minimum
                     rc_write(i, 1100);
