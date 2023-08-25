@@ -185,7 +185,7 @@ void AP_MotorsMatrix::output_to_motors()
         - _lambda = 1 at the beginning (lambda = 1-fault), it is the parameter we send from a python code to compensate the fault 
         - _percent_loss = 0.2 usually (20% Thrust Loss)
         */
-        int fault_motor_number = 3;
+        int fault_motor_number = _motor_num;
         if (motor_enabled[i]) {
             if (_checker && i == fault_motor_number){
                 int output = (int)((1-_percent_loss)*output_to_pwm(_actuator[i])/_lambda); // calculate output

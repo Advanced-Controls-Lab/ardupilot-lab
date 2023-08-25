@@ -207,12 +207,12 @@ const AP_Param::GroupInfo AP_MotorsMulticopter::var_info[] = {
     // @User: Advanced
     AP_GROUPINFO("SAFE_TIME", 42, AP_MotorsMulticopter, _safe_time, AP_MOTORS_SAFE_TIME_DEFAULT),
 
-    // // @Param: Motor_Num
-    // // @DisplayName: Motor number
-    // // @Description: Used to change motor number
-    // // @Values : 1 to total number of motors of the drone
-    // // @User: Standart
-    // AP_GROUPINFO("Motor_num", 50, AP_MotorsMulticopter, _motor_num, 3),
+    // @Param: Motor_Num
+    // @DisplayName: Motor number
+    // @Description: Used to change motor number
+    // @Values : 1 to total number of motors of the drone
+    // @User: Standart
+    AP_GROUPINFO("Motor_num", 80, AP_MotorsMulticopter, _motor_num, 3),
 
     // @Param: Motor_Pcnt
     // @DisplayName: Motor loss by percent

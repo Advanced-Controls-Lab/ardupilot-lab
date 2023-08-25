@@ -199,7 +199,7 @@ protected:
     float               _throttle_limit;        // ratio of throttle limit between hover and maximum
     float               _throttle_thrust_max;   // the maximum allowed throttle thrust 0.0 to 1.0 in the range throttle_min to throttle_max
     float               _disarm_safe_timer;     // Timer for the esc when transitioning between zero pwm to minimum
-    //int                 _motor_num = 3;         // Motor to be turned off
+    AP_Int8             _motor_num;             // Motor which has the fault
     AP_Int8             _checker;               // 0 false, 1 true
     AP_Float            _percent_loss;    // decrease the output by this much
     AP_Float            _lambda;
