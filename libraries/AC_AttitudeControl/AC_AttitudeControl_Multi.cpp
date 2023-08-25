@@ -389,11 +389,6 @@ void AC_AttitudeControl_Multi::rate_controller_run()
     un_roll = get_rate_roll_pid().update_all(_ang_vel_body.x, gyro_latest.x, 1, _motors.limit.roll) + _actuator_sysid.x;
     un_pitch = get_rate_pitch_pid().update_all(_ang_vel_body.y, gyro_latest.y, 2, _motors.limit.pitch) + _actuator_sysid.y;
     un_yaw = get_rate_yaw_pid().update_all(_ang_vel_body.z, gyro_latest.z, 3, _motors.limit.yaw) + _actuator_sysid.z;
-    // We can try other nominal controller but they are not as efficient as Ardupilot' PIDs
-    // un_roll = (- 5*gyro_latest.x - x_error_integral[0])/300;
-    // un_pitch = (- 5*gyro_latest.y - x_error_integral[1])/300;
-    // un_yaw = (- 5*gyro_latest.z - x_error_integral[2])/300;
-
 
     // --------------------
     // Adaptive controller
