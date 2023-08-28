@@ -358,9 +358,11 @@ void AC_AttitudeControl_Multi::rate_controller_run()
     /* 
     Here we are trying to implement a Model Reference Adaptive Controller on a sub system (only angular velocities) based on the paper from the MIT attached in the folder.
     It does work not as good as we expected, and I didn't manage to fix the problem.
-    Maybe it is because we cannot implement the Vz component in the controller here as in the python script we made 
-    Or because we state that the reference model is equal to the target, whereas it is not excatly true, instead of propagating the reference model. 
+    I have few ideas that can explain zhy this does not work properly :
+    - We cannot implement the Vz component in the controller here as in the python script we made 
+    - We state that the reference model is equal to the target, whereas it is not excatly true, instead of propagating the reference model. 
     But we can't propagate properly the reference model as we don't have access to the desired position/velocity here. 
+    - We don't know the exact dynamic equations of Ardupilot, so maybe the P matrix we have (calculated offline using equations of motion) is not accurate enough
     */
 
     // move throttle vs attitude mixing towards desired (called from here because this is conveniently called on every iteration)
@@ -398,11 +400,11 @@ void AC_AttitudeControl_Multi::rate_controller_run()
     float w_array[10] = {gyro_latest.x, gyro_latest.y, gyro_latest.z, x_error_integral[0], x_error_integral[1], x_error_integral[2], _ang_vel_body.x, _ang_vel_body.y, _ang_vel_body.z, 1};
     matrix::Matrix<float, 1, 6> e(err);
     matrix::Matrix<float, 10, 1> w(w_array);
-    MRAC_coef += _dt*w*e*P*B;
-    float Gamma = 2;  // Learning rate (if we increase it the MRAC will be more responsive)
-    ua_roll = (-Gamma*MRAC_coef.transpose()*w)(0, 0);
-    ua_pitch = (-Gamma*MRAC_coef.transpose()*w)(1, 0);
-    ua_yaw = (-Gamma*MRAC_coef.transpose()*w)(2, 0);
+    float Gamma = 4;  // Learning rate (if we increase it the MRAC will be more responsive)
+    MRAC_coef += _dt*Gamma*w*e*P*B;
+    ua_roll = (-MRAC_coef.transpose()*w)(0, 0);
+    ua_pitch = (-MRAC_coef.transpose()*w)(1, 0);
+    ua_yaw = (-MRAC_coef.transpose()*w)(2, 0);
 
 
     if (_mrac == 0)  // Parameter we can control from a python code to use only Ardupilot controller instead of our MRAC
