@@ -356,13 +356,14 @@ void AC_AttitudeControl_Multi::InitializeMatrix()
 void AC_AttitudeControl_Multi::rate_controller_run()
 {
     /* 
-    Here we are trying to implement a Model Reference Adaptive Controller on a sub system (only angular velocities) based on the paper from the MIT attached in the folder.
-    It does work not as good as we expected, and I didn't manage to fix the problem.
-    I have few ideas that can explain zhy this does not work properly :
+    We are trying to implement a Model Reference Adaptive Controller on a sub system (only angular velocities) based on the paper from the MIT attached in the folder. The same controller we simulated in the python file : ‘MIT_adaptive_controller_reduced_state.py’ in the ‘Python scripts’ folder.
+    It does not work as well as we expected, and I didn't manage to fix the problem.
+    I have few ideas that can explain why this does not work properly :
     - We cannot implement the Vz component in the controller here as in the python script we made 
-    - We state that the reference model is equal to the target, whereas it is not excatly true, instead of propagating the reference model. 
-    But we can't propagate properly the reference model as we don't have access to the desired position/velocity here. 
-    - We don't know the exact dynamic equations of Ardupilot, so maybe the P matrix we have (calculated offline using equations of motion) is not accurate enough
+    - We state that the reference model is equal to the target, whereas it is not exactly true, instead of propagating the reference model. But we can't properly propagate the reference model as we don't have access to the desired position/velocity here and we don’t know precisely the cascade of PIDs . 
+    - We don't know the exact dynamic equations of Ardupilot, so maybe the P matrix we have (calculated offline using equations of motion) is not accurate enough.
+
+    It could also be an error in the code or in the reasoning.
     */
 
     // move throttle vs attitude mixing towards desired (called from here because this is conveniently called on every iteration)
