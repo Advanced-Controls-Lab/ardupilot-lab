@@ -68,6 +68,27 @@ template float safe_asin<float>(const float v);
 template float safe_asin<double>(const double v);
 
 template <typename T>
+float safe_atan(const T v)
+{
+    const float f = static_cast<const float>(v);
+    if (isnan(f)) {
+        return 0.0f;
+    }
+    if (f >= 1.0f) {
+        return static_cast<float>(M_PI_2);
+    }
+    if (f <= -1.0f) {
+        return static_cast<float>(-M_PI_2);
+    }
+    return atan(f);
+}
+
+template float safe_atan<int>(const int v);
+template float safe_atan<short>(const short v);
+template float safe_atan<float>(const float v);
+template float safe_atan<double>(const double v);
+
+template <typename T>
 float safe_sqrt(const T v)
 {
     float ret = sqrtf(static_cast<float>(v));

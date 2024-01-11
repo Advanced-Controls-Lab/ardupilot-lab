@@ -1,27 +1,31 @@
 #pragma once
 #include <AP_Common/AP_Common.h>
 #include <AP_Math/AP_Math.h>
+#include <AP_Math/math.hpp> 
 #include <RC_Channel/RC_Channel.h>
 #include "AP_MotorsMatrix.h"
 
 #define MIN_TILT_SERVO_ANGLE 0  
 #define MAX_TILT_SERVO_ANGLE  180
-#define AP_MOTORS_1PITCH  CH_12
-#define AP_MOTORS_1ROLL   CH_7 
-#define AP_MOTORS_2PITCH  CH_9
-#define AP_MOTORS_2ROLL   CH_8
-#define AP_MOTORS_3PITCH  CH_5
-#define AP_MOTORS_3ROLL   CH_10 
-#define AP_MOTORS_4PITCH  CH_6 
-#define AP_MOTORS_4ROLL   CH_11
-#define AP_1PITCH_TRIM       100 
-#define AP_1ROLL_TRIM        0
-#define AP_2PITCH_TRIM       100 
-#define AP_2ROLL_TRIM        -75 
-#define AP_3PITCH_TRIM        -60
-#define AP_3ROLL_TRIM        0 
-#define AP_4PITCH_TRIM       -100 
-#define AP_4ROLL_TRIM        20 
+#define AP_MOTORS_1PITCH  CH_5
+#define AP_MOTORS_1ROLL   CH_9
+#define AP_MOTORS_2PITCH  CH_6
+#define AP_MOTORS_2ROLL   CH_10
+#define AP_MOTORS_3PITCH  CH_8
+#define AP_MOTORS_3ROLL   CH_11 
+#define AP_MOTORS_4PITCH  CH_7
+#define AP_MOTORS_4ROLL   CH_12
+
+// Trims for each of the servos
+#define AP_1PITCH_TRIM       -20
+
+#define AP_1ROLL_TRIM        -80
+#define AP_2PITCH_TRIM       200
+#define AP_2ROLL_TRIM        0 
+#define AP_3PITCH_TRIM        -270
+#define AP_3ROLL_TRIM        -90
+#define AP_4PITCH_TRIM       -120
+#define AP_4ROLL_TRIM        10 
 
 
 class AP_MotorsMatrix_6DoF_Scripting : public AP_MotorsMatrix {

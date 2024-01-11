@@ -19,7 +19,6 @@
 #include "spline5.h"
 #include "location.h"
 #include "control.h"
-
 #if HAL_WITH_EKF_DOUBLE
 typedef Vector2<double> Vector2F;
 typedef Vector3<double> Vector3F;
@@ -97,6 +96,9 @@ inline bool is_negative(const double fVal1) {
  */
 template <typename T>
 float safe_asin(const T v);
+
+template <typename T>
+float safe_atan(const T v);
 
 /*
  * A variant of sqrt() that checks the input ranges and ensures a valid value
